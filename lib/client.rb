@@ -21,6 +21,7 @@ class Client
   def ask_to_play
     provide_id
     response = provide_name
+    puts "ask_to_play response: #{response}"
     @unique_id = response.match(/id: (.+)/).captures.first
   end
 
@@ -41,6 +42,7 @@ class Client
     send_server_input(name)
     response = get_server_output
     puts response
+    response
   end
 
   def play_game(output=$stdout)
