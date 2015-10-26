@@ -2,7 +2,7 @@ class User
   attr_accessor :id, :name, :client
   @@users = []
 
-  def initialize(id=nil, name)
+  def initialize(id: nil, name: nil)
     id.nil? ? @id = object_id : @id = id
     @name = name
   end

@@ -12,15 +12,20 @@ class MockClient
   end
 
   def capture_output(delay=0.1)
-    sleep(delay)
+    sleep delay
     @captured_output = @socket.read_nonblock(1000)
   rescue IO::WaitReadable
-    @captured_output = ""
-    retry
+    puts "got exception"
+    @captured_output = ''
+    #retry
   end
 
   def output
     capture_output
     @captured_output
+  end
+
+  def clear_output
+    @captured_output = ''
   end
 end

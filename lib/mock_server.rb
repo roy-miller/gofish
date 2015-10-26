@@ -4,23 +4,23 @@ class MockServer
   attr_accessor :socket, :clients, :captured_input
 
   def start(port=2000)
-    @socket = TCPServer.new('localhost', 2000)
+    @server = TCPServer.new('localhost', 2000)
+    @clients = []
   end
 
-  def accept
+  def accept_client
     client = @server.accept
     clients << client
-    provide_output("welcome message")
     client
   end
 
-  def provide_output(text)
-    @socket.puts(text)
+  def provide_output(client, text)
+    client.puts(text)
   end
 
-  def capture_input(delay=0.1)
-    sleep(delay)
-    @captured_input = @socket.read_nonblock(1000)
+  def capture_input(delay=0.1, client)
+    sleep delay
+    @captured_input = client.read_nonblock(1000).chomp
   rescue IO::WaitReadable
     @captured_input = ""
     retry
@@ -29,5 +29,9 @@ class MockServer
   def output
     capture_input
     @captured_input
+  end
+
+  def stop
+    @server.close
   end
 end

@@ -1,26 +1,19 @@
 require_relative './deck.rb'
 require_relative './card.rb'
+require_relative './player.rb'
+require_relative './request.rb'
 
 class Game
   attr_accessor :deck, :players, :winner, :loser
 
-  def initialize
+  def initialize(players=[])
     @deck = Deck.new
-    @players = []
+    @players = players
     @winner
-    @loser
   end
 
   def add_player(player)
     @players << player
-  end
-
-  def player1
-    @players.first
-  end
-
-  def player2
-    @players.last
   end
 
   def deal(cards_per_player:)
@@ -33,37 +26,44 @@ class Game
     end
   end
 
-  def play_round(cards_played = {player1: [], player2: []})
-    if over?
-      declare_game_winner
-      return build_result(winner: @winner, loser: @loser, cards_played: cards_played)
-    end
-
-    build_result(winner: winner, loser: loser, cards_played: cards_played)
-  end
-
-  def build_result(winner:, loser:, cards_played:)
-    RoundResult.new(winner: winner,
-                    loser: loser,
-                    cards_played: {
-                      player1: cards_played[:player1],
-                      player2: cards_played[:player2]
-                    })
-  end
-
   def declare_game_winner
-    if player1.out_of_cards?
-      @winner = player2
-      @loser = player1
-    end
-    if player2.out_of_cards?
-      @winner = player1
-      @loser = player2
-    end
-    [@winner, @loser]
   end
 
   def over?
-    player1.out_of_cards? || player2.out_of_cards?
+    @players.any? { |player| player.out_of_cards? } || !@deck.has_cards?
+  end
+
+  def player_for_name(name)
+    @players.select { |player| player.name == name }.first
+  end
+
+  def ask_player_for_cards(request)
+    player = player_for_name(request.recipient.name)
+    response = player.receive_request(request)
+    response
+  end
+
+  def give_cards_to_player(name, response)
+    player = player_for_name(name)
+    player.receive_response(response)
+  end
+
+  def card_count_for_player_named(name)
+    player = player_for_name(name)
+    player.cards.count
+  end
+
+  def cards_for_player_named(name)
+    player = player_for_name(name)
+    player.cards
+  end
+
+  def books_for_player_named(name)
+    player = player_for_name(name)
+    player.full_books
+  end
+
+  def draw_card(name)
+    player_for_name(name).add_card_to_hand(@deck.give_top_card)
   end
 end

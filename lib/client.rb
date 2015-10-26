@@ -4,9 +4,10 @@ require 'json'
 class Client
   attr_accessor :unique_id, :socket, :server_address, :port
 
-  def initialize(server_address: 'localhost', port: 2000)
+  def initialize(verbose: false, server_address: 'localhost', port: 2000)
     @server_address = server_address
     @port = port
+    @verbose = verbose
   end
 
   def connect
@@ -21,12 +22,12 @@ class Client
   def ask_to_play
     provide_id
     response = provide_name
-    puts "ask_to_play response: #{response}"
     @unique_id = response.match(/id: (.+)/).captures.first
   end
 
   def get_name
-    get_user_input
+    #get_user_input
+    provide_input_when_asked
   end
 
   def provide_id
@@ -46,13 +47,13 @@ class Client
   end
 
   def play_game(output=$stdout)
-    while response = get_server_output
-      output.puts response
-      if response[:message] =~ /OVER/
-        disconnect
-      else
-        while input = get_user_input
-          play_next_round
+    until @socket.closed? do
+      while response = get_server_output
+        output.puts response
+        if response =~ /OVER/
+          disconnect
+        else
+          provide_input_when_asked
         end
       end
     end
@@ -62,24 +63,45 @@ class Client
     @socket.close
   end
 
-  def get_user_input
-    gets.chomp
+  # def get_user_input
+  #   gets.chomp
+  # end
+
+  def provide_input_when_asked
+    begin
+      input = $stdin.read_nonblock(1000).chomp
+      puts "got input from command line: #{input}"
+      #input = gets.chomp
+      send_server_input(input)
+    rescue IO::WaitReadable
+      #IO.select([@socket])
+      #retry
+      first = true
+      sleep 1
+      retry if first
+      first = false
+    end
+    # rescue => e
+    #   puts "error providing input: #{e.message}"
+    # end
   end
 
   def send_server_input(input)
-    puts "sent server input: #{input}"
+    puts "sent server input: #{input}" if @verbose
     @socket.puts input
   end
 
-  def get_server_output
-    response_json_string = nil
+  def get_server_output(delay=0.1)
+    sleep delay
+    response = nil
     begin
       response = @socket.read_nonblock(1000).chomp
     rescue IO::WaitReadable
-      IO.select([@socket])
-      retry
+      # retry logic blocks in odd ways, so assume we don't need it
+      # IO.select([@socket])
+      # retry
     end
-    puts "got server output: #{response}"
+    puts "got server output: #{response}" if @verbose
     response
   end
 

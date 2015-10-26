@@ -17,6 +17,7 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+require 'mock_server'
 require 'mock_client'
 require 'server'
 require 'client'
@@ -27,6 +28,7 @@ require 'card'
 require 'user'
 require 'match'
 require 'book'
+require 'request'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

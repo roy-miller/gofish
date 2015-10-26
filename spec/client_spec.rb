@@ -9,34 +9,52 @@ ensure
   $stdout = old
 end
 
+def provide_stdin(input='', &blk)
+	old = $stdin
+	$stdin = StringIO.new
+	$stdin << input
+	$stdin.rewind
+	blk.call
+ensure
+	$stdin = old
+end
+
 def provide_input(text)
   @client.socket.puts(text)
 end
 
 describe Client do
+  let(:server) { MockServer.new }
+  let(:client) { Client.new }
+
   before do
-    @server = Server.new
-    @server.start
-    @client = Client.new
-    @client.connect
-    @server.accept_client
-    response = @client.get_server_output
+    server.start
+    client.connect
+    server.accept_client
   end
+
   after do
-    @server.stop
+    server.stop
   end
 
-  it 'connects to server and gets unique id' do
-    @server.send_output(@server.clients.first, "User created with id: 123")
-    @client.ask_to_play
-    @server.get_input_from(@server.clients.first)
-    expect(@client.socket.closed?).to be false
-    expect(@client.unique_id).not_to eq 123
+  it 'connects to listening server' do
+    expect(client.socket.closed?).to be false
   end
 
-  it 'sends user name to server' do
-    @client.provide_name('username')
-    result = @server.get_input_from(@server.clients.first)
-    expect(result).to match /username/
+  it 'receives output from server' do
+    server.provide_output(server.clients.first, 'server output')
+    expect(client.get_server_output).to eq 'server output'
+  end
+
+  it 'provides input when asked' do
+    provide_stdin("Roy\n") do
+      client.provide_input_when_asked
+    end
+    expect(server.capture_input(server.clients.first)).to eq 'Roy'
+  end
+
+  it 'disconnects' do
+    client.disconnect
+    expect(client.socket.closed?).to be true
   end
 end
