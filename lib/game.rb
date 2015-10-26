@@ -17,7 +17,7 @@ class Game
   end
 
   def deal(cards_per_player:)
-    @deck.shuffle
+    3.times { @deck.shuffle }
     @players.each do |player|
       cards_per_player.times do |i|
         card = deck.give_top_card

@@ -46,7 +46,6 @@ class Server
   end
 
   def handle_client(client)
-    puts "welcoming client: #{client}"
     welcome_client(client)
     id = get_client_id(client)
     pending_users << find_user_for(client, id)
@@ -80,7 +79,6 @@ class Server
   def play_match(match)
     puts "starting to play"
     match.deal
-    puts "dealt cards"
     puts "telling users initial state"
     tell_players_initial_state(match)
     while !match.over? do
@@ -124,7 +122,7 @@ class Server
   end
 
   def ask_current_user_for_request(user)
-    send_output(user.client, "Ask another player for cards (enter player name and cardrank, like 'bob J'):")
+    send_output(user.client, "\nAsk another player for cards (enter player name and card rank, like 'bob J'):")
     request_info = get_input_from(user.client)
     request_info
   end
@@ -187,7 +185,6 @@ class Server
 
   def send_output_to_all_users(match, output)
     match.users.each do |user|
-      puts "sending output to user: #{user} with client #{user.client}"
       send_output(user.client, output)
     end
   end
@@ -204,6 +201,10 @@ class Server
     rescue IO::WaitReadable
       IO.select([client])
       retry
+      # sleep 1
+      # first = true
+      # retry if first
+      # first = false
     end
     puts "got input from client: #{result}" if @verbose
     result # deserialize(result)

@@ -26,8 +26,8 @@ class Client
   end
 
   def get_name
-    #get_user_input
-    provide_input_when_asked
+    get_user_input
+    #provide_input_when_asked
   end
 
   def provide_id
@@ -48,12 +48,17 @@ class Client
 
   def play_game(output=$stdout)
     until @socket.closed? do
-      while response = get_server_output
+      response = get_server_output
+      if response
         output.puts response
         if response =~ /OVER/
           disconnect
         else
+          # shouldn't this have to wait until something comes in?
           provide_input_when_asked
+          # while input = provide_input_when_asked
+          #   send_server_input(input)
+          # end
         end
       end
     end
@@ -63,27 +68,22 @@ class Client
     @socket.close
   end
 
-  # def get_user_input
-  #   gets.chomp
-  # end
+  def get_user_input
+    gets.chomp
+  end
 
   def provide_input_when_asked
     begin
       input = $stdin.read_nonblock(1000).chomp
-      puts "got input from command line: #{input}"
-      #input = gets.chomp
       send_server_input(input)
     rescue IO::WaitReadable
       #IO.select([@socket])
       #retry
+      sleep 0.1
       first = true
-      sleep 1
       retry if first
       first = false
     end
-    # rescue => e
-    #   puts "error providing input: #{e.message}"
-    # end
   end
 
   def send_server_input(input)

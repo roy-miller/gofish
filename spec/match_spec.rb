@@ -36,38 +36,58 @@ describe Match do
       let(:player2) { Player.new('user2') }
 
       before do
-        player1_book1 = Book.new
-        player1_book1.add_card(Card.new(rank: '8', suit: 'D'))
-        player1_book2 = Book.new
-        player1_book2.add_card(Card.new(rank: 'J', suit: 'S'))
-        player1.hand << player1_book1
-        player1.hand << player1_book2
-
-        player2_book1 = Book.new
-        player2_book1.add_card(Card.new(rank: 'A', suit: 'C'))
-        player2_book1.add_card(Card.new(rank: 'A', suit: 'H'))
-        player2_book1.add_card(Card.new(rank: 'A', suit: 'D'))
-        player2.hand << player2_book1
-        player2_full_book1 = Book.new
-        player2_full_book1.add_card(Card.new(rank: '4', suit: 'C'))
-        player2_full_book1.add_card(Card.new(rank: '4', suit: 'H'))
-        player2_full_book1.add_card(Card.new(rank: '4', suit: 'D'))
-        player2_full_book1.add_card(Card.new(rank: '4', suit: 'S'))
-        player2.full_books << player2_full_book1
-
-        game.players = [player1, player2]
+        game.players << player1
+        game.players << player2
       end
 
-      it 'provides the current state of the match' do
-        expected_state = 'user1 has 2 cards and these books: [  ]' +
-                         "\n" +
-                         'user2 has 3 cards and these books: [ 4s ]'
-        expect(match.state).to eq expected_state
+      it 'deals the right number of cards to each game player' do
+        match.deal
+        expect(game.players.first.card_count).to eq 5
       end
 
-      it 'provides the current state for a single user' do
-        expected_state = 'you have these cards: 8D, JS and these books: [  ]'
-        expect(match.state_for(first_user_added)).to eq expected_state
+      it 'deals different cards to each game player every time' do
+        match.deal
+        cards_dealt_first_time = game.players.first.cards
+        game.players.first.hand = []
+        game.players.last.hand = []
+        match.deal
+        cards_dealt_second_time = game.players.first.cards
+        expect(cards_dealt_second_time).not_to match_array(cards_dealt_first_time)
+      end
+
+      context 'with cards for players' do
+        before do
+          player1_book1 = Book.new
+          player1_book1.add_card(Card.new(rank: '8', suit: 'D'))
+          player1_book2 = Book.new
+          player1_book2.add_card(Card.new(rank: 'J', suit: 'S'))
+          player1.hand << player1_book1
+          player1.hand << player1_book2
+
+          player2_book1 = Book.new
+          player2_book1.add_card(Card.new(rank: 'A', suit: 'C'))
+          player2_book1.add_card(Card.new(rank: 'A', suit: 'H'))
+          player2_book1.add_card(Card.new(rank: 'A', suit: 'D'))
+          player2.hand << player2_book1
+          player2_full_book1 = Book.new
+          player2_full_book1.add_card(Card.new(rank: '4', suit: 'C'))
+          player2_full_book1.add_card(Card.new(rank: '4', suit: 'H'))
+          player2_full_book1.add_card(Card.new(rank: '4', suit: 'D'))
+          player2_full_book1.add_card(Card.new(rank: '4', suit: 'S'))
+          player2.full_books << player2_full_book1
+        end
+
+        it 'provides the current state of the match' do
+          expected_state = 'user1 has 2 cards and these books: [  ]' +
+                           "\n" +
+                           'user2 has 3 cards and these books: [ 4s ]'
+          expect(match.state).to eq expected_state
+        end
+
+        it 'provides the current state for a single user' do
+          expected_state = 'you have these cards: 8D, JS and these books: [  ]'
+          expect(match.state_for(first_user_added)).to eq expected_state
+        end
       end
     end
   end
