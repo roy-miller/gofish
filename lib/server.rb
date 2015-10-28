@@ -41,13 +41,9 @@ class Server
     client
   end
 
-  def welcome_client(client)
-    send_output(client, 'Welcome to GoFish!')
-  end
-
   def handle_client(client)
     welcome_client(client)
-    id = get_client_id(client)
+    id = get_client_id(client) || die(client)
     pending_users << find_user_for(client, id)
     if enough_users_for_match?
       users = [pending_users.shift, pending_users.shift]
@@ -56,6 +52,33 @@ class Server
       tell_player_names(match)
       play_match(match)
     end
+  end
+
+  def welcome_client(client)
+    send_output(client, 'Welcome to GoFish!')
+  end
+
+  def get_client_id(client)
+    send_output(client, 'Please enter your user id, or hit Enter to create a new user ...')
+    get_input_from(client) #|| die(client)
+  end
+
+  def get_input_from(delay=0.75,client)
+    sleep delay
+    result = nil
+    begin
+      result = client.read_nonblock(1000).chomp
+      #puts "got input from client: #{result}" if @verbose
+    rescue IO::WaitReadable
+      IO.select([client]) # why does this make it work better? is it RIGHT?
+      retry
+    end
+    #result # deserialize(result)
+  end
+
+  def die(client)
+    stop_connection(client)
+    Thread.kill(Thread.current)
   end
 
   def tell_player_names(match)
@@ -77,39 +100,40 @@ class Server
   end
 
   def play_match(match)
-    puts "starting to play"
+    puts "starting to play" if @verbose
     match.deal
-    puts "telling users initial state"
+    puts "telling users initial state" if @verbose
     tell_players_initial_state(match)
     while !match.over? do
-      puts "match not over, asking #{match.current_user.name} for request"
-      request_info = ask_current_user_for_request(match.current_user)
-      puts "got request: #{request_info}"
+      puts "match not over, asking #{match.current_user.name} for request" if @verbose
+      ask_current_user_for_request(match.current_user)
+      request_info = get_input_from(match.current_user.client)
+      puts "got request: #{request_info}" if @verbose
       request = create_request(match, request_info)
-      puts "created request: #{request}"
+      puts "created request: #{request}" if @verbose
       recipient_response = send_request_to_recipient(match, request)
-      puts "got response: #{recipient_response}"
+      puts "got response: #{recipient_response}" if @verbose
       if recipient_response.cards_returned?
-        puts "response had cards, so telling everybody"
+        puts "response had cards, so telling everybody" if @verbose
         tell_players_originator_got_cards(match, recipient_response)
-        puts "sending cards to the requestor"
+        puts "sending cards to the requestor" if @verbose
         send_response_to_originator(match, recipient_response)
-        puts "telling requestor (#{recipient_response.originator.name}) state"
+        puts "telling requestor (#{recipient_response.originator.name}) state" if @verbose
         tell_originator_state(match, match.current_user)
-        puts "telling recipient (#{recipient_response.recipient.name}) state"
+        puts "telling recipient (#{recipient_response.recipient.name}) state" if @verbose
         tell_recipient_state(match, recipient_response.recipient)
       else
-        puts "response had no cards, telling #{match.current_user.name} to go fish"
+        puts "response had no cards, telling #{match.current_user.name} to go fish" if @verbose
         tell_originator_to_go_fish(match, match.current_user)
-        puts "telling originator (#{recipient_response.originator.name}) state after fishing"
+        puts "telling originator (#{recipient_response.originator.name}) state after fishing" if @verbose
         tell_originator_state(match, match.current_user)
-        puts "telling recipient (#{recipient_response.recipient.name}) state after fishing"
+        puts "telling recipient (#{recipient_response.recipient.name}) state after fishing" if @verbose
         tell_recipient_state(match, recipient_response.recipient)
-        puts "moving to next user"
+        puts "moving to next user" if @verbose
         match.move_play_to_next_user
-        puts "user is now: #{match.current_user.name}"
+        puts "user is now: #{match.current_user.name}" if @verbose
       end
-      puts "telling players game state"
+      puts "telling players game state" if @verbose
       tell_players_game_state(match)
     end
     congratulate_winner(match)
@@ -122,15 +146,11 @@ class Server
   end
 
   def ask_current_user_for_request(user)
-    send_output(user.client, "\nAsk another player for cards (enter player name and card rank, like 'bob J'):")
-    request_info = get_input_from(user.client)
-    request_info
+    send_output(user.client, "Ask another player for cards (enter player name and card rank, like 'bob J'):")
   end
 
   def create_request(match, request_info)
-    tokens = request_info.split(' ')
-    username_to_ask = tokens.first
-    rank_to_ask_for = tokens.last
+    username_to_ask, rank_to_ask_for = request_info.split(' ')
     recipient = match.user_with_name(username_to_ask)
     Request.new(originator: match.current_user, recipient: recipient, card_rank: rank_to_ask_for)
   end
@@ -189,32 +209,6 @@ class Server
     end
   end
 
-  def get_client_id(client)
-    get_input_from(client) || die(client)
-  end
-
-  def get_input_from(delay=0.1,client)
-    sleep delay
-    result = nil
-    begin
-      result = client.read_nonblock(1000).chomp
-    rescue IO::WaitReadable
-      IO.select([client])
-      retry
-      # sleep 1
-      # first = true
-      # retry if first
-      # first = false
-    end
-    puts "got input from client: #{result}" if @verbose
-    result # deserialize(result)
-  end
-
-  def die(client)
-    stop_connection(client)
-    Thread.kill(Thread.current)
-  end
-
   def find_user_for(client, id)
     user = User.find(id)
     if user
@@ -230,7 +224,7 @@ class Server
 
   def get_name(client)
     send_output(client, 'Type your name and hit Enter:')
-    username = get_input_from(client)
+    username = get_input_from(client) || die(client)
     username
   end
 

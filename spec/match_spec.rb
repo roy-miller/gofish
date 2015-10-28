@@ -24,6 +24,7 @@ describe Match do
     it 'moves play to the next user after the current one when asked' do
       match.current_user = match.users.first
       expect(match.move_play_to_next_user).to be second_user_added
+      expect(match.move_play_to_next_user).to be first_user_added
     end
 
     it 'answers user with given name' do

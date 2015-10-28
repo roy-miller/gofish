@@ -43,7 +43,8 @@ describe Client do
 
   it 'receives output from server' do
     server.provide_output(server.clients.first, 'server output')
-    expect(client.get_server_output).to eq 'server output'
+    output = capture_stdout { client.show_server_output }
+    expect(output).to eq "server output\n"
   end
 
   it 'provides input when asked' do

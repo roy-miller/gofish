@@ -2,6 +2,7 @@ require_relative './request.rb'
 
 class Match
   attr_accessor :game, :users, :current_user
+  CARDS_PER_PLAYER = 5
 
   def initialize(game: nil, users: [])
     @game = game
@@ -10,7 +11,7 @@ class Match
   end
 
   def deal
-    @game.deal(cards_per_player: 5)
+    @game.deal(cards_per_player: CARDS_PER_PLAYER)
   end
 
   def user_names
@@ -27,8 +28,7 @@ class Match
 
   def move_play_to_next_user
     current_user_index = @users.find_index(@current_user)
-    # TODO how can I do this without magic number 0?
-    next_user_to_play = @users[current_user_index + 1].nil? ? 0 : @users[current_user_index + 1]
+    next_user_to_play = @users[current_user_index + 1].nil? ? @users.first : @users[current_user_index + 1]
     @current_user = next_user_to_play
     @current_user
   end
