@@ -9,11 +9,11 @@ feature 'player display' do
 
   before do
     cards = []
-    card1 = Card.new(rank: '2', suit: 'S')
-    card2 = Card.new(rank: 'K', suit: 'H')
-    card3 = Card.new(rank: '6', suit: 'C')
-    card4 = Card.new(rank: '4', suit: 'S')
-    card5 = Card.new(rank: 'A', suit: 'D')
+    cards << Card.new(rank: '2', suit: 'S')
+    cards << Card.new(rank: 'K', suit: 'H')
+    cards << Card.new(rank: '6', suit: 'C')
+    cards << Card.new(rank: '4', suit: 'S')
+    cards << Card.new(rank: 'A', suit: 'D')
     player.add_cards_to_hand(cards)
   end
 
