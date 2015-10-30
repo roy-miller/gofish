@@ -26,8 +26,6 @@ class TestClient
   def provide_input_when_asked
     begin
       input = $stdin.read_nonblock(1000).chomp
-      puts "got command line input: #{input}"
-      puts "has spaces? #{input =~ /\s+/ ? true : false}"
       send_server_input(input)
     rescue => e
     end

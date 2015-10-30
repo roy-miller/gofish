@@ -33,7 +33,6 @@ class Client
   def provide_input_when_asked
     begin
       input = $stdin.read_nonblock(1000).chomp
-      puts "got command line input: #{input}"
       send_server_input(input)
     rescue => e
     end
@@ -41,7 +40,6 @@ class Client
 
   def send_server_input(input)
     puts "sending server input: #{input}" if @verbose
-    puts "socket closed? #{@socket.closed?}"
     @socket.puts input
     #@socket.write input
   end
