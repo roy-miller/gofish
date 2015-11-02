@@ -1,7 +1,17 @@
 require_relative './book.rb'
+require_relative './card.rb'
 
 class Player
   attr_accessor :name, :hand, :full_books
+
+  def self.with_name_and_cards(name = 'playername', card_strings)
+    player = Player.new(name)
+    card_strings.each do |card_string|
+      card = Card.with_rank_and_suit_from_string(card_string)
+      player.add_card_to_hand(card)
+    end
+    player
+  end
 
   def initialize(name = 'default')
     @name = name
@@ -96,5 +106,14 @@ class Player
     end
     cards.flatten!
     cards
+  end
+
+  def has_cards_with_rank_and_suit(card_strings)
+    has_all_cards = false
+    card_strings.each do |card_string|
+      rank, suit = Card.rank_and_suit_from_string(card_string)
+      return true if cards.select { |card| card.rank == rank && card.suit == suit }.any?
+    end
+    has_all_cards
   end
 end

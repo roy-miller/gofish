@@ -1,0 +1,28 @@
+doctype html
+html
+  head
+    link rel="stylesheet" type="text/css" href="/css/gofish.css"
+
+  body
+    h1 Welcome, to GoFish!
+    form id="game_options" action="/start" method="POST"
+      div class="row"
+        input id="user_name" name="user_name" type="text" placeholder="Enter your username"
+      div class="row"
+        input id="user_id" name="user_id" type="text" placeholder="Enter your user id if you have one"
+      div class="row"
+        p Choose how many opponents you want and click 'Play!'
+        select id="number_of_opponents" name="number_of_opponents"
+          - (1..9).each do |value|
+            option value="#{value}" = value
+      div class="row"
+        - if @message
+          input id="start_playing" type="submit" value="Play!" disabled="disabled"
+        - else
+          input id="start_playing" type="submit" value="Play!"
+    - if @message
+      p = @message
+      form id="check_for_opponents" action="/check" method="POST"
+        div class="row"
+          input id="user_id" name="user_id" type="hidden" value="#{@user_id}"
+          input id="check_opponents" name="check_opponents" type="submit" value="Check for Opponents"

@@ -1,6 +1,12 @@
 require 'spec_helper'
 
 describe(Player) do
+  it 'creates a player with cards given' do
+    cards = ['2D', '3C', 'AS', 'JH', '10S']
+    player = Player.with_name_and_cards('playername', cards)
+    expect(player.has_cards_with_rank_and_suit(cards)).to be true
+  end
+
   let(:player) { Player.new }
 
   it 'creates a player with a name and no hand' do

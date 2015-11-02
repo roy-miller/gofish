@@ -5,6 +5,7 @@ class User
   def initialize(id: nil, name: nil)
     id.nil? ? @id = object_id : @id = id
     @name = name
+    @@users << self
   end
 
   def self.users

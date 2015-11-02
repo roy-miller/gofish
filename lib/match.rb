@@ -1,8 +1,58 @@
 require_relative './request.rb'
+require_relative './user.rb'
+require_relative './player.rb'
+require_relative './game.rb'
+require 'pry'
 
 class Match
   attr_accessor :game, :users, :current_user
   CARDS_PER_PLAYER = 5
+  @@matches = {}
+  @@match_id = 0
+
+  def self.find(match_id)
+    # @@matches ||= {}
+    # binding.pry
+    match = @@matches[match_id]
+    unless match
+      game = Game.new([Player.new("Player1"),Player.new("Player2")]).tap do |game|
+        game.deal(cards_per_player: 5)
+      end
+      match = Match.new(game: game, users: [User.new(name: "Player1"), User.new(name: "Player2")])
+      @@matches[match_id] = match
+    end
+    match
+  end
+
+  def self.find_for_user(user_id)
+    found_match = nil
+    # binding.pry
+    @@matches.each do |match_id, match|
+      # puts "#{match_id}|#{match.users.count}"
+      found_match = match if match.users.select { |user| user.id == user_id }.any?
+    end
+    found_match
+  end
+
+  def self.matches
+    @@matches
+  end
+
+  def self.matches=(value)
+    @@matches = value
+  end
+
+  def self.add_match(match)
+    match_id_added = @@match_id
+    @@matches[match_id_added] = match
+    @@match_id += 1
+    match_id_added
+  end
+
+  def self.reset
+    self.matches = []
+    self.match_id = 0
+  end
 
   def initialize(game: nil, users: [])
     @game = game
@@ -34,8 +84,18 @@ class Match
   end
 
   def user_with_name(name)
-    matching_user = @users.select { |user| user.name == name }.first
+    matching_user = @users.detect { |user| user.name == name }
     matching_user
+  end
+
+  def player_for(user_id)
+    user = @users.detect { |user| user.id == user_id }
+    @game.player_for_name(user.name)
+  end
+
+  def opponents_for(user_id)
+    user = @users.detect { |user| user.id == user_id }
+    @game.opponents_for_player_named(user.name)
   end
 
   def send_request_to_user(request)

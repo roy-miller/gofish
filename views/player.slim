@@ -1,0 +1,33 @@
+doctype html
+html
+  head
+    link rel="stylesheet" type="text/css" href="/css/gofish.css"
+
+  body
+    h1 Welcome, #{@player.name}!
+    div id="card_table" class="group"
+      div class="row"
+        div id="your_hand" class="group"
+          p
+            strong Your hand
+          - for card in @player.cards
+            div class="your-card #{card.suit.downcase}#{card.rank.downcase}"
+              img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
+      div class="row"
+        div id="messages"
+          p Messages
+          div id="message_text" = @message
+      div class="row"
+        div id="not_player"
+          div id="opponents"
+            - for opponent in @opponents
+              div id="opponent_#{opponent.name}_hand" class="group"
+                p
+                  i #{opponent.name} [#{opponent.cards.count} cards]
+                - for card in opponent.cards
+                  div class="opponent-card facedown"
+                    img src="/images/backs_blue.png"
+          div id="fish_pond"
+            img class="big-card" src="/images/backs_blue.png"
+            p id="fish_pond_text"
+              strong #{@deck.card_count} cards left

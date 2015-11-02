@@ -2,11 +2,42 @@ require 'spec_helper'
 
 describe Match do
 
+  before do
+    Match.matches = {}
+  end
+
+  it 'makes a new match for a nonexistant one' do
+    expect(Match.matches.count).to eq 0
+    found_match = Match.find('nonexistent')
+    expect(Match.matches.count).to eq 1
+    expect(Match.matches['nonexistent'].class).to eq Match
+    match_user_names = found_match.users.map(&:name)
+    game_player_names = found_match.game.players.map(&:name)
+    expect(match_user_names).to match_array ['Player1', 'Player2']
+    expect(game_player_names).to match_array ['Player1', 'Player2']
+  end
+
   context 'with a game and users' do
     let(:game) { Game.new }
-    let(:first_user_added) { User.new(name: 'user1') }
-    let(:second_user_added) { User.new(name: 'user2') }
+    let(:first_user_added) { User.new(id: 1, name: 'user1') }
+    let(:second_user_added) { User.new(id: 2, name: 'user2') }
     let(:match) { Match.new(game: game, users: [first_user_added, second_user_added]) }
+
+    before do
+      Match.matches[0] = match
+    end
+
+    it 'finds existing match for given match id' do
+      expect(Match.matches.count).to eq 1
+      found_match = Match.find(0)
+      expect(Match.matches.count).to eq 1
+    end
+
+    it 'finds existing match for given user id' do
+      Match.matches[0] = match
+      found_match = Match.find_for_user(2)
+      expect(found_match).to be match
+    end
 
     it 'is over if its game is over' do
       allow(game).to receive(:over?) { true }
@@ -39,6 +70,16 @@ describe Match do
       before do
         game.players << player1
         game.players << player2
+      end
+
+      it 'finds the right player for a given user id' do
+        player = match.player_for(second_user_added.id)
+        expect(player).to be player2
+      end
+
+      it 'finds all opponent players for a given user id' do
+        opponents = match.opponents_for(second_user_added.id)
+        expect(opponents).to match_array [player1]
       end
 
       it 'deals the right number of cards to each game player' do

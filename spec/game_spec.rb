@@ -62,6 +62,10 @@ describe Game do
       expect(game.player_for_name('player2')).to be player2
     end
 
+    it 'answers all players without given name' do
+      expect(game.opponents_for_player_named('player1')).to match_array [player2]
+    end
+
     it 'sends a card request to the right player' do
       recipient = User.new(name: 'player1')
       originator = User.new(name: 'player2')
