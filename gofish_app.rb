@@ -6,10 +6,10 @@ require './lib/match_maker'
 require 'pry'
 also_reload("lib/**/*.rb")
 
-#   when you have a Match, start playing
-#   that means ... messages go to players when they refresh the page? how without push?
-# User can click card in his hand (to get value) and opponent name to ask him for cards
-# User can click deck to go fish ... or that can happen automatically
+# start playing a Match
+#   that means messages go to players when they update page
+# user can click card in his hand (to get value) and opponent name to ask him for cards
+# user can click deck to go fish ... or that can happen automatically
 
 class Cache
   @@match_maker = MatchMaker.new
@@ -35,7 +35,8 @@ post '/start' do
   if result.is_a?(Match)
     match_id = Match.add_match(result) # match should have an id, not be in a hash
     user_just_added = result.user_with_name(user_name)
-    redirect to("/matches/#{match_id}/users/#{user_just_added.id}") # this seems wrong
+    message = "Wait for another player to ask you for cards"
+    redirect to("/matches/#{match_id}/users/#{user_just_added.id}?message=#{message}") # seems wrong
     return
   else
     @user_id = result.id
@@ -48,7 +49,6 @@ end
 
 post '/check' do
   @user_id = params['user_id'].to_i # hidden field isn't secure, what's a better way? devise auth?
-  # binding.pry
   match = Match.find_for_user(@user_id)
   if match
     @message = "Ask another player for cards by clicking a card in your hand and then the opponent name"
@@ -61,21 +61,11 @@ post '/check' do
 end
 
 get '/matches/:match_id/users/:user_id.?:format?' do
-  binding.pry
   match = Match.find(params['match_id'].to_i)
   user_id = params['user_id'].to_i
   @player = match.player_for(user_id) # match.players[player_number]
   @opponents = match.opponents_for(user_id) # players.reject { |player| player.name == @player.name  }
   @deck = match.game.deck # should I be reaching through like this?
   @message = params['message']
-  slim :player
-end
-
-# likely kill this
-get '/games/:game_id/player/:player_id.?:format?' do
-  @game = Game.find(params['game_id'].to_i)
-  @player_number = params['player_id'].to_i
-  @player = @game.players[@player_number]
-  @opponents = @game.players.reject { |player| player.name == @player.name  }
   slim :player
 end

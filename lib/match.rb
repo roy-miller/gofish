@@ -11,8 +11,6 @@ class Match
   @@match_id = 0
 
   def self.find(match_id)
-    # @@matches ||= {}
-    # binding.pry
     match = @@matches[match_id]
     unless match
       game = Game.new([Player.new("Player1"),Player.new("Player2")]).tap do |game|
@@ -26,9 +24,7 @@ class Match
 
   def self.find_for_user(user_id)
     found_match = nil
-    # binding.pry
     @@matches.each do |match_id, match|
-      # puts "#{match_id}|#{match.users.count}"
       found_match = match if match.users.select { |user| user.id == user_id }.any?
     end
     found_match

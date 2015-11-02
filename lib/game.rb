@@ -6,26 +6,6 @@ require_relative './request.rb'
 class Game
   attr_accessor :deck, :players, :winner, :loser
 
-  # def self.find(game_id)
-  #   @@games ||= {}
-  #   game = @@games[game_id]
-  #   unless game
-  #     player1 = Player.new("Player1")
-  #     player2 = Player.new("Player2")
-  #     game = Game.new([player1,player2]).tap { |game| game.deal(cards_per_player: 5) }
-  #     @@games[game_id] = game
-  #   end
-  #   game
-  # end
-  #
-  # def self.games
-  #   @@games
-  # end
-  #
-  # def self.games=(value)
-  #   @@games = value
-  # end
-
   def initialize(players=[])
     @deck = Deck.new
     @players = players
