@@ -4,34 +4,9 @@ html
     link rel="stylesheet" type="text/css" href="/css/gofish.css"
 
   body
-    h1 Welcome, #{@player.name}!
+    h1 Welcome, #{@user.name}!
     div id="card_table" class="group"
-      div class="row" class="group"
-        div id="your_hand"
-          p
-            strong Your hand
-          - for card in @player.cards
-            div class="your-card #{card.suit.downcase}#{card.rank.downcase}"
-              a class="your-card-link" href="#"
-                img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
-        div id="update"
-          form action="/update" method="POST"
-            input id="update_game" type="submit" value="Update Game"
-      div class="row"
-        div id="messages"
-          p Messages
-          div id="message_text" = @message
-      div class="row"
-        div id="not_player"
-          div id="opponents"
-            - for opponent in @opponents
-              a class="opponent-name" href="#"
-                strong #{opponent.name} (#{opponent.cards.count} cards)
-              div id="opponent_#{opponent.name}_hand" class="group"
-                - for card in opponent.cards
-                  div class="opponent-card facedown"
-                    img src="/images/backs_blue.png"
-          div id="fish_pond"
-            img class="big-card" src="/images/backs_blue.png"
-            p id="fish_pond_text"
-              strong #{@deck.card_count} cards left
+      - if @match.pending?
+        == slim :_pending_player
+      - if @match.started?
+        == slim :_active_player

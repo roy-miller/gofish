@@ -15,7 +15,7 @@ describe Game do
     describe '#add_player' do
       it 'adds player' do
         game = Game.new
-        game.add_player(Player.new('playername'))
+        game.add_player(Player.new)
         expect(game.players.count).to eq 1
       end
     end
@@ -23,8 +23,8 @@ describe Game do
 
   context 'game with players' do
     let(:game) { Game.new }
-    let(:player1) { Player.new('player1') }
-    let(:player2) { Player.new('player2') }
+    let(:player1) { Player.new(1) }
+    let(:player2) { Player.new(2) }
 
     before do
       game.add_player(player1)
@@ -58,12 +58,12 @@ describe Game do
       end
     end
 
-    it 'answers player for name' do
-      expect(game.player_for_name('player2')).to be player2
+    it 'answers player for number' do
+      expect(game.player_number(2)).to be player2
     end
 
-    it 'answers all players without given name' do
-      expect(game.opponents_for_player_named('player1')).to match_array [player2]
+    it 'answers all opponents for player number' do
+      expect(game.opponents_for_player(1)).to match_array [player2]
     end
 
     it 'sends a card request to the right player' do
@@ -71,19 +71,15 @@ describe Game do
       originator = User.new(name: 'player2')
       request = Request.new(originator: originator, recipient: recipient, card_rank: 'J')
       expect(player1).to receive(:receive_request).with(request).and_call_original
-      response = game.ask_player_for_cards(request)
+      response = game.ask_player_for_cards(player_number: 1, request: request)
       expect(response).not_to be_nil
     end
 
     it 'gives cards for player with name' do
-      fives = Book.new
       fives_card1 = Card.new(rank: '5', suit: 'S')
-      fives.cards << fives_card1
-      tens = Book.new
       tens_card1 = Card.new(rank: '10', suit: 'D')
-      tens.cards << tens_card1
-      game.players.first.hand = [fives, tens]
-      expect(game.cards_for_player_named('player1')).to match_array([fives_card1, tens_card1])
+      game.players.first.hand = [fives_card1, tens_card1]
+      expect(game.cards_for_player(1)).to match_array([fives_card1, tens_card1])
     end
 
     describe '#declare_game_winner' do

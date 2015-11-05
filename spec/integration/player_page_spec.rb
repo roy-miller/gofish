@@ -1,14 +1,14 @@
+require 'spec_helper'
 require 'capybara'
 require 'capybara/rspec'
 require './gofish_app'
-require 'pry'
 Capybara.app = Sinatra::Application
 
 feature 'player display' do
   before do
     Match.matches = {}
     @match = Match.find(0)
-    visit "/matches/0/users/#{@match.users.first.id}"
+    visit "/matches/0/users/#{@match.match_users.first.id}"
   end
 
   it 'identifies player' do
@@ -16,6 +16,7 @@ feature 'player display' do
   end
 
   it 'shows the player hand' do
+    puts page.body
     player = @match.players.first
     expect(page).to have_css '#your_hand'
     expect(page).to have_css('.your-card', count: 5)

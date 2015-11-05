@@ -4,7 +4,7 @@ require_relative './player.rb'
 require_relative './request.rb'
 
 class Game
-  attr_accessor :deck, :players, :winner, :loser
+  attr_accessor :deck, :players, :winner
 
   def initialize(players=[])
     @deck = Deck.new
@@ -33,41 +33,44 @@ class Game
     @players.any? { |player| player.out_of_cards? } || !@deck.has_cards?
   end
 
-  def player_for_name(name)
-    @players.detect { |player| player.name == name }
+  def player_number(number)
+    @players.detect { |player| player.number == number }
   end
 
-  def opponents_for_player_named(name)
-    @players.reject { |player| player.name == name }
+  def opponents_for_player(number)
+    @players.reject { |player| player.number == number }
   end
 
-  def ask_player_for_cards(request)
-    player = player_for_name(request.recipient.name)
+  def ask_player_for_cards(player_number:, request:)
+    player = player_number(player_number)
     response = player.receive_request(request)
     response
   end
 
-  def give_cards_to_player(name, response)
-    player = player_for_name(name)
+  def give_cards_to_player(player_number:, response:)
+    player = player_number(player_number)
     player.receive_response(response)
   end
 
-  def card_count_for_player_named(name)
-    player = player_for_name(name)
-    player.cards.count
+  # TODO these parameter names are no good
+  def card_count_for_player(number)
+    player = player_number(number)
+    player.card_count
   end
 
-  def cards_for_player_named(name)
-    player = player_for_name(name)
-    player.cards
+  def cards_for_player(number)
+    player = player_number(number)
+    player.hand
   end
 
-  def books_for_player_named(name)
-    player = player_for_name(name)
-    player.full_books
+  def books_for_player(number)
+    player = player_number(number)
+    player.books
   end
 
-  def draw_card(name)
-    player_for_name(name).add_card_to_hand(@deck.give_top_card)
+  # TODO seems odd that game draws for player
+  # TODO these names stink
+  def draw_card_for_player(number)
+    player_number(number).add_card_to_hand(@deck.give_top_card)
   end
 end

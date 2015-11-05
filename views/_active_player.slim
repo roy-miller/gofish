@@ -1,0 +1,42 @@
+div class="row" class="group"
+  div id="update"
+    form action="/update" method="post"
+      input id="update" type="submit" value="Update"
+div class="row" class="group"
+  div id="your_hand"
+    p
+      strong Your hand
+    - for card in @match.player_for(@user.id).hand
+      div class="your-card #{card.suit.downcase}#{card.rank.downcase}"
+        a class="your-card-link" href="#" onclick="return setSelectedCardRank('#{card.rank}');"
+          img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
+    input id="selected_card_rank" type="hidden" value=""
+div class="row"
+  div id="messages"
+    p Messages
+    div id="message_text" = @message
+div class="row"
+  div id="not_player"
+    div id="opponents"
+      - for opponent in @match.opponents_for(@user.id)
+        a class="opponent-name" href="/ask?id=#{opponent.id}" onclick="return addRankToQueryString(this);"
+          strong #{opponent.name} (#{opponent.player.hand.count} cards)
+        div id="opponent_#{opponent.name}_hand" class="group"
+          - for card in opponent.player.hand
+            div class="opponent-card facedown"
+              img src="/images/backs_blue.png"
+    div id="fish_pond"
+      img class="big-card" src="/images/backs_blue.png"
+      p id="fish_pond_text"
+        strong #{@match.game.deck.card_count} cards left
+javascript:
+  function setSelectedCardRank(value) {
+    document.getElementById('selected_card_rank').value = value;
+  };
+  function getSelectedCardRank() {
+    return document.getElementById('selected_card_rank').value;
+  }
+  function addRankToQueryString(anchorTag) {
+    console.log("got here");
+    return anchorTag.href += "&rank=" + getSelectedCardRank();
+  }

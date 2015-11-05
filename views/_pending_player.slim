@@ -1,0 +1,8 @@
+div class="row"
+  div id="messages"
+    p Messages
+    div id="message_text" = @message
+  div id="update"
+    form action="/update" method="post"
+      input id="user_id" name="user_id" type="hidden" value="#{@user.id}"
+      input id="update" name= "update" type="submit" value="Update"

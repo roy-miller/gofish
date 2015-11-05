@@ -17,10 +17,7 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
-require 'mock_server'
-require 'mock_client'
-require 'server'
-require 'client'
+require 'pry'
 require 'game'
 require 'deck'
 require 'player'
