@@ -27,7 +27,7 @@ require 'match'
 require 'book'
 require 'request'
 require 'match_maker'
-require 'user_player_pair'
+require 'match_perspective'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

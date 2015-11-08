@@ -15,24 +15,21 @@ describe Match do
     expect(game_player_numbers).to match_array [1, 2]
   end
 
-  it 'adds a match when the match does not already exist' do
+  it 'adds a match' do
     added_match = Match.new(id: 0, game: nil, match_users: [])
     Match.add_match(added_match)
     expect(Match.matches.count).to eq 1
     expect(Match.matches).to match_array [added_match]
   end
 
-  it 'does not add a match when the match already exists' do
-    existing_match = Match.new(id: 0, game: nil, match_users: [])
-    Match.matches << existing_match
-    Match.add_match(existing_match)
-    expect(Match.matches.count).to eq 1
-    expect(Match.matches).to match_array [existing_match]
+  it 'creates a game with correct number of players when match is new' do
+    Match.add_user(id: 1, name: 'user1', opponent_count: 1)
+    expect(Match.matches.first.game.players.count).to be 2
   end
 
   context 'initialized' do
     let(:match) { Match.new(id: 0, game: nil, match_users: []) }
-    let(:first_user) { User.new(id: 123, name: 'existing') }
+    let(:first_user) { User.new(id: 1, name: 'existing') }
     let(:first_match_user) { MatchUser.new(user: first_user) }
 
     before do
@@ -43,30 +40,38 @@ describe Match do
       expect(match.pending?).to be true
     end
 
-    it 'gives back the first pending match' do
-      pending_match = Match.first_pending
-      expect(pending_match).to be match
+    it 'adds match user' do
+      match.add_user(match_user: first_match_user, opponent_count: 1)
+      expect(match.match_users).to match_array [first_match_user]
+      expect(match.initial_user).to be first_match_user
     end
 
-    it 'adds a match user' do
-      match.add_user(first_match_user)
-      expect(match.match_users).to match_array [first_match_user]
-      expect(match.next_player_number).to eq 2
+    it 'queues up messages for a match user' do
+      match.messages[first_match_user] = []
+      match.message_user(first_match_user, message: 'message1')
+      match.message_user(first_match_user, message: 'message2')
+      expect(match.messages[first_match_user]).to match_array ['message1', 'message2']
+    end
+
+    it 'provides messages for a match user and removes them' do
+      match.messages[first_match_user] = []
+      match.message_user(first_match_user, message: 'message1')
+      match.message_user(first_match_user, message: 'message2')
+      expect(match.messages_for(first_match_user)).to match_array ['message1', 'message2']
+      expect(match.messages[first_match_user]).to be_empty
     end
 
     context 'with one user' do
-      let(:second_user) { User.new(name: 'added') }
+      let(:second_user) { User.new(id: 2, name: 'added') }
       let(:second_match_user) { MatchUser.new(user: second_user) }
 
       before do
-        match.add_user(first_match_user)
+        match.add_user(match_user: first_match_user, opponent_count: 1)
       end
 
-      it 'makes a game when added user makes enough for a game' do
-        match.add_user(second_match_user)
-        expect(match.game.players.count).to eq 2
-        expect(match.pending?).to be false
-        expect(match.started?).to be true
+      it 'finds a match containing user with the given id' do
+        found_match = Match.find_for_user_id(1)
+        expect(found_match).to be match
       end
     end
   end
@@ -75,9 +80,12 @@ describe Match do
     let(:game) { Game.new }
     let(:first_match_user_added) { MatchUser.new(user: User.new(id: 1, name: 'user1')) }
     let(:second_match_user_added) { MatchUser.new(user: User.new(id: 2, name: 'user2')) }
-    let(:match) { Match.new(game: game, match_users: [first_match_user_added, second_match_user_added]) }
+    let(:match) { Match.new(game: game) }
 
     before do
+      match.match_users = [first_match_user_added, second_match_user_added]
+      match.messages[first_match_user_added] = []
+      match.messages[second_match_user_added] = []
       Match.matches << match
     end
 
@@ -87,18 +95,9 @@ describe Match do
       expect(Match.matches.count).to eq 1
     end
 
-    it 'finds existing match for given user id' do
-      found_match = Match.find_for_user(2)
-      expect(found_match).to be match
-    end
-
     it 'is over if its game is over' do
       allow(game).to receive(:over?) { true }
       expect(match.over?).to be_truthy
-    end
-
-    it 'initially sets current user to first user added' do
-      expect(match.current_user).to be first_match_user_added
     end
 
     it 'tells its user names' do
@@ -116,6 +115,12 @@ describe Match do
       expect(user).to be second_match_user_added
     end
 
+    it 'messages all users' do
+      match.message_users(message: 'universal message')
+      expect(match.messages_for(first_match_user_added)).to match_array ['universal message']
+      expect(match.messages_for(second_match_user_added)).to match_array ['universal message']
+    end
+
     context 'with players in the game' do
       let(:player1) { Player.new(1) }
       let(:player2) { Player.new(2) }
@@ -128,12 +133,12 @@ describe Match do
       end
 
       it 'finds the right player for a given user id' do
-        player = match.player_for(second_match_user_added.id)
+        player = match.player_for(second_match_user_added)
         expect(player).to be player2
       end
 
       it 'finds all opponents for a given user id' do
-        opponents = match.opponents_for(second_match_user_added.id)
+        opponents = match.opponents_for(second_match_user_added)
         expect(opponents).to match_array [first_match_user_added]
       end
 
@@ -150,6 +155,10 @@ describe Match do
         match.deal
         cards_dealt_second_time = game.players.first.hand
         expect(cards_dealt_second_time).not_to match_array(cards_dealt_first_time)
+      end
+
+      it 'associates the right game player with an added match user' do
+
       end
 
       context 'with cards for players' do

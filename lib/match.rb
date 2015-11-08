@@ -4,45 +4,48 @@ require_relative './player.rb'
 require_relative './game.rb'
 require_relative './match_user.rb'
 
-# a match manages what to say to a given user
-#   that probably means having an array of messages queued up for user N
-# controller can ask match for what to say to given user
-
 class Status
   PENDING = 'pending'
   STARTED = 'started'
 end
 
 class Match
-  attr_accessor :id, :game, :match_users, :current_user, :status
+  attr_accessor :id, :game, :match_users, :current_user, :status, :messages
   CARDS_PER_PLAYER = 5
   @@matches = []
 
   def self.find(match_id)
     match = @@matches.find { |match| match.id = match_id }
-    unless match # TODO this side effect chafes
+    unless match # TODO this side effect for testing chafes
       player1 = Player.new(1)
       player2 = Player.new(2)
       game = Game.new([player1, player2]).tap do |game|
         game.deal(cards_per_player: 5)
       end
       match_users = [
-        MatchUser.new(user: User.new(name: "Player1"), player: player1),
-        MatchUser.new(user: User.new(name: "Player2"), player: player2)
+        MatchUser.new(user: User.new(id: 1, name: "Player1"), player: player1),
+        MatchUser.new(user: User.new(id: 2, name: "Player2"), player: player2)
       ]
       match = Match.new(id: match_id, game: game, match_users: match_users)
+      match_users.each { |match_user| match.messages[match_user] = [] }
       @@matches << match
     end
     match
   end
 
   # TODO this seems elbowy
-  def self.find_for_user(user_id)
+  def self.find_for_user_id(user_id)
     found_match = nil
     @@matches.each do |match|
       found_match = match if match.match_users.select { |match_user| match_user.id == user_id }.any?
     end
     found_match
+  end
+
+  def self.add_match(match)
+    # existing = @@matches.find { |m| m.id = match.id }
+    # return if existing
+    @@matches << match
   end
 
   def self.matches
@@ -53,14 +56,19 @@ class Match
     @@matches = value
   end
 
-  def self.add_match(match)
-    existing = @@matches.find { |m| m.id = match.id }
-    return if existing
-    @@matches << match
-  end
-
-  def self.first_pending
-    @@matches.find { |match| match.status == Status::PENDING }
+  def self.add_user(id: nil, name:, opponent_count: 1)
+    user = User.find(id) || User.new(id: id, name: name)
+    match_user = MatchUser.new(user: user)
+    pending_match = @@matches.find { |match| match.status == Status::PENDING }
+    if pending_match.nil?
+      players = (1..opponent_count + 1).map { |index| Player.new(index) }
+      game = Game.new(players)
+      game.deal(cards_per_player: CARDS_PER_PLAYER)
+      pending_match = Match.new(id: @@matches.count, game: game)
+      self.add_match(pending_match)
+    end
+    pending_match.add_user(match_user: match_user, opponent_count: opponent_count)
+    pending_match # TODO why return the match?
   end
 
   def self.reset
@@ -71,7 +79,7 @@ class Match
     @id = id
     @game = game
     @match_users = match_users
-    @current_user = @match_users.first
+    @messages = {}
     @status = Status::PENDING
   end
 
@@ -83,8 +91,21 @@ class Match
     @status == Status::STARTED
   end
 
-  def next_player_number
-    @match_users.count + 1
+  def message_user(match_user, message:)
+    @messages[match_user] << message
+  end
+
+  def message_users(message:)
+    @match_users.each { |match_user| message_user(match_user, message: message) }
+  end
+
+  # TODO should a match_user know his own messages?
+  def messages_for(match_user)
+    messages = []
+    until @messages[match_user].empty?
+      messages <<@messages[match_user].shift
+    end
+    messages
   end
 
   def deal
@@ -103,24 +124,39 @@ class Match
     @game.over?
   end
 
-  def add_user(match_user)
-    match_user.player = Player.new(next_player_number)
+  def add_user(match_user:, opponent_count: 1)
     @match_users << match_user
+    @messages[match_user] = []
+    # TODO associate match_user to game player -> set player on match_user
     if enough_users_to_start?
-      @game = make_game_for(@match_users)
-      @status = Status::STARTED
+      start
+    else
+      message_user(match_user, message: 'Waiting for opponents for you')
     end
+  end
+
+  def initial_user
+    @match_users.first
+  end
+
+  def make_game_for(match_users:, opponent_count: 1)
+    players = match_users.map.with_index { |match_user, index| Player.new(index) }
+    game = Game.new(players)
+    game.deal(cards_per_player: CARDS_PER_PLAYER)
+    game
   end
 
   def enough_users_to_start?
     @match_users.count >= 2
   end
 
-  def make_game_for(match_users)
-    players = match_users.map(&:player)
-    game = Game.new(players)
-    game.deal(cards_per_player: CARDS_PER_PLAYER)
-    game
+  def start
+    @status = Status::STARTED
+    @current_user = initial_user
+    message_user(@initial_user, message: 'Ask another player for cards by clicking a card in your hand and then the opponent name')
+    opponents_for(@initial_user).each do |user|
+      message_user(user, message: 'Wait for another player to ask you for cards')
+    end
   end
 
   def move_play_to_next_user
@@ -134,13 +170,22 @@ class Match
     @match_users.detect { |match_user| match_user.name == name }
   end
 
-  def player_for(user_id)
-    match_user = @match_users.detect { |match_user| match_user.id == user_id }
+  # TODO change parameter to object instead of id?
+  def match_user_for(user_id)
+    @match_users.detect { |match_user| match_user.id == user_id }
+  end
+
+  def player_for(match_user)
+    match_user = @match_users.detect { |m| m.id == match_user.id }
     match_user.player
   end
 
-  def opponents_for(user_id)
-    @match_users.reject { |match_user| match_user.id == user_id } #.map { |opponent| opponent.player }
+  def opponents_for(match_user)
+    @match_users.reject { |m| m.id == match_user.id }
+  end
+
+  def deck_card_count
+    @game.deck.card_count
   end
 
   def send_request_to_user(request)
@@ -155,6 +200,7 @@ class Match
     @game.draw_card(user.name)
   end
 
+  # TODO don't make this formatted strings
   def state
     state = ''
     match_users.each do |match_user|
@@ -167,6 +213,7 @@ class Match
     state.chomp
   end
 
+  # TODO don't make this formatted strings
   def state_for(match_user)
     state = ''
     state << "you have these cards: "

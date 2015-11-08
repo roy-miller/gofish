@@ -1,12 +1,13 @@
 doctype html
 html
   head
+    title Player
     link rel="stylesheet" type="text/css" href="/css/gofish.css"
 
   body
-    h1 Welcome, #{@user.name}!
+    h1 Welcome, #{@perspective.you.name}!
     div id="card_table" class="group"
-      - if @match.pending?
+      - if @perspective.pending?
         == slim :_pending_player
-      - if @match.started?
+      - else
         == slim :_active_player
