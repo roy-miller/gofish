@@ -169,6 +169,10 @@ class Match
     @match_users.detect { |match_user| match_user.name == name }
   end
 
+  def user_for_player(player)
+    @match_users.detect { |match_user| match_user.player.number == player.number }
+  end
+
   # TODO change parameter to object instead of id?
   def match_user_for(user_id)
     @match_users.detect { |match_user| match_user.id == user_id }
@@ -189,6 +193,10 @@ class Match
 
   # TODO handle game over
   def ask_for_cards(requestor_id:, recipient_id:, card_rank:)
+    if over?
+      message_users(message: "GAME OVER - #{winner.name} won!")
+      return
+    end
     originator = match_user_for(requestor_id)
     recipient = match_user_for(recipient_id)
     request = Request.new(originator: originator, recipient: recipient, card_rank: card_rank)
@@ -199,8 +207,7 @@ class Match
       send_cards_to_user(@current_user, response)
     else
       message_users(message: "#{@current_user.name} went fishing")
-      send_user_fishing(@current_user)
-      move_play_to_next_user
+      send_user_fishing(@current_user, request.card_rank)
     end
     message_users(message: "It's #{@current_user.name}'s turn")
     message_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
@@ -217,9 +224,14 @@ class Match
     @game.give_cards_to_player(player_number: originator.player.number, response: response)
   end
 
-  def send_user_fishing(user)
+  def send_user_fishing(user, card_rank)
     player = match_user_for(user.id).player
-    @game.draw_card(player)
+    card_drawn = @game.draw_card(player)
+    if card_drawn.rank == card_rank
+      message_users(message: "#{user.name} drew what he asked for")
+    else
+      move_play_to_next_user until @current_user.player.has_cards?
+    end
   end
 
   # TODO don't make this formatted strings
@@ -248,7 +260,8 @@ class Match
 
   def winner
     winning_player = game.players.max_by(&:book_count)
-    user_with_name(winning_player.name)
+    #user_with_name(winning_player.name)
+    user_for_player(winning_player)
   end
 
 end

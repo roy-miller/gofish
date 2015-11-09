@@ -30,7 +30,7 @@ class Game
   end
 
   def over?
-    @players.any? { |player| player.out_of_cards? } || !@deck.has_cards?
+    !@deck.has_cards?
   end
 
   def player_number(number)
@@ -53,7 +53,9 @@ class Game
   end
 
   def draw_card(player)
-    player.add_card_to_hand(@deck.give_top_card)
+    card_drawn = @deck.give_top_card
+    player.add_card_to_hand(card_drawn)
+    card_drawn
   end
 
   # TODO these parameter names are no good
