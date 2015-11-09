@@ -27,7 +27,7 @@ feature 'player display' do
 
   it 'shows opponent hands' do
     opponent = @match.match_users.last.player
-    expect(page).to have_css '#opponent_Player2_hand'
+    expect(page).to have_css '#opponent_0_hand'
     expect(page).to have_css('.opponent-card', count: 5)
     opponent.hand.each do |card|
       expect(page).to have_css ".opponent-card.facedown"

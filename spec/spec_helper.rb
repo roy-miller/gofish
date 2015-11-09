@@ -26,7 +26,6 @@ require 'user'
 require 'match'
 require 'book'
 require 'request'
-require 'match_maker'
 require 'match_perspective'
 
 RSpec.configure do |config|

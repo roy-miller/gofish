@@ -24,7 +24,9 @@ describe Match do
 
   it 'creates a game with correct number of players when match is new' do
     Match.add_user(id: 1, name: 'user1', opponent_count: 1)
-    expect(Match.matches.first.game.players.count).to be 2
+    created_game = Match.matches.first.game
+    expect(created_game.players.count).to be 2
+    expect(Match.matches.first.match_users.first.player).to be created_game.players.first
   end
 
   context 'initialized' do
@@ -38,12 +40,6 @@ describe Match do
 
     it 'says match is pending when created' do
       expect(match.pending?).to be true
-    end
-
-    it 'adds match user' do
-      match.add_user(match_user: first_match_user, opponent_count: 1)
-      expect(match.match_users).to match_array [first_match_user]
-      expect(match.initial_user).to be first_match_user
     end
 
     it 'queues up messages for a match user' do
@@ -60,20 +56,6 @@ describe Match do
       expect(match.messages_for(first_match_user)).to match_array ['message1', 'message2']
       expect(match.messages[first_match_user]).to be_empty
     end
-
-    context 'with one user' do
-      let(:second_user) { User.new(id: 2, name: 'added') }
-      let(:second_match_user) { MatchUser.new(user: second_user) }
-
-      before do
-        match.add_user(match_user: first_match_user, opponent_count: 1)
-      end
-
-      it 'finds a match containing user with the given id' do
-        found_match = Match.find_for_user_id(1)
-        expect(found_match).to be match
-      end
-    end
   end
 
   context 'with a game and users' do
@@ -86,6 +68,7 @@ describe Match do
       match.match_users = [first_match_user_added, second_match_user_added]
       match.messages[first_match_user_added] = []
       match.messages[second_match_user_added] = []
+      match.current_user = first_match_user_added
       Match.matches << match
     end
 
@@ -119,6 +102,11 @@ describe Match do
       match.message_users(message: 'universal message')
       expect(match.messages_for(first_match_user_added)).to match_array ['universal message']
       expect(match.messages_for(second_match_user_added)).to match_array ['universal message']
+    end
+
+    it 'finds a match containing user with the given id' do
+      found_match = Match.find_for_user_id(1)
+      expect(found_match).to be match
     end
 
     context 'with players in the game' do
@@ -163,17 +151,19 @@ describe Match do
 
       context 'with cards for players' do
         before do
-          player1_card1 = Card.new(rank: '8', suit: 'D')
-          player1_card2 = Card.new(rank: 'J', suit: 'S')
-          player1.hand << player1_card1
-          player1.hand << player1_card2
+          @player1_card1 = Card.new(rank: '8', suit: 'D')
+          @player1_card2 = Card.new(rank: 'J', suit: 'S')
+          player1.hand << @player1_card1
+          player1.hand << @player1_card2
 
-          player2_card1 = Card.new(rank: 'A', suit: 'C')
-          player2_card2 = Card.new(rank: 'A', suit: 'H')
-          player2_card3 = Card.new(rank: 'A', suit: 'D')
-          player2.hand << player2_card1
-          player2.hand << player2_card2
-          player2.hand << player2_card3
+          @player2_card1 = Card.new(rank: 'A', suit: 'C')
+          @player2_card2 = Card.new(rank: 'A', suit: 'H')
+          @player2_card3 = Card.new(rank: 'A', suit: 'D')
+          @player2_card4 = Card.new(rank: 'J', suit: 'H')
+          player2.hand << @player2_card1
+          player2.hand << @player2_card2
+          player2.hand << @player2_card3
+          player2.hand << @player2_card4
 
           player2_book1 = Book.new
           player2_book1.add_card(Card.new(rank: '4', suit: 'C'))
@@ -183,16 +173,42 @@ describe Match do
           player2.books << player2_book1
         end
 
-        it 'provides the current state of the match' do
-          expected_state = 'user1 has 2 cards and these books: [  ]' +
-                           "\n" +
-                           'user2 has 3 cards and these books: [ 4s ]'
-          expect(match.state).to eq expected_state
+        # it 'provides the current state of the match' do
+        #   expected_state = 'user1 has 2 cards and these books: [  ]' +
+        #                    "\n" +
+        #                    'user2 has 3 cards and these books: [ 4s ]'
+        #   expect(match.state).to eq expected_state
+        # end
+        #
+        # it 'provides the current state for a single user' do
+        #   expected_state = 'you have these cards: 8D, JS and these books: [  ]'
+        #   expect(match.state_for(first_match_user_added)).to eq expected_state
+        # end
+
+        it 'asks user for cards when user has no cards of requested rank' do
+          match.ask_for_cards(requestor_id: 1, recipient_id: 2, card_rank: '8')
+          expect(match.match_users.first.player.hand.count).to eq 3
+          expect(match.match_users.first.player.hand).to include(@player1_card1, @player1_card2)
+          expect(match.match_users.last.player.hand).to match_array [
+            @player2_card1,
+            @player2_card2,
+            @player2_card3,
+            @player2_card4
+          ]
         end
 
-        it 'provides the current state for a single user' do
-          expected_state = 'you have these cards: 8D, JS and these books: [  ]'
-          expect(match.state_for(first_match_user_added)).to eq expected_state
+        it 'asks user for cards when user has cards of requested rank' do
+          match.ask_for_cards(requestor_id: 2, recipient_id: 1, card_rank: 'J')
+          expect(match.match_users.first.player.hand).to match_array [
+            @player1_card1
+          ]
+          expect(match.match_users.last.player.hand).to match_array [
+            @player2_card1,
+            @player2_card2,
+            @player2_card3,
+            @player2_card4,
+            @player1_card2
+          ]
         end
       end
     end

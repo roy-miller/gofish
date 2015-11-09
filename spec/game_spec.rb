@@ -82,6 +82,12 @@ describe Game do
       expect(game.cards_for_player(1)).to match_array([fives_card1, tens_card1])
     end
 
+    it 'draws a card for a given player' do
+      card_drawn = game.deck.cards.last
+      game.draw_card(player1)
+      expect(player1.hand).to match_array [card_drawn]
+    end
+
     describe '#declare_game_winner' do
       # it 'declares player1 the winner when player2 is out of cards' do
       #   game.player1.hand = [Card.new(rank: 'K', suit: 'C')]

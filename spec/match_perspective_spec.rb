@@ -17,7 +17,8 @@ describe MatchPerspective do
   end
 
   it 'creates a perspective from a match' do
-    perspective = MatchPerspective.new.for(match: match, with: match_user2)
+    perspective = MatchPerspective.new.for(match: match, user: match_user2)
+    expect(perspective.match_id).to eq 0
     expect(perspective.you).to be match_user2
     expect(perspective.current_user).to be match_user2
     expect(perspective.initial_user).to be match_user1

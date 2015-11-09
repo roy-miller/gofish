@@ -52,6 +52,10 @@ class Game
     player.receive_response(response)
   end
 
+  def draw_card(player)
+    player.add_card_to_hand(@deck.give_top_card)
+  end
+
   # TODO these parameter names are no good
   def card_count_for_player(number)
     player = player_number(number)

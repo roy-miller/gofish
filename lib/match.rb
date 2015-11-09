@@ -43,8 +43,6 @@ class Match
   end
 
   def self.add_match(match)
-    # existing = @@matches.find { |m| m.id = match.id }
-    # return if existing
     @@matches << match
   end
 
@@ -95,6 +93,7 @@ class Match
     @messages[match_user] << message
   end
 
+  # TODO change to message_all_users
   def message_users(message:)
     @match_users.each { |match_user| message_user(match_user, message: message) }
   end
@@ -127,7 +126,7 @@ class Match
   def add_user(match_user:, opponent_count: 1)
     @match_users << match_user
     @messages[match_user] = []
-    # TODO associate match_user to game player -> set player on match_user
+    match_user.player = @game.players[@match_users.index(match_user)]
     if enough_users_to_start?
       start
     else
@@ -153,8 +152,8 @@ class Match
   def start
     @status = Status::STARTED
     @current_user = initial_user
-    message_user(@initial_user, message: 'Ask another player for cards by clicking a card in your hand and then the opponent name')
-    opponents_for(@initial_user).each do |user|
+    message_user(initial_user, message: 'Ask another player for cards by clicking a card in your hand and then the opponent name')
+    opponents_for(initial_user).each do |user|
       message_user(user, message: 'Wait for another player to ask you for cards')
     end
   end
@@ -188,16 +187,39 @@ class Match
     @game.deck.card_count
   end
 
+  # TODO handle game over
+  def ask_for_cards(requestor_id:, recipient_id:, card_rank:)
+    originator = match_user_for(requestor_id)
+    recipient = match_user_for(recipient_id)
+    request = Request.new(originator: originator, recipient: recipient, card_rank: card_rank)
+    message_users(message: "#{request.originator.name} asked #{request.recipient.name} for #{request.card_rank}s")
+    response = send_request_to_user(request)
+    if response.cards_returned?
+      message_users(message: "#{response.originator.name} got #{response.cards_returned.count} #{response.card_rank}s from #{response.recipient.name}")
+      send_cards_to_user(@current_user, response)
+    else
+      message_users(message: "#{@current_user.name} went fishing")
+      send_user_fishing(@current_user)
+      move_play_to_next_user
+    end
+    message_users(message: "It's #{@current_user.name}'s turn")
+    message_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
+  end
+
   def send_request_to_user(request)
-    @game.ask_player_for_cards(request)
+    # TODO ask game for player, not number
+    recipient = match_user_for(request.recipient.id)
+    @game.ask_player_for_cards(player_number: recipient.player.number, request: request)
   end
 
   def send_cards_to_user(user, response)
-    @game.give_cards_to_player(user.name, response)
+    originator = match_user_for(response.originator.id)
+    @game.give_cards_to_player(player_number: originator.player.number, response: response)
   end
 
   def send_user_fishing(user)
-    @game.draw_card(user.name)
+    player = match_user_for(user.id).player
+    @game.draw_card(player)
   end
 
   # TODO don't make this formatted strings
