@@ -16,5 +16,12 @@ class MatchUser
     @user.name
   end
 
+  def has_cards?
+    !@player.out_of_cards?
+  end
+
+  def out_of_cards?
+    @player.out_of_cards?
+  end
 
 end

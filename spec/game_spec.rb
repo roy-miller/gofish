@@ -41,16 +41,7 @@ describe Game do
     end
 
     describe '#over?' do
-      it 'answers true when any player is out of cards' do
-        game.players.first.hand = []
-        expect(game.over?).to be true
-      end
-      it 'answers false when all players have cards' do
-        game.players.first.hand = [Card.new(rank: 'rank', suit: 'suit')]
-        game.players.last.hand = [Card.new(rank: 'rank', suit: 'suit')]
-        expect(game.over?).to be false
-      end
-      it 'answers true when the deck is out of cards, but all players have cards' do
+      it 'answers true when the deck is out of cards, even if players have cards' do
         game.deck.cards = []
         game.players.first.hand = [Card.new(rank: 'rank', suit: 'suit')]
         game.players.last.hand = [Card.new(rank: 'rank', suit: 'suit')]

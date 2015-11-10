@@ -44,15 +44,15 @@ describe Match do
 
     it 'queues up messages for a match user' do
       match.messages[first_match_user] = []
-      match.message_user(first_match_user, message: 'message1')
-      match.message_user(first_match_user, message: 'message2')
+      match.inform_user(first_match_user, message: 'message1')
+      match.inform_user(first_match_user, message: 'message2')
       expect(match.messages[first_match_user]).to match_array ['message1', 'message2']
     end
 
     it 'provides messages for a match user and removes them' do
       match.messages[first_match_user] = []
-      match.message_user(first_match_user, message: 'message1')
-      match.message_user(first_match_user, message: 'message2')
+      match.inform_user(first_match_user, message: 'message1')
+      match.inform_user(first_match_user, message: 'message2')
       expect(match.messages_for(first_match_user)).to match_array ['message1', 'message2']
       expect(match.messages[first_match_user]).to be_empty
     end
@@ -87,19 +87,13 @@ describe Match do
       expect(match.user_names).to match_array ['user1', 'user2']
     end
 
-    it 'moves play to the next user after the current one when asked' do
-      match.current_user = match.match_users.first
-      expect(match.move_play_to_next_user).to be second_match_user_added
-      expect(match.move_play_to_next_user).to be first_match_user_added
-    end
-
     it 'answers user with given name' do
       user = match.user_with_name('user2')
       expect(user).to be second_match_user_added
     end
 
-    it 'messages all users' do
-      match.message_users(message: 'universal message')
+    it 'broadcasts to all users' do
+      match.broadcast('universal message')
       expect(match.messages_for(first_match_user_added)).to match_array ['universal message']
       expect(match.messages_for(second_match_user_added)).to match_array ['universal message']
     end
@@ -145,9 +139,7 @@ describe Match do
         expect(cards_dealt_second_time).not_to match_array(cards_dealt_first_time)
       end
 
-      it 'associates the right game player with an added match user' do
-
-      end
+      xit 'associates the right game player with an added match user'
 
       context 'with cards for players' do
         before do
@@ -184,6 +176,14 @@ describe Match do
         #   expected_state = 'you have these cards: 8D, JS and these books: [  ]'
         #   expect(match.state_for(first_match_user_added)).to eq expected_state
         # end
+
+        it 'moves play to the next user after the current one when next has cards' do
+          match.current_user = match.match_users.first
+          match.move_play_to_next_user
+          expect(match.current_user).to be second_match_user_added
+          match.move_play_to_next_user
+          expect(match.current_user).to be first_match_user_added
+        end
 
         it 'asks user for cards when user has no cards of requested rank' do
           match.ask_for_cards(requestor_id: 1, recipient_id: 2, card_rank: '8')

@@ -13,7 +13,13 @@ describe MatchUser do
     expect(match_user.id).to eq 123
   end
 
-  xit 'answers the hand for its player' do
+  it 'says user has no cards when game player has none' do
+    player.hand = []
+    expect(match_user.out_of_cards?).to be true
+  end
+
+  it 'says user has cards when game player has some' do
+    expect(match_user.has_cards?).to be true
   end
 
 end
