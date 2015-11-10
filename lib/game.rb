@@ -41,14 +41,12 @@ class Game
     @players.reject { |player| player.number == number }
   end
 
-  def ask_player_for_cards(player_number:, request:)
-    player = player_number(player_number)
+  def ask_player_for_cards(player:, request:)
     response = player.receive_request(request)
     response
   end
 
-  def give_cards_to_player(player_number:, response:)
-    player = player_number(player_number)
+  def give_cards_to_player(player:, response:)
     player.receive_response(response)
   end
 
@@ -75,7 +73,6 @@ class Game
   end
 
   # TODO seems odd that game draws for player
-  # TODO these names stink
   def draw_card_for_player(number)
     player_number(number).add_card_to_hand(@deck.give_top_card)
   end

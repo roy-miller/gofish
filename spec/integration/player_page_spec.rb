@@ -38,10 +38,4 @@ feature 'player display' do
     expect(page).to have_css '#fish_pond'
     expect(page).to have_content '42 cards left'
   end
-
-  xit 'sends a request to a user cards of a given rank'
-  xit 'lets a user poll for updates' do
-    click_button 'update_game'
-    expect(page).to have_content ''
-  end
 end

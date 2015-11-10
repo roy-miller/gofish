@@ -190,12 +190,15 @@ class Match
       broadcast("GAME OVER - #{winner.name} won!")
       return
     end
-    request = Request.new(requestor: requestor, recipient: recipient, card_rank: card_rank)
-    broadcast("#{request.requestor.name} asked #{request.recipient.name} for #{request.card_rank}s")
+    broadcast("#{requestor.name} asked #{recipient.name} for #{card_rank}s")
+    request = Request.new(requestor: requestor.player, recipient: recipient.player, card_rank: card_rank)
     response = send_request_to_user(request)
     if response.cards_returned?
-      broadcast("#{response.requestor.name} got #{response.cards_returned.count} #{response.card_rank}s from #{response.recipient.name}")
+      broadcast("#{requestor.name} got #{response.cards_returned.count} #{response.card_rank}s from #{recipient.name}")
       send_cards_to_user(@current_user, response)
+      # if @current_user.out_of_cards? && @game.deck.has_cards?
+      #   draw_card_for_user(@current_user)
+      # end
     else
       broadcast("#{@current_user.name} went fishing")
       send_user_fishing(@current_user, request.card_rank)
@@ -207,7 +210,7 @@ class Match
       return
     end
     if @current_user.out_of_cards? && @game.deck.has_cards?
-      send_user_fishing(@current_user, nil)
+      draw_card_for_user(@current_user)
     end
     if over?
       broadcast("GAME OVER - #{winner.name} won!")
@@ -218,19 +221,19 @@ class Match
   end
 
   def send_request_to_user(request)
-    # TODO ask game for player, not number
-    recipient = match_user_for(request.recipient.id)
-    @game.ask_player_for_cards(player_number: recipient.player.number, request: request)
+    @game.ask_player_for_cards(player: request.recipient, request: request)
   end
 
   def send_cards_to_user(user, response)
-    requestor = match_user_for(response.requestor.id)
-    @game.give_cards_to_player(player_number: requestor.player.number, response: response)
+    @game.give_cards_to_player(player: user.player, response: response)
+  end
+
+  def draw_card_for_user(user)
+    @game.draw_card(user.player)
   end
 
   def send_user_fishing(user, card_rank)
-    player = match_user_for(user.id).player
-    card_drawn = @game.draw_card(player)
+    card_drawn = @game.draw_card(user.player)
     if card_drawn.rank == card_rank
       broadcast("#{user.name} drew what he asked for")
     else

@@ -4,20 +4,16 @@ describe Game do
   context 'new game with no players' do
     let(:game) { Game.new }
 
-    describe '#new' do
-      it 'creates a game with a deck of playing cards and no players' do
-        game = Game.new
-        expect(game.deck.cards.count).to eq 52
-        expect(game.players).to be_empty
-      end
+    it 'creates a game with a deck of playing cards and no players' do
+      game = Game.new
+      expect(game.deck.cards.count).to eq 52
+      expect(game.players).to be_empty
     end
 
-    describe '#add_player' do
-      it 'adds player' do
-        game = Game.new
-        game.add_player(Player.new)
-        expect(game.players.count).to eq 1
-      end
+    it 'adds player' do
+      game = Game.new
+      game.add_player(Player.new)
+      expect(game.players.count).to eq 1
     end
   end
 
@@ -31,22 +27,18 @@ describe Game do
       game.add_player(player2)
     end
 
-    describe '#deal' do
-      it 'deals requested number of cards to each player' do
-        game.deal(cards_per_player: 5)
-        expect(player1.card_count).to eq 5
-        expect(player2.card_count).to eq 5
-        expect(game.deck.card_count).to eq 42
-      end
+    it 'deals requested number of cards to each player' do
+      game.deal(cards_per_player: 5)
+      expect(player1.card_count).to eq 5
+      expect(player2.card_count).to eq 5
+      expect(game.deck.card_count).to eq 42
     end
 
-    describe '#over?' do
-      it 'answers true when the deck is out of cards, even if players have cards' do
-        game.deck.cards = []
-        game.players.first.hand = [Card.new(rank: 'rank', suit: 'suit')]
-        game.players.last.hand = [Card.new(rank: 'rank', suit: 'suit')]
-        expect(game.over?).to be true
-      end
+    it 'answers true when the deck is out of cards, even if players have cards' do
+      game.deck.cards = []
+      game.players.first.hand = [Card.new(rank: 'rank', suit: 'suit')]
+      game.players.last.hand = [Card.new(rank: 'rank', suit: 'suit')]
+      expect(game.over?).to be true
     end
 
     it 'answers player for number' do
@@ -58,11 +50,9 @@ describe Game do
     end
 
     it 'sends a card request to the right player' do
-      recipient = User.new(name: 'player1')
-      requestor = User.new(name: 'player2')
-      request = Request.new(requestor: requestor, recipient: recipient, card_rank: 'J')
+      request = Request.new(requestor: player2, recipient: player1, card_rank: 'J')
       expect(player1).to receive(:receive_request).with(request).and_call_original
-      response = game.ask_player_for_cards(player_number: 1, request: request)
+      response = game.ask_player_for_cards(player: player1, request: request)
       expect(response).not_to be_nil
     end
 
@@ -79,22 +69,6 @@ describe Game do
       expect(player1.hand).to match_array [card_drawn]
     end
 
-    describe '#declare_game_winner' do
-      # it 'declares player1 the winner when player2 is out of cards' do
-      #   game.player1.hand = [Card.new(rank: 'K', suit: 'C')]
-      #   game.player2.hand = []
-      #   winner, loser = game.declare_game_winner
-      #   expect(winner).to be player1
-      #   expect(loser).to be player2
-      # end
-      #
-      # it 'declares player2 the winner when player1 is out of cards' do
-      #   game.player1.hand = []
-      #   game.player2.hand = [Card.new(rank: 'K', suit: 'C')]
-      #   winner, loser = game.declare_game_winner
-      #   expect(winner).to be player2
-      #   expect(loser).to be player1
-      # end
-    end
+    xit 'declares a game winner'
   end
 end

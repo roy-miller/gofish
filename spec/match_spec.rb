@@ -198,16 +198,16 @@ describe Match do
         end
 
         it 'asks user for cards when user has cards of requested rank' do
-          match.ask_for_cards(requestor: second_match_user_added, recipient: first_match_user_added, card_rank: 'J')
+          match.ask_for_cards(requestor: first_match_user_added, recipient: second_match_user_added, card_rank: 'J')
           expect(match.match_users.first.player.hand).to match_array [
-            @player1_card1
+            @player1_card1,
+            @player1_card2,
+            @player2_card4
           ]
           expect(match.match_users.last.player.hand).to match_array [
             @player2_card1,
             @player2_card2,
-            @player2_card3,
-            @player2_card4,
-            @player1_card2
+            @player2_card3
           ]
         end
       end
