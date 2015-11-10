@@ -186,6 +186,10 @@ class Match
 
   # TODO handle game over
   def ask_for_cards(requestor:, recipient:, card_rank:)
+    if requestor != @current_user
+      inform_user(requestor, message: "It's not your turn, it's #{@current_user.name}'s")
+      return
+    end
     if over?
       broadcast("GAME OVER - #{winner.name} won!")
       return
@@ -196,9 +200,6 @@ class Match
     if response.cards_returned?
       broadcast("#{requestor.name} got #{response.cards_returned.count} #{response.card_rank}s from #{recipient.name}")
       send_cards_to_user(@current_user, response)
-      # if @current_user.out_of_cards? && @game.deck.has_cards?
-      #   draw_card_for_user(@current_user)
-      # end
     else
       broadcast("#{@current_user.name} went fishing")
       send_user_fishing(@current_user, request.card_rank)

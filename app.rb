@@ -19,6 +19,7 @@ post '/start' do
   redirect to("/matches/#{match.id}/users/#{match.user_with_name(user_name).id}")
 end
 
+# TODO this goes away with pusher
 post '/update' do
   @user_id = params['user_id'].to_i
   match = Match.find_for_user_id(@user_id)
@@ -33,6 +34,7 @@ end
 get '/ask' do
   match = Match.find(params['match_id'].to_i)
   requestor = match.match_user_for(params['requestor_id'].to_i)
+  #redirect back if requestor != match.current_user
   recipient = match.match_user_for(params['requested_id'].to_i)
   card_rank_to_request = params['rank']
   match.ask_for_cards(requestor: requestor, recipient: recipient, card_rank: card_rank_to_request)
