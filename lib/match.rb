@@ -203,6 +203,17 @@ class Match
       send_user_fishing(@current_user, request.card_rank)
     end
     broadcast("It's #{@current_user.name}'s turn")
+    if @current_user.out_of_cards? && !@game.deck.has_cards?
+      broadcast("GAME OVER - #{winner.name} won!")
+      return
+    end
+    if @current_user.out_of_cards? && @game.deck.has_cards?
+      send_user_fishing(@current_user, nil)
+    end
+    if over?
+      broadcast("GAME OVER - #{winner.name} won!")
+      return
+    end
     inform_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
   end
 
