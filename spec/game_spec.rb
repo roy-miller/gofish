@@ -59,8 +59,8 @@ describe Game do
 
     it 'sends a card request to the right player' do
       recipient = User.new(name: 'player1')
-      originator = User.new(name: 'player2')
-      request = Request.new(originator: originator, recipient: recipient, card_rank: 'J')
+      requestor = User.new(name: 'player2')
+      request = Request.new(requestor: requestor, recipient: recipient, card_rank: 'J')
       expect(player1).to receive(:receive_request).with(request).and_call_original
       response = game.ask_player_for_cards(player_number: 1, request: request)
       expect(response).not_to be_nil

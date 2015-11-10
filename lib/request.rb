@@ -1,8 +1,8 @@
 class Request
-  attr_accessor :originator, :recipient, :card_rank, :outcome, :cards_returned
+  attr_accessor :requestor, :recipient, :card_rank, :outcome, :cards_returned
 
-  def initialize(originator: nil, recipient: nil, card_rank: nil)
-    @originator = originator
+  def initialize(requestor: nil, recipient: nil, card_rank: nil)
+    @requestor = requestor
     @recipient = recipient
     @card_rank = card_rank
     @cards_returned = []

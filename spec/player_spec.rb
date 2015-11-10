@@ -61,9 +61,9 @@ describe(Player) do
     end
 
     context 'with request' do
-      let(:originator) { User.new(name: 'player1') }
+      let(:requestor) { User.new(name: 'player1') }
       let(:recipient) { User.new(name: 'player2') }
-      let(:request) { Request.new(originator: originator, recipient: recipient, card_rank: nil) }
+      let(:request) { Request.new(requestor: requestor, recipient: recipient, card_rank: nil) }
 
       it 'receives requests for cards, returns no cards if has none of requested rank' do
         request.card_rank = 'A'

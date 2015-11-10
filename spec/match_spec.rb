@@ -186,7 +186,7 @@ describe Match do
         end
 
         it 'asks user for cards when user has no cards of requested rank' do
-          match.ask_for_cards(requestor_id: 1, recipient_id: 2, card_rank: '8')
+          match.ask_for_cards(requestor: first_match_user_added, recipient: second_match_user_added, card_rank: '8')
           expect(match.match_users.first.player.hand.count).to eq 3
           expect(match.match_users.first.player.hand).to include(@player1_card1, @player1_card2)
           expect(match.match_users.last.player.hand).to match_array [
@@ -198,7 +198,7 @@ describe Match do
         end
 
         it 'asks user for cards when user has cards of requested rank' do
-          match.ask_for_cards(requestor_id: 2, recipient_id: 1, card_rank: 'J')
+          match.ask_for_cards(requestor: second_match_user_added, recipient: first_match_user_added, card_rank: 'J')
           expect(match.match_users.first.player.hand).to match_array [
             @player1_card1
           ]

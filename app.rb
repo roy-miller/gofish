@@ -32,15 +32,14 @@ end
 # TODO this should be a post
 get '/ask' do
   match = Match.find(params['match_id'].to_i)
-  user_id_asking = params['requestor_id'].to_i
-  user_id_to_ask = params['requested_id'].to_i
+  requestor = match.match_user_for(params['requestor_id'].to_i)
+  recipient = match.match_user_for(params['requested_id'].to_i)
   card_rank_to_request = params['rank']
-  match.ask_for_cards(requestor_id: user_id_asking, recipient_id: user_id_to_ask, card_rank: card_rank_to_request)
-  redirect "/matches/#{match.id}/users/#{user_id_asking}"
+  match.ask_for_cards(requestor: requestor, recipient: recipient, card_rank: card_rank_to_request)
+  redirect "/matches/#{match.id}/users/#{requestor.id}"
 end
 
 get '/matches/:match_id/users/:user_id.?:format?' do
-  # TODO show opponent and player books on player page
   match = Match.find(params['match_id'].to_i)
   match_user = match.match_user_for(params['user_id'].to_i)
   # @perspective = match.state

@@ -41,11 +41,16 @@ body { margin: 20px; }
   margin-right: 3px;
   height: auto;
   width: auto;
-  max-width: 71px;
-  max-height: 96px;
+  max-width: 41px;
+  max-height: 66px;
+}
+.your-card img {
+  height: 66px;
+  width: 41px;
 }
 #your_books { float: left; width: 50%; }
 .your-book { float: left; }
+.your-book img { width: 41px; height: 66px; }
 
 #opponents { float: left; width: 100%; }
 #opponent_0_hand,
@@ -61,8 +66,12 @@ body { margin: 20px; }
   margin-right: 3px;
   height: auto;
   width: auto;
-  max-width: 71px;
-  max-height: 96px;
+  max-width: 41px;
+  max-height: 66px;
+}
+.opponent-card img {
+  height: 66px;
+  width: 41px;
 }
 .opponent-name { margin-bottom: 10px; }
 #opponent_0_books,
@@ -73,6 +82,7 @@ body { margin: 20px; }
 #opponent_5_books,
 #opponent_6_books { float: left; width: 50%; }
 .opponent-book { float: left; }
+.opponent-book img { width: 41px; height: 66px; }
 
 #fish_pond { float: left; width: 50%; }
 #fish_pond img {

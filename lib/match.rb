@@ -185,24 +185,23 @@ class Match
   end
 
   # TODO handle game over
-  def ask_for_cards(requestor_id:, recipient_id:, card_rank:)
+  def ask_for_cards(requestor:, recipient:, card_rank:)
     if over?
       broadcast("GAME OVER - #{winner.name} won!")
       return
     end
-    originator = match_user_for(requestor_id)
-    recipient = match_user_for(recipient_id)
-    request = Request.new(originator: originator, recipient: recipient, card_rank: card_rank)
-    broadcast("#{request.originator.name} asked #{request.recipient.name} for #{request.card_rank}s")
+    request = Request.new(requestor: requestor, recipient: recipient, card_rank: card_rank)
+    broadcast("#{request.requestor.name} asked #{request.recipient.name} for #{request.card_rank}s")
     response = send_request_to_user(request)
     if response.cards_returned?
-      broadcast("#{response.originator.name} got #{response.cards_returned.count} #{response.card_rank}s from #{response.recipient.name}")
+      broadcast("#{response.requestor.name} got #{response.cards_returned.count} #{response.card_rank}s from #{response.recipient.name}")
       send_cards_to_user(@current_user, response)
     else
       broadcast("#{@current_user.name} went fishing")
       send_user_fishing(@current_user, request.card_rank)
     end
     broadcast("It's #{@current_user.name}'s turn")
+
     if @current_user.out_of_cards? && !@game.deck.has_cards?
       broadcast("GAME OVER - #{winner.name} won!")
       return
@@ -214,6 +213,7 @@ class Match
       broadcast("GAME OVER - #{winner.name} won!")
       return
     end
+
     inform_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
   end
 
@@ -224,8 +224,8 @@ class Match
   end
 
   def send_cards_to_user(user, response)
-    originator = match_user_for(response.originator.id)
-    @game.give_cards_to_player(player_number: originator.player.number, response: response)
+    requestor = match_user_for(response.requestor.id)
+    @game.give_cards_to_player(player_number: requestor.player.number, response: response)
   end
 
   def send_user_fishing(user, card_rank)
