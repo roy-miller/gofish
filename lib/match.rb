@@ -10,7 +10,7 @@ class Status
 end
 
 class Match
-  attr_accessor :id, :game, :match_users, :current_user, :status, :messages
+  attr_accessor :id, :opponent_count, :game, :match_users, :current_user, :status, :messages
   CARDS_PER_PLAYER = 5
   @@matches = []
 
@@ -57,24 +57,28 @@ class Match
   def self.add_user(id: nil, name:, opponent_count: 1)
     user = User.find(id) || User.new(id: id, name: name)
     match_user = MatchUser.new(user: user)
-    pending_match = @@matches.find { |match| match.status == Status::PENDING }
-    if pending_match.nil?
-      players = (1..opponent_count + 1).map { |index| Player.new(index) }
-      game = Game.new(players)
-      game.deal(cards_per_player: CARDS_PER_PLAYER)
-      pending_match = Match.new(id: @@matches.count, game: game)
-      self.add_match(pending_match)
-    end
+    pending_match = @@matches.find { |match| match.status == Status::PENDING && match.opponent_count == opponent_count }
+    pending_match = self.make_match(opponent_count) if pending_match.nil?
     pending_match.add_user(match_user: match_user, opponent_count: opponent_count)
     pending_match # TODO why return the match?
+  end
+
+  def self.make_match(opponent_count)
+    players = (1..opponent_count + 1).map { |index| Player.new(index) }
+    game = Game.new(players)
+    game.deal(cards_per_player: CARDS_PER_PLAYER)
+    pending_match = Match.new(id: @@matches.count, opponent_count: opponent_count, game: game)
+    self.add_match(pending_match)
+    pending_match
   end
 
   def self.reset
     @@matches = []
   end
 
-  def initialize(id: 0, game: nil, match_users: [])
+  def initialize(id: 0, opponent_count: 1, game: nil, match_users: [])
     @id = id
+    @opponent_count = opponent_count
     @game = game
     @match_users = match_users
     @messages = {}
@@ -127,6 +131,8 @@ class Match
     @match_users << match_user
     @messages[match_user] = []
     match_user.player = @game.players[@match_users.index(match_user)]
+    # TODO handle multiple players -> maybe UserGroup?
+    # UserGroup could have target number of people and current number
     if enough_users_to_start?
       start
     else
@@ -146,7 +152,8 @@ class Match
   end
 
   def enough_users_to_start?
-    @match_users.count >= 2
+    #@match_users.count >= 2
+    @match_users.count == @opponent_count + 1
   end
 
   def start
