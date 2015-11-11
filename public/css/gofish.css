@@ -183,7 +183,6 @@ body { background-color: rgb(59,89,152); }
 
 #messages {
   height: auto;
-  width: 97%;
   min-height: 50px;
   min-width: 50px;
   margin-bottom: 20px;
