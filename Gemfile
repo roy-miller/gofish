@@ -10,6 +10,8 @@ group :test do
   gem 'pry'
   gem 'pry-byebug'
   gem 'capybara'
+  gem 'poltergeist'
+  gem 'selenium-webdriver'
   gem 'factory_girl'
   gem 'spinach'
 end

@@ -6,9 +6,7 @@ body { background-color: rgb(59,89,152); }
   clear: both;
 }
 
-.row {
-  margin-bottom: 10px;
-}
+.row { margin-bottom: 10px; }
 
 #funny_fish {
   width: 350px;
@@ -36,28 +34,34 @@ body { background-color: rgb(59,89,152); }
   color: white;
 }
 
-#game_options {
-}
+#game_options {  }
 
 #user_name,
 #user_id {
-  padding: 5px;
-  width: 300px;
+  padding: 15px;
+  /*width: 300px;*/
+  width: 100%;
   font-size: 16px;
-  height: 34px;
+  color: rgb(59,89,152);
+  box-sizing: border-box;
 }
+#user_name,
+#user_id { border: 0; }
+
+#user_name {  }
+#user_id {  }
 
 #start_playing {
-  margin: 30px 50px 0px 0px;
+  display: block;
+  margin: 30px auto 30px auto;
   border: 0;
+  border-radius: 5px;
   background-color: #49a942;
   color: white;
-  width: 310px;
-  padding: 5px;
+  width: 250px;
+  padding: 25px;
   font-size: 24px;
   font-weight: bold;
-  height: 40px;
-  border-radius: 0px;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -68,34 +72,34 @@ body { background-color: rgb(59,89,152); }
 }
 
 #number_of_opponents {
-  margin: 0px 50px 0px 0px;
-  border: 1px solid #111;
+  margin: auto;
+  border: 0;
   background-color: white;
-  width: 310px;
-  padding: 5px;
+  /*width: 328px;*/
+  width: 100%;
+  padding: 15px;
   font-size: 16px;
-  border: 1px solid #ccc;
-  height: 44px;
   border-radius: 0px;
+  color: rgb(59,89,152);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
 }
 
-#user_name,
-#user_id { border: 1px solid gray; }
-
-#user_name {  }
-#user_id {  }
-
 #card_table {
-  width: 800px;
-  margin: 10px;
+  width: 500px;
+  margin: 10px auto;
   padding: 10px;
-  background-color: rgb(39, 119, 20);
+  background-color: rgb(78,156,60);
+  border-radius: 5px;
 }
 
-#your_hand { float: left; width: 50%; }
+#your_hand {
+  float: left;
+  width: 100%;
+}
+#your_hand_caption {}
+#your_hand_cards { margin-left: 10px; }
 .big-card {
   width: 100%;
   height: 100%;
@@ -116,7 +120,7 @@ body { background-color: rgb(59,89,152); }
 .your-book { float: left; margin-right: -31px; }
 .your-book img { width: 41px; height: 66px; }
 
-#opponents { float: left; width: 100%; }
+#opponents { float: left; width: 100%; border-top: 1px dotted rgb(59,89,152); }
 .opponent { float: left; width: 100%; margin-top: 10px; }
 #opponent_0_hand,
 #opponent_1_hand,
@@ -124,8 +128,10 @@ body { background-color: rgb(59,89,152); }
 #opponent_3_hand,
 #opponent_4_hand,
 #opponent_5_hand,
-#opponent_6_hand { float: left; width: 50%; }
-.opponent-hand {  }
+#opponent_6_hand { float: left; width: 100%; }
+.opponent-hand { margin-left: 10px; }
+.opponent-hand-caption {  }
+.opponent-hand-cards { margin-left: 10px; }
 .opponent-card {
   float: left;
   margin-right: -31px;
@@ -138,7 +144,17 @@ body { background-color: rgb(59,89,152); }
   height: 66px;
   width: 41px;
 }
-.opponent-name { margin-bottom: 10px; }
+.opponent-name,
+.opponent-name:hover,
+.opponent-name:visited {
+  margin-bottom: 10px;
+  text-decoration: none;
+  border-bottom: 1px rgb(59,89,152) dotted;
+  color: rgb(6,69,173);
+}
+.opponent-name:hover {
+  border-bottom: 1px rgb(59,89,152) solid;
+}
 #opponent_0_books,
 #opponent_1_books,
 #opponent_2_books,
@@ -163,7 +179,7 @@ body { background-color: rgb(59,89,152); }
 
 #messages {
   height: auto;
-  width: 98%;
+  width: 97%;
   min-height: 50px;
   min-width: 50px;
   margin-bottom: 20px;
@@ -176,8 +192,10 @@ body { background-color: rgb(59,89,152); }
   min-height: 36px;
   background-color: white;
   border: 1px solid gray;
+  color: rgb(59,89,152);
 }
 
+/*
 #update_form {
   float: left;
   width: 50%;
@@ -192,6 +210,7 @@ body { background-color: rgb(59,89,152); }
   color: white;
   font-weight: bold;
 }
+*/
 
 /*
 For desktop:
