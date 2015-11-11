@@ -111,17 +111,15 @@ class Match
     messages
   end
 
-  def deal
-    @game.deal(cards_per_player: CARDS_PER_PLAYER)
-  end
+  # TODO get rid of this?
+  # def deal
+  #   @game.deal(cards_per_player: CARDS_PER_PLAYER)
+  # end
 
-  def user_names
-    @match_users.map { |match_user| match_user.name }
-  end
-
-  def players
-    @match_users.map(&:player)
-  end
+  # TODO get rid of this?
+  # def user_names
+  #   @match_users.map { |match_user| match_user.name }
+  # end
 
   def over?
     @game.over?
@@ -131,8 +129,6 @@ class Match
     @match_users << match_user
     @messages[match_user] = []
     match_user.player = @game.players[@match_users.index(match_user)]
-    # TODO handle multiple players -> maybe UserGroup?
-    # UserGroup could have target number of people and current number
     if enough_users_to_start?
       start
     else
@@ -144,6 +140,10 @@ class Match
     @match_users.first
   end
 
+  def most_recent_user_added
+    @match_users.last
+  end
+
   def make_game_for(match_users:, opponent_count: 1)
     players = match_users.map.with_index { |match_user, index| Player.new(index) }
     game = Game.new(players)
@@ -152,7 +152,6 @@ class Match
   end
 
   def enough_users_to_start?
-    #@match_users.count >= 2
     @match_users.count == @opponent_count + 1
   end
 
@@ -165,15 +164,11 @@ class Match
     end
   end
 
-  def user_with_name(name)
-    @match_users.detect { |match_user| match_user.name == name }
-  end
-
   def user_for_player(player)
     @match_users.detect { |match_user| match_user.player.number == player.number }
   end
 
-  # TODO change parameter to object instead of id?
+  # TODO get rid of this?
   def match_user_for(user_id)
     @match_users.detect { |match_user| match_user.id == user_id }
   end
@@ -212,7 +207,6 @@ class Match
       send_user_fishing(@current_user, request.card_rank)
     end
     broadcast("It's #{@current_user.name}'s turn")
-
     if @current_user.out_of_cards? && !@game.deck.has_cards?
       broadcast("GAME OVER - #{winner.name} won!")
       return
@@ -224,7 +218,6 @@ class Match
       broadcast("GAME OVER - #{winner.name} won!")
       return
     end
-
     inform_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
   end
 
@@ -256,33 +249,12 @@ class Match
     potential_next.has_cards? ? @current_user = potential_next : move_play_to_next_user
   end
 
-  # TODO don't make this formatted strings
-  def state
-    state = ''
-    match_users.each do |match_user|
-      state << "#{match_user.name} has #{@game.card_count_for_player(match_user.player.number)} cards"
-      state << " and these books: [ "
-      state << @game.books_for_player(match_user.player.number).map { |book| "#{book.value}s" }.join(', ')
-      state << " ]"
-      state << "\n"
-    end
-    state.chomp
-  end
-
-  # TODO don't make this formatted strings
-  def state_for(match_user)
-    state = ''
-    state << "you have these cards: "
-    state << @game.cards_for_player(match_user.id).map { |card| card.to_s }.join(', ')
-    state << " and these books: [ "
-    state << @game.books_for_player(match_user.id).map { |book| "#{book.value}s" }.join(', ')
-    state << " ]"
-    state
+  def state_for(user)
+    MatchPerspective.new.for(match: self, user: user)
   end
 
   def winner
-    winning_player = game.players.max_by(&:book_count)
-    user_for_player(winning_player)
+    user_for_player(@game.winner)
   end
 
 end

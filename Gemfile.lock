@@ -21,6 +21,7 @@ GEM
     diff-lcs (1.2.5)
     factory_girl (4.5.0)
       activesupport (>= 3.0.0)
+    httpclient (2.7.0.1)
     i18n (0.7.0)
     json (1.8.3)
     method_source (0.8.2)
@@ -37,6 +38,11 @@ GEM
     pry-byebug (3.2.0)
       byebug (~> 5.0)
       pry (~> 0.10)
+    pusher (0.15.1)
+      httpclient (~> 2.5)
+      multi_json (~> 1.0)
+      pusher-signature (~> 0.1.8)
+    pusher-signature (0.1.8)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
@@ -86,6 +92,7 @@ DEPENDENCIES
   factory_girl
   pry
   pry-byebug
+  pusher
   rspec
   sinatra
   sinatra-contrib

@@ -53,6 +53,7 @@ body { margin: 20px; }
 .your-book img { width: 41px; height: 66px; }
 
 #opponents { float: left; width: 100%; }
+.opponent { float: left; width: 100%; margin-top: 10px; }
 #opponent_0_hand,
 #opponent_1_hand,
 #opponent_2_hand,
@@ -63,7 +64,7 @@ body { margin: 20px; }
 .opponent-hand {  }
 .opponent-card {
   float: left;
-  margin-right: 3px;
+  margin-right: -31px;
   height: auto;
   width: auto;
   max-width: 41px;
@@ -84,7 +85,7 @@ body { margin: 20px; }
 .opponent-book { float: left; }
 .opponent-book img { width: 41px; height: 66px; }
 
-#fish_pond { float: left; width: 50%; }
+#fish_pond { float: left; width: 100%; }
 #fish_pond img {
   display: block;
   width: 142px;
@@ -93,7 +94,7 @@ body { margin: 20px; }
   margin-right: auto;
 }
 #fish_pond_text {
-  text-align: center;
+  text-align: left;
 }
 
 #messages {
@@ -101,7 +102,6 @@ body { margin: 20px; }
   width: 98%;
   min-height: 50px;
   min-width: 50px;
-  /*max-width: 350px;*/
   margin-bottom: 20px;
 }
 

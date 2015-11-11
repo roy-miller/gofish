@@ -1,17 +1,18 @@
 div class="row" class="group"
-  div id="update"
-    form id="update_form" name="update_form" action="/update" method="post"
-      input id="user_id" name="user_id" type="hidden" value="#{@perspective.you.id}"
-      input id="update_match" type="submit" value="Update"
-  div id="fish_pond"
-    p id="fish_pond_text"
-      strong #{@perspective.deck_card_count} cards left in the pond
+  /div id="update"
+  /  form id="update_form" name="update_form" action="/update" method="post"
+  /    input id="user_id" name="user_id" type="hidden" value="#{@perspective.you.id}"
+  /    input id="update_match" type="submit" value="Update"
 div class="row"
   div id="messages"
     p Messages
     div id="message_text"
       - for message in @perspective.messages
         div class="message-line" = message
+div class="row"
+  div id="fish_pond"
+    p id="fish_pond_text"
+      strong #{@perspective.deck_card_count} cards left in the pond
 div class="row" class="group"
   div id="your_hand"
     p
@@ -30,23 +31,21 @@ div class="row" class="group"
 div class="row" class="group"
   div id="opponents"
     - @perspective.opponents.each_with_index do |opponent, index|
-      p
-        a class="opponent-name" href="/ask?match_id=#{@perspective.match_id}&requestor_id=#{@perspective.you.id}&requested_id=#{opponent.id}" onclick="return addRankToQueryString(this);"
-          strong #{opponent.name} (#{opponent.player.hand.count} cards)
-      div id="opponent_#{index}_hand"
-        - for card in opponent.player.hand
-          div class="opponent-card facedown"
-            img src="/images/backs_blue.png"
-      div id="opponent_#{index}_books"
-        p
-          strong #{opponent.player.books.count} Books
-        - for book in opponent.player.books
-          div class="opponent-book"
-            img src="/images/backs_blue.png"
-    /div id="fish_pond"
-    /  img class="big-card" src="/images/backs_blue.png"
-    /  p id="fish_pond_text"
-    /    strong #{@perspective.deck_card_count} cards left
+      div class="opponent group"
+        div id="opponent_#{index}_hand"
+          p
+            /a href="/ask?match_id=#{@perspective.match_id}&requestor_id=#{@perspective.you.id}&requested_id=#{opponent.id}" onclick="return addRankToQueryString(this);"
+            a data-opponent-id="#{opponent.id}" class="opponent-name" href="#"
+              strong #{opponent.name} (#{opponent.player.hand.count} cards)
+          - for card in opponent.player.hand
+            div class="opponent-card facedown"
+              img src="/images/backs_blue.png"
+        div id="opponent_#{index}_books"
+          p
+            strong #{opponent.player.books.count} Books
+          - for book in opponent.player.books
+            div class="opponent-book"
+              img src="/images/backs_blue.png"
 javascript:
   function setSelectedCardRank(value) {
     document.getElementById('selected_card_rank').value = value;
@@ -60,3 +59,18 @@ javascript:
     console.log('adding rank to query string: ' + anchorTag);
     return anchorTag.href += "&rank=" + getSelectedCardRank();
   }
+  $(document).ready(function() {
+    $(".opponent-name").click(function(){
+      console.log("GOT HERE");
+      if ($("#selected_card_rank").val) {
+        $.post('/request_card', {
+          match_id: "#{@perspective.match_id}",
+          requestor_id: "#{@perspective.you.id}",
+          requested_id: $(this).attr('data-opponent-id'),
+          rank: getSelectedCardRank()
+        }).success(function()  {
+          console.log("asked for card -> match_id: #{@perspective.match_id}, requestor_id: #{@perspective.you.id}, rank: getSelectedCardRank()");
+        });
+      }
+    });
+  });

@@ -83,15 +83,6 @@ describe Match do
       expect(match.over?).to be_truthy
     end
 
-    it 'tells its user names' do
-      expect(match.user_names).to match_array ['user1', 'user2']
-    end
-
-    it 'answers user with given name' do
-      user = match.user_with_name('user2')
-      expect(user).to be second_match_user_added
-    end
-
     it 'broadcasts to all users' do
       match.broadcast('universal message')
       expect(match.messages_for(first_match_user_added)).to match_array ['universal message']
@@ -124,23 +115,6 @@ describe Match do
         expect(opponents).to match_array [first_match_user_added]
       end
 
-      it 'deals the right number of cards to each game player' do
-        match.deal
-        expect(game.players.first.card_count).to eq 5
-      end
-
-      it 'deals different cards to each game player every time' do
-        match.deal
-        cards_dealt_first_time = game.players.first.hand
-        game.players.first.hand = []
-        game.players.last.hand = []
-        match.deal
-        cards_dealt_second_time = game.players.first.hand
-        expect(cards_dealt_second_time).not_to match_array(cards_dealt_first_time)
-      end
-
-      xit 'associates the right game player with an added match user'
-
       context 'with cards for players' do
         before do
           @player1_card1 = Card.new(rank: '8', suit: 'D')
@@ -165,17 +139,15 @@ describe Match do
           player2.books << player2_book1
         end
 
-        # it 'provides the current state of the match' do
-        #   expected_state = 'user1 has 2 cards and these books: [  ]' +
-        #                    "\n" +
-        #                    'user2 has 3 cards and these books: [ 4s ]'
-        #   expect(match.state).to eq expected_state
-        # end
-        #
-        # it 'provides the current state for a single user' do
-        #   expected_state = 'you have these cards: 8D, JS and these books: [  ]'
-        #   expect(match.state_for(first_match_user_added)).to eq expected_state
-        # end
+        it 'provides current state of the match for a given user' do
+          perspective = match.state_for(first_match_user_added)
+          expect(perspective.you).to be first_match_user_added
+          expect(perspective.opponents).to match_array [second_match_user_added]
+          expect(perspective.status).to eq Status::PENDING
+          expect(perspective.player).to be player1
+          expect(perspective.current_user).to be first_match_user_added
+          expect(perspective.initial_user).to be first_match_user_added
+        end
 
         it 'moves play to the next user after the current one when next has cards' do
           match.current_user = match.match_users.first

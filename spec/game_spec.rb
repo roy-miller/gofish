@@ -34,6 +34,16 @@ describe Game do
       expect(game.deck.card_count).to eq 42
     end
 
+    it 'deals different cards to each game player every time' do
+      game.deal(cards_per_player: 5)
+      cards_dealt_first_time = game.players.first.hand
+      game.players.first.hand = []
+      game.players.last.hand = []
+      game.deal(cards_per_player: 5)
+      cards_dealt_second_time = game.players.first.hand
+      expect(cards_dealt_second_time).not_to match_array(cards_dealt_first_time)
+    end
+
     it 'answers true when the deck is out of cards, even if players have cards' do
       game.deck.cards = []
       game.players.first.hand = [Card.new(rank: 'rank', suit: 'suit')]
@@ -69,6 +79,11 @@ describe Game do
       expect(player1.hand).to match_array [card_drawn]
     end
 
-    xit 'declares a game winner'
+    it 'declares a game winner' do
+      player1.books << Book.new
+      player2.books << Book.new
+      player2.books << Book.new
+      expect(game.winner).to be player2
+    end
   end
 end

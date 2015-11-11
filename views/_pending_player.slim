@@ -2,10 +2,5 @@ div class="row"
   div id="messages"
     p Messages
     div id="message_text"
-      / = @match.messages_for(@match_user)
       - for message in @perspective.messages
         div class="message-line" = message
-  div id="update"
-    form action="/update" method="post"
-      input id="user_id" name="user_id" type="hidden" value="#{@perspective.you.id}"
-      input id="update" name= "update" type="submit" value="Update"

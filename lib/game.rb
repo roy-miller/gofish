@@ -26,7 +26,8 @@ class Game
     end
   end
 
-  def declare_game_winner
+  def winner
+    @players.max_by(&:book_count)
   end
 
   def over?

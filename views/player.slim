@@ -3,6 +3,8 @@ html
   head
     title Player
     link rel="stylesheet" type="text/css" href="/css/gofish.css"
+    script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"
+    script src="https://js.pusher.com/3.0/pusher.min.js" type="text/javascript"
 
   body
     h1 Welcome, #{@perspective.you.name}!
@@ -11,3 +13,20 @@ html
         == slim :_pending_player
       - else
         == slim :_active_player
+  javascript:
+    $(document).ready(function() {
+      Pusher.log = function(message) {
+        if (window.console && window.console.log) {
+          window.console.log(message);
+        }
+      };
+      var pusher = new Pusher('9d7c66d1199c3c0e7ca3', { encrypted: true });
+      var channel = pusher.subscribe('player_channel_' + "#{@perspective.match_id}");
+
+      channel.bind('game_message_event', function(data) {
+          document.getElementById("message").innerText = data["message"];
+      });
+      channel.bind('refresh_event', function(data) {
+        document.location.reload(true);
+      });
+    });
