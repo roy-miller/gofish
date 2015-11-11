@@ -34,6 +34,11 @@ body { background-color: rgb(59,89,152); }
   color: white;
 }
 
+#player_header {
+  margin: auto;
+  width: 500px;
+}
+
 #game_options {  }
 
 #user_name,

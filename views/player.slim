@@ -8,7 +8,7 @@ html
 
   body
     div#player
-      h1 Welcome, #{@perspective.you.name}!
+      h1#player_header Welcome, #{@perspective.you.name}!
       div#card_table.group
         - if @perspective.pending?
           == slim :_pending_player
