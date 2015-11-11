@@ -15,21 +15,24 @@ class Match
   @@matches = []
 
   def self.find(match_id)
-    match = @@matches.find { |match| match.id = match_id }
-    unless match # TODO this side effect for testing chafes
-      player1 = Player.new(1)
-      player2 = Player.new(2)
-      game = Game.new([player1, player2]).tap do |game|
-        game.deal(cards_per_player: 5)
-      end
-      match_users = [
-        MatchUser.new(user: User.new(id: 1, name: "Player1"), player: player1),
-        MatchUser.new(user: User.new(id: 2, name: "Player2"), player: player2)
-      ]
-      match = Match.new(id: match_id, game: game, match_users: match_users)
-      match_users.each { |match_user| match.messages[match_user] = [] }
-      @@matches << match
+    match = @@matches.find { |match| match.id == match_id }
+    match = self.create_default_match(match_id) unless match
+    match
+  end
+
+  def self.create_default_match(match_id)
+    player1 = Player.new(1)
+    player2 = Player.new(2)
+    game = Game.new([player1, player2]).tap do |game|
+      game.deal(cards_per_player: 5)
     end
+    match_users = [
+      MatchUser.new(user: User.new(id: 1, name: "Player1"), player: player1),
+      MatchUser.new(user: User.new(id: 2, name: "Player2"), player: player2)
+    ]
+    match = Match.new(id: match_id, game: game, match_users: match_users)
+    match_users.each { |match_user| match.messages[match_user] = [] }
+    @@matches << match
     match
   end
 
@@ -107,19 +110,8 @@ class Match
     until @messages[match_user].empty?
       messages << @messages[match_user].shift
     end
-    puts "LEFTOVER MESSAGES: #{@messages[match_user]}" if !@messages[match_user].empty?
     messages
   end
-
-  # TODO get rid of this?
-  # def deal
-  #   @game.deal(cards_per_player: CARDS_PER_PLAYER)
-  # end
-
-  # TODO get rid of this?
-  # def user_names
-  #   @match_users.map { |match_user| match_user.name }
-  # end
 
   def over?
     @game.over?
@@ -186,7 +178,7 @@ class Match
     @game.deck.card_count
   end
 
-  # TODO handle game over
+  # TODO oh, the humanity
   def ask_for_cards(requestor:, recipient:, card_rank:)
     if requestor != @current_user
       inform_user(requestor, message: "It's not your turn, it's #{@current_user.name}'s")
@@ -250,7 +242,7 @@ class Match
   end
 
   def state_for(user)
-    MatchPerspective.new.for(match: self, user: user)
+    MatchPerspective.new(match: self, user: user)
   end
 
   def winner

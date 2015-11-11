@@ -42,6 +42,12 @@ get '/matches/:match_id/users/:user_id.?:format?' do
   match = Match.find(params['match_id'].to_i)
   match_user = match.match_user_for(params['user_id'].to_i)
   @perspective = match.state_for(match_user)
+  # if @perspective.messages.empty?
+  #   puts "\n\n**********"
+  #   puts "missing messages for user #{match_user.name} ->"
+  #   puts "  messages for user: #{match.messages[match_user]}"
+  #   puts "**********\n\n"
+  # end
   slim :player
 end
 

@@ -1,8 +1,3 @@
-div class="row" class="group"
-  /div id="update"
-  /  form id="update_form" name="update_form" action="/update" method="post"
-  /    input id="user_id" name="user_id" type="hidden" value="#{@perspective.you.id}"
-  /    input id="update_match" type="submit" value="Update"
 div class="row"
   div id="messages"
     p Messages
@@ -15,16 +10,14 @@ div class="row"
       strong #{@perspective.deck_card_count} cards left in the pond
 div class="row" class="group"
   div id="your_hand"
-    p
-      strong Your hand
+    p Your hand
     - for card in @perspective.player.hand
       div class="your-card #{card.suit.downcase}#{card.rank.downcase}"
         a class="your-card-link" href="#" onclick="return setSelectedCardRank('#{card.rank}');"
           img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
     input id="selected_card_rank" type="hidden" value=""
   div id="your_books"
-    p
-      strong #{@perspective.player.books.count} Books
+    p #{@perspective.player.books.count} Books
     - for book in @perspective.player.books
       div class="your-book"
         img src="/images/backs_blue.png"
@@ -34,15 +27,12 @@ div class="row" class="group"
       div class="opponent group"
         div id="opponent_#{index}_hand"
           p
-            /a href="/ask?match_id=#{@perspective.match_id}&requestor_id=#{@perspective.you.id}&requested_id=#{opponent.id}" onclick="return addRankToQueryString(this);"
-            a data-opponent-id="#{opponent.id}" class="opponent-name" href="#"
-              strong #{opponent.name} (#{opponent.player.hand.count} cards)
+            a data-opponent-id="#{opponent.id}" class="opponent-name" href="#" #{opponent.name} (#{opponent.player.hand.count} cards)
           - for card in opponent.player.hand
             div class="opponent-card facedown"
               img src="/images/backs_blue.png"
         div id="opponent_#{index}_books"
-          p
-            strong #{opponent.player.books.count} Books
+          p #{opponent.player.books.count} Books
           - for book in opponent.player.books
             div class="opponent-book"
               img src="/images/backs_blue.png"
