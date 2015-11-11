@@ -22,7 +22,7 @@ div.row.group
   div#opponents
     - @perspective.opponents.each_with_index do |opponent, index|
       div.opponent.group
-        div class="opponent_#{index}_hand"
+        div id="opponent_#{index}_hand"
           p
             a.opponent-name data-opponent-id="#{opponent.id}" href="#"
               strong #{opponent.name}

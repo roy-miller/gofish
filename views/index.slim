@@ -5,16 +5,19 @@ html
     link rel="stylesheet" type="text/css" href="/css/gofish.css"
 
   body
-    h1 Welcome, to GoFish!
-    form id="game_options" action="/start" method="post"
-      div class="row"
-        input id="user_name" name="user_name" type="text" placeholder="Enter your username"
-      div class="row"
-        input id="user_id" name="user_id" type="text" placeholder="Enter your user id if you have one"
-      div class="row"
-        p Choose how many opponents you want and click 'Play!'
-        select id="number_of_opponents" name="number_of_opponents"
-          - (1..9).each do |value|
-            option value="#{value}" = value
-      div class="row"
-        input id="start_playing" type="submit" value="Play!"
+    div#welcome.group
+      div#funny_fish
+        img src="/images/funny_fish.png"
+      h1 Welcome, to GoFish!
+      form#game_options action="/start" method="post"
+        div.row
+          input#user_name name="user_name" type="text" placeholder="Enter username"
+        div.row
+          input#user_id name="user_id" type="text" placeholder="Enter user id if you have one"
+        div.row
+          p#opponents_caption Number of people you want to play
+          select#number_of_opponents name="number_of_opponents"
+            - (1..6).each do |value|
+              option value="#{value}" = value
+        div.row
+          input#start_playing type="submit" value="Play"

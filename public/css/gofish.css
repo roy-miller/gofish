@@ -1,4 +1,5 @@
-body { margin: 20px; }
+html, body { margin: 0; padding: 0; }
+body { background-color: rgb(59,89,152); }
 .group:after {
   content: "";
   display: table;
@@ -9,20 +10,83 @@ body { margin: 20px; }
   margin-bottom: 10px;
 }
 
-#user_name,
-#user_id { padding: 5px; width: 100%; max-width: 200px; }
+#funny_fish {
+  width: 350px;
+  height: 254px;
+}
 
-#number_of_opponents,
-#start_playing { padding: 5px; width: 100%; max-width: 200px; }
+#funny_fish img {
+  margin: auto;
+  width: 350px;
+  height: 254px;
+}
+
+#welcome {
+  margin: auto;
+  width: 350px;
+  padding: 10px;
+  font-family: Raleway, 'Helvetica Neue', Helvetica, pragmatica-web, Arial, sans-serif;
+  color: white;
+}
+
+#player {
+  margin: auto;
+  padding: 20px;
+  font-family: Raleway, 'Helvetica Neue', Helvetica, pragmatica-web, Arial, sans-serif;
+  color: white;
+}
+
+#game_options {
+}
+
+#user_name,
+#user_id {
+  padding: 5px;
+  width: 300px;
+  font-size: 16px;
+  height: 34px;
+}
+
+#start_playing {
+  margin: 30px 50px 0px 0px;
+  border: 0;
+  background-color: #49a942;
+  color: white;
+  width: 310px;
+  padding: 5px;
+  font-size: 24px;
+  font-weight: bold;
+  height: 40px;
+  border-radius: 0px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+#opponents_caption {
+  margin-top: 30px;
+}
+
+#number_of_opponents {
+  margin: 0px 50px 0px 0px;
+  border: 1px solid #111;
+  background-color: white;
+  width: 310px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  height: 44px;
+  border-radius: 0px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
 
 #user_name,
 #user_id { border: 1px solid gray; }
 
 #user_name {  }
 #user_id {  }
-
-#number_of_opponents,
-#start_playing { border-radius: 0; }
 
 #card_table {
   width: 800px;

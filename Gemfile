@@ -1,11 +1,15 @@
 source 'https://rubygems.org'
 
-gem 'rspec'
-gem 'pry'
-gem 'pry-byebug'
 gem 'sinatra'
 gem 'sinatra-contrib'
-gem 'capybara'
 gem 'slim'
 gem 'pusher'
-gem 'factory_girl'
+
+group :test do
+  gem 'rspec'
+  gem 'pry'
+  gem 'pry-byebug'
+  gem 'capybara'
+  gem 'factory_girl'
+  gem 'spinach'
+end
