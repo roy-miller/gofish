@@ -44,7 +44,6 @@ body { background-color: rgb(59,89,152); }
 #user_name,
 #user_id {
   padding: 15px;
-  /*width: 300px;*/
   width: 100%;
   font-size: 16px;
   color: rgb(59,89,152);
@@ -191,13 +190,14 @@ body { background-color: rgb(59,89,152); }
 }
 
 #message_text {
-  padding: 5px;
+  padding: 15px;
   height: 100%;
   width: 100%;
   min-height: 36px;
   background-color: white;
   border: 1px solid gray;
   color: rgb(59,89,152);
+  box-sizing: border-box;
 }
 
 /*
