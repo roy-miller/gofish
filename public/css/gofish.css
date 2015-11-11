@@ -49,7 +49,7 @@ body { margin: 20px; }
   width: 41px;
 }
 #your_books { float: left; width: 50%; }
-.your-book { float: left; }
+.your-book { float: left; margin-right: -31px; }
 .your-book img { width: 41px; height: 66px; }
 
 #opponents { float: left; width: 100%; }
@@ -82,7 +82,7 @@ body { margin: 20px; }
 #opponent_4_books,
 #opponent_5_books,
 #opponent_6_books { float: left; width: 50%; }
-.opponent-book { float: left; }
+.opponent-book { float: left; margin-right: -31px }
 .opponent-book img { width: 41px; height: 66px; }
 
 #fish_pond { float: left; width: 100%; }

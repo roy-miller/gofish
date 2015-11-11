@@ -1,40 +1,34 @@
-div class="row"
-  div id="messages"
+div.row
+  div#messages
     p Messages
-    div id="message_text"
+    div#message_text
       - for message in @perspective.messages
-        div class="message-line" = message
-div class="row"
-  div id="fish_pond"
-    p id="fish_pond_text"
+        div.message-line = message
+div.row
+  div#fish_pond
+    p#fish_pond_text
       strong #{@perspective.deck_card_count} cards left in the pond
-div class="row" class="group"
-  div id="your_hand"
-    p Your hand
+div.row.group
+  div#your_hand
+    p
+      strong You
+      |  -> #{@perspective.you.player.hand.count} cards, #{@perspective.you.player.books.count} books
     - for card in @perspective.player.hand
       div class="your-card #{card.suit.downcase}#{card.rank.downcase}"
-        a class="your-card-link" href="#" onclick="return setSelectedCardRank('#{card.rank}');"
+        a.your-card-link href="#" onclick="return setSelectedCardRank('#{card.rank}');"
           img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
-    input id="selected_card_rank" type="hidden" value=""
-  div id="your_books"
-    p #{@perspective.player.books.count} Books
-    - for book in @perspective.player.books
-      div class="your-book"
-        img src="/images/backs_blue.png"
-div class="row" class="group"
-  div id="opponents"
+    input#selected_card_rank type="hidden" value=""
+div.row.group
+  div#opponents
     - @perspective.opponents.each_with_index do |opponent, index|
-      div class="opponent group"
-        div id="opponent_#{index}_hand"
+      div.opponent.group
+        div class="opponent_#{index}_hand"
           p
-            a data-opponent-id="#{opponent.id}" class="opponent-name" href="#" #{opponent.name} (#{opponent.player.hand.count} cards)
+            a.opponent-name data-opponent-id="#{opponent.id}" href="#"
+              strong #{opponent.name}
+              |  -> #{opponent.player.hand.count} cards, #{opponent.player.books.count} books
           - for card in opponent.player.hand
-            div class="opponent-card facedown"
-              img src="/images/backs_blue.png"
-        div id="opponent_#{index}_books"
-          p #{opponent.player.books.count} Books
-          - for book in opponent.player.books
-            div class="opponent-book"
+            div.opponent-card.facedown
               img src="/images/backs_blue.png"
 javascript:
   function setSelectedCardRank(value) {
