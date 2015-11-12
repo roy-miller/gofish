@@ -9,6 +9,6 @@ Feature: Ask to play
     Then my player page tells me to wait for opponents
 
   Scenario: Enough players to play
-    Given I asked to play
+    Given I ask to play
     And there are enough players for a game
     Then my player page shows the start of the game

@@ -26,6 +26,10 @@ class Card
     self == other
   end
 
+  def hash
+    @rank.hash ^ @suit.hash
+  end
+
   def rank_value
     values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
     values.index(@rank) + 2
