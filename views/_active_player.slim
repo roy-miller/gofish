@@ -8,7 +8,11 @@ div.row.group
     div#your_hand_caption
       p
         strong You
-        |  -> #{@perspective.you.player.hand.count} cards, #{@perspective.you.player.books.count} books
+        |  ->
+        span<> id='your_hand_card_count' #{@perspective.you.player.hand.count}
+        ' cards,
+        span<> id='your_hand_book_count' #{@perspective.you.player.books.count}
+        ' books
     div#your_hand_cards
       - for card in @perspective.player.hand
         div class="your-card #{card.suit.downcase}#{card.rank.downcase}"
@@ -17,7 +21,9 @@ div.row.group
     input#selected_card_rank type="hidden" value=""
 div.row
   div#fish_pond
-    p#fish_pond_text #{@perspective.deck_card_count} cards left in the pond
+    p#fish_pond_text
+      span<> id='fish_pond_card_count' #{@perspective.deck_card_count}
+      ' cards left in the pond
 div.row.group
   div#opponents
     - @perspective.opponents.each_with_index do |opponent, index|
@@ -27,7 +33,11 @@ div.row.group
             p
               a.opponent-name data-opponent-id="#{opponent.id}" href="#opponent"
                 strong #{opponent.name}
-                |  -> #{opponent.player.hand.count} cards, #{opponent.player.books.count} books
+                |  ->
+                span<> id="opponent_#{index}_hand_card_count" #{opponent.player.hand.count}
+                ' cards,
+                span<> id="opponent_#{index}_hand_book_count" #{opponent.player.books.count}
+                ' books
           div.opponent-hand-cards
             - for card in opponent.player.hand
               div.opponent-card.facedown
@@ -45,17 +55,69 @@ javascript:
     console.log('adding rank to query string: ' + anchorTag);
     return anchorTag.href += "&rank=" + getSelectedCardRank();
   }
+  function updateMatch(matchPerspective) {
+    newMessages = []
+    matchPerspective.messages.forEach(function (message) {
+      newMessages.push("<div class='message-line'>" + message + "</div>");
+    });
+    $('#message_text').replaceWith(
+      "<div id='message_text'>" + newMessages.join('') + "</div>"
+    );
+    $('#your_hand_card_count').text(matchPerspective.cards.length);
+    $('#your_hand_book_count').text(matchPerspective.book_count);
+    $('#your_hand_cards').empty();
+    matchPerspective.cards.forEach(function (card) {
+      card_div = document.createElement('div');
+      card_div.className = 'your-card ' + card.suit.toLowerCase() + card.rank.toLowerCase();
+      card_link = document.createElement('a');
+      card_link.setAttribute('href', '#card');
+      card_link.setAttribute('onclick', "return setSelectedCardRank('" + card.rank + "');");
+      card_image = document.createElement('img');
+      card_image.setAttribute('src', '/images/' + card.suit.toLowerCase() + card.rank.toLowerCase() + '.png');
+      card_link.appendChild(card_image);
+      card_div.appendChild(card_link);
+      $('#your_hand_cards').append(card_div);
+    });
+    $('#fish_pond_card_count').text(matchPerspective.deck_card_count);
+    matchPerspective.opponents.forEach(function (opponent, index) {
+      $('#opponent_' + index + '_hand_card_count').text(opponent.card_count);
+      $('#opponent_' + index + '_hand_book_count').text(opponent.book_count);
+      opponent_card_images = [];
+      for (var i=0; i < opponent.card_count; i++) {
+        opponent_card_images.push("<div class='opponent-card facedown'><img src='/images/backs_blue.png'/></div>")
+      }
+    });
+  }
   $(document).ready(function() {
     $(".opponent-name").click(function(){
-      console.log("GOT HERE");
       if ($("#selected_card_rank").val) {
-        $.post('/request_card', {
-          match_id: "#{@perspective.match_id}",
-          requestor_id: "#{@perspective.you.id}",
-          requested_id: $(this).attr('data-opponent-id'),
-          rank: getSelectedCardRank()
-        }).success(function()  {
-          console.log("asked for card -> match_id: #{@perspective.match_id}, requestor_id: #{@perspective.you.id}, rank: getSelectedCardRank()");
+        //$.post('/request_card', {
+        //  match_id: "#{@perspective.match_id}",
+        //  requestor_id: "#{@perspective.you.id}",
+        //  requested_id: $(this).attr('data-opponent-id'),
+        //  rank: getSelectedCardRank()
+        //}).success(function()  {
+        //  console.log("asked for card -> match_id: #{@perspective.match_id}, requestor_id: #{@perspective.you.id}, rank: getSelectedCardRank()");
+        //});
+        $.ajax({
+          url: "http://localhost:4567/request_card",
+          type: 'POST',
+          data: {
+            match_id: "#{@perspective.match_id}",
+            requestor_id: "#{@perspective.you.id}",
+            requested_id: $(this).attr('data-opponent-id'),
+            rank: getSelectedCardRank()
+          },
+          dataType: 'json',
+          success: function(data) {
+             //object = JSON.parse(data.responseText);
+             //console.log(JSON.stringify(data));
+             console.dir(data);
+             updateMatch(data);
+          },
+          error: function(result) {
+            console.log("error requesting card\n" + result);
+          }
         });
       }
     });

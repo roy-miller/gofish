@@ -22,12 +22,18 @@ html
         }
       };
       var pusher = new Pusher('9d7c66d1199c3c0e7ca3', { encrypted: true });
-      var channel = pusher.subscribe('player_channel_' + "#{@perspective.match_id}");
 
-      channel.bind('game_message_event', function(data) {
+      var all_players_channel = pusher.subscribe('all_players_channel_' + "#{@perspective.match_id}");
+      var player_channel = pusher.subscribe('player_channel_' + "#{@perspective.match_id}_#{@perspective.you.id}")
+      all_players_channel.bind('game_message_event', function(data) {
           document.getElementById("message").innerText = data["message"];
       });
-      channel.bind('refresh_event', function(data) {
+      all_players_channel.bind('refresh_event', function(data) {
         document.location.reload(true);
+      });
+      player_channel.bind('match_state_change_event', function(data) {
+        //document.location.reload(true);
+        console.log("got some pusher data back:\n" + JSON.stringify(data));
+        //what the heck do I do with this? put it in a JS object? And then?
       });
     });

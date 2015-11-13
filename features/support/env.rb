@@ -4,15 +4,15 @@ require 'capybara'
 # require 'capybara/rspec'
 require 'factory_girl'
 require 'spinach/capybara'
-require 'selenium-webdriver'
 require 'capybara/poltergeist'
+# require 'capybara/dsl'
+require 'selenium-webdriver'
 
 Capybara.javascript_driver = :poltergeist
 Capybara.app = Sinatra::Application
 # set(:show_exceptions, false) # what's this for?
 
 Spinach::FeatureSteps.include Spinach::FeatureSteps::Capybara
-# Spinach::FeatureSteps.include Capybara::DSL # necessary?
 Spinach.hooks.on_tag("javascript") { ::Capybara.current_driver = ::Capybara.javascript_driver }
 Spinach.config[:failure_exceptions] << RSpec::Expectations::ExpectationNotMetError
 Spinach::FeatureSteps.include RSpec::Matchers

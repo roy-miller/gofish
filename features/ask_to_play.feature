@@ -12,3 +12,6 @@ Feature: Ask to play
     Given I ask to play
     And there are enough players for a game
     Then my player page shows the start of the game
+
+  #Scenario: Check this
+  #  Given check this
