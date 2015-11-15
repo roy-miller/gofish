@@ -1,0 +1,26 @@
+#  Scenario: Check this
+#    Given check this
+
+# step 'check this' do
+#   in_browser(:player1) do
+#     #i_am_on_the_welcome_page
+#     #i_choose_my_game_options_and_play
+#     visit('/')
+#     page.within("#game_options") do # must have page.* to avoid rspec matcher clash
+#       fill_in 'user_name', with: 'player1'
+#       fill_in 'user_id', with: ''
+#       select '1', from: 'number_of_opponents'
+#       click_button 'start_playing'
+#     end
+#     expect(page.text).to match(/waiting for opponents/i)
+#   end
+#   in_browser(:player2) do
+#     i_am_on_the_welcome_page
+#     i_choose_my_game_options_and_play
+#     expect(page.text).to match(/wait for another player/i)
+#   end
+#   in_browser(:player1) do
+#     visit current_path
+#     expect(page.text).to match(/ask another player/i)
+#   end
+# end

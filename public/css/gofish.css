@@ -182,13 +182,18 @@ body { background-color: rgb(59,89,152); }
 }
 
 #messages {
+  padding: 15px;
   height: auto;
-  min-height: 50px;
+  min-height: 36px;
   min-width: 50px;
   margin-bottom: 20px;
+  background-color: white;
+  color: rgb(59,89,152);
+  box-sizing: border-box;
+  white-space: pre;
 }
 
-#message_text {
+/*#message_text {
   padding: 15px;
   height: 100%;
   width: 100%;
@@ -197,7 +202,10 @@ body { background-color: rgb(59,89,152); }
   border: 1px solid gray;
   color: rgb(59,89,152);
   box-sizing: border-box;
-}
+  white-space: pre;
+  word-break: break-all;
+  word-wrap: break-word;
+}*/
 
 /*
 #update_form {

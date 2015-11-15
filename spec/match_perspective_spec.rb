@@ -34,6 +34,7 @@ describe MatchPerspective do
     perspective = MatchPerspective.new(match: match, user: match_user2)
     perspective_json = perspective.to_json
     perspective_hash = JSON.parse(perspective_json, {symbolize_names: true})
+    expect(perspective_hash[:status]).to eq 'pending'
     expect(perspective_hash[:name]).to eq 'user2'
     expect(perspective_hash[:messages]).to match_array ['message1', 'message2']
     expect(perspective_hash[:cards]).to match_array [

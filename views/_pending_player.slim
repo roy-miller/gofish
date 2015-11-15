@@ -1,5 +1,4 @@
-div class="row"
-  div id="messages"
-    div id="message_text"
-      - for message in @perspective.messages
-        div class="message-line" = message
+div.row
+  div#messages
+    div#message_text
+      - @perspective.messages.join("\n")

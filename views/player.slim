@@ -5,35 +5,30 @@ html
     link rel="stylesheet" type="text/css" href="/css/gofish.css"
     script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"
     script src="https://js.pusher.com/3.0/pusher.min.js" type="text/javascript"
+    script src="/javascripts/player_view.js" type="text/javascript"
 
   body
     div#player
       h1#player_header Welcome, #{@perspective.you.name}!
       div#card_table.group
-        - if @perspective.pending?
-          == slim :_pending_player
-        - else
+        div#messages = @perspective.messages.join("\n")
+        - if !@perspective.pending?
           == slim :_active_player
-  javascript:
-    $(document).ready(function() {
-      Pusher.log = function(message) {
-        if (window.console && window.console.log) {
-          window.console.log(message);
-        }
-      };
-      var pusher = new Pusher('9d7c66d1199c3c0e7ca3', { encrypted: true });
+    javascript:
+      var playerView; //what the huh?
+      $(document).ready(function() {
+        playerView = new PlayerView("#{@perspective.match_id}", "#{@perspective.you.id}");
+        //playerView.refresh(); //first time
 
-      var all_players_channel = pusher.subscribe('all_players_channel_' + "#{@perspective.match_id}");
-      var player_channel = pusher.subscribe('player_channel_' + "#{@perspective.match_id}_#{@perspective.you.id}")
-      all_players_channel.bind('game_message_event', function(data) {
-          document.getElementById("message").innerText = data["message"];
+        Pusher.log = function(message) {
+          if (window.console && window.console.log) {
+            window.console.log(message);
+          }
+        };
+        var pusher = new Pusher('9d7c66d1199c3c0e7ca3', { encrypted: true });
+        var allPlayersChannel = pusher.subscribe('all_players_channel_' + playerView.matchId);
+        allPlayersChannel.bind('refresh_event', playerView.refresh.bind(playerView));
+        var playerChannel = pusher.subscribe('player_channel_' + playerView.matchId + "_" + playerView.playerId);
+        playerChannel.bind('match_start_event', playerView.start.bind(playerView));
+        playerChannel.bind('match_change_event', function(data){ playerView.refresh(data); }.bind(playerView));
       });
-      all_players_channel.bind('refresh_event', function(data) {
-        document.location.reload(true);
-      });
-      player_channel.bind('match_state_change_event', function(data) {
-        //document.location.reload(true);
-        console.log("got some pusher data back:\n" + JSON.stringify(data));
-        //what the heck do I do with this? put it in a JS object? And then?
-      });
-    });

@@ -1,11 +1,9 @@
 require './app'
 require 'rspec'
 require 'capybara'
-# require 'capybara/rspec'
 require 'factory_girl'
 require 'spinach/capybara'
 require 'capybara/poltergeist'
-# require 'capybara/dsl'
 require 'selenium-webdriver'
 
 Capybara.javascript_driver = :poltergeist

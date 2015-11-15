@@ -10,7 +10,8 @@ class Status
 end
 
 class Match
-  attr_accessor :id, :opponent_count, :game, :match_users, :current_user, :status, :messages
+  attr_accessor :id, :opponent_count, :game, :match_users, :current_user,
+                :next_user, :status, :messages
   CARDS_PER_PLAYER = 5
   @@matches = []
 
@@ -63,6 +64,7 @@ class Match
     pending_match = @@matches.find { |match| match.status == Status::PENDING && match.opponent_count == opponent_count }
     pending_match = self.make_match(opponent_count) if pending_match.nil?
     pending_match.add_user(match_user: match_user, opponent_count: opponent_count)
+    pending_match.start_or_tell_user_to_wait(match_user)
     pending_match # TODO why return the match?
   end
 
@@ -88,6 +90,7 @@ class Match
     @status = Status::PENDING
   end
 
+  # TODO don't need both of these
   def pending?
     @status == Status::PENDING
   end
@@ -104,7 +107,7 @@ class Match
     @match_users.each { |match_user| inform_user(match_user, message: message) }
   end
 
-  # TODO should a match_user know his own messages?
+  # TODO should there even be a queue of messages for each user?
   def messages_for(match_user)
     messages = []
     until @messages[match_user].empty?
@@ -121,10 +124,13 @@ class Match
     @match_users << match_user
     @messages[match_user] = []
     match_user.player = @game.players[@match_users.index(match_user)]
+  end
+
+  def start_or_tell_user_to_wait(match_user)
     if enough_users_to_start?
       start
     else
-      inform_user(match_user, message: 'Waiting for opponents for you')
+      inform_user(match_user, message: 'Waiting for players')
     end
   end
 
@@ -150,10 +156,11 @@ class Match
   def start
     @status = Status::STARTED
     @current_user = initial_user
-    inform_user(initial_user, message: 'Ask another player for cards by clicking a card in your hand and then the opponent name')
-    opponents_for(initial_user).each do |user|
-      inform_user(user, message: 'Wait for another player to ask you for cards')
-    end
+    broadcast("Click a card and a player to ask for cards when it's your turn")
+    broadcast("It's #{@current_user.name}'s turn")
+    #opponents_for(initial_user).each do |user|
+    #  inform_user(user, message: 'Wait for another player to ask you for cards')
+    #end
   end
 
   def user_for_player(player)
@@ -181,6 +188,7 @@ class Match
   # TODO oh, the humanity
   def ask_for_cards(requestor:, recipient:, card_rank:)
     if requestor != @current_user
+      # TODO need this?
       inform_user(requestor, message: "It's not your turn, it's #{@current_user.name}'s")
       return
     end
@@ -210,7 +218,7 @@ class Match
       broadcast("GAME OVER - #{winner.name} won!")
       return
     end
-    inform_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
+    #inform_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
   end
 
   def send_request_to_user(request)
@@ -239,6 +247,7 @@ class Match
     potential_next = @match_users[current_user_index + 1]
     potential_next = @match_users.first if potential_next.nil? # wrap
     potential_next.has_cards? ? @current_user = potential_next : move_play_to_next_user
+    @next_user = potential_next
   end
 
   def state_for(user)

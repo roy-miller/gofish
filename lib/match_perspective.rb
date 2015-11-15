@@ -22,8 +22,13 @@ class MatchPerspective
     @status == Status::PENDING
   end
 
+  def started?
+    @status == Status::STARTED
+  end
+
   def to_json
     hash = {}
+    hash[:status] = pending? ? 'pending' : 'started'
     hash[:name] = @you.name
     hash[:messages] = @messages
     hash[:book_count] = @you.player.books.count
