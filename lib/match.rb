@@ -60,14 +60,11 @@ class Match
 
   def self.add_user(id: nil, name:, opponent_count: 1)
     user = User.find(id) || User.new(id: id, name: name)
-    #puts "\nuser for match_user: #{user.inspect}"
     match_user = MatchUser.new(user: user)
     pending_match = @@matches.find { |match| match.status == Status::PENDING && match.opponent_count == opponent_count }
     pending_match = self.make_match(opponent_count) if pending_match.nil?
     pending_match.add_user(match_user: match_user, opponent_count: opponent_count)
     pending_match.start_or_tell_user_to_wait(match_user)
-    #puts "added match_user, now have #{Match.matches.first.match_users.count}"
-    #puts "\n"
     pending_match # TODO why return the match?
   end
 
@@ -89,7 +86,7 @@ class Match
     @opponent_count = opponent_count
     @game = game
     @match_users = match_users
-    @messages = {}
+    @messages = []
     @status = Status::PENDING
   end
 
@@ -102,21 +99,12 @@ class Match
     @status == Status::STARTED
   end
 
-  def inform_user(match_user, message:)
-    @messages[match_user] << message
-  end
-
   def broadcast(message)
-    @match_users.each { |match_user| inform_user(match_user, message: message) }
+    @messages << message
   end
 
-  # TODO should there even be a queue of messages for each user?
-  def messages_for(match_user)
-    messages = []
-    until @messages[match_user].empty?
-      messages << @messages[match_user].shift
-    end
-    messages
+  def clear_messages
+    @messages.clear
   end
 
   def over?
@@ -125,7 +113,6 @@ class Match
 
   def add_user(match_user:, opponent_count: 1)
     @match_users << match_user
-    @messages[match_user] = []
     match_user.player = @game.players[@match_users.index(match_user)]
   end
 
@@ -133,7 +120,7 @@ class Match
     if enough_users_to_start?
       start
     else
-      inform_user(match_user, message: 'Waiting for players')
+      broadcast('Waiting for players')
     end
   end
 
@@ -157,6 +144,7 @@ class Match
   end
 
   def start
+    clear_messages
     @status = Status::STARTED
     @current_user = initial_user
     broadcast("Click a card and a player to ask for cards when it's your turn")
@@ -187,11 +175,8 @@ class Match
 
   # TODO oh, the humanity
   def ask_for_cards(requestor:, recipient:, card_rank:)
-    if requestor != @current_user
-      # TODO need this?
-      inform_user(requestor, message: "It's not your turn, it's #{@current_user.name}'s")
-      return
-    end
+    return if requestor != @current_user
+    clear_messages
     if over?
       broadcast("GAME OVER - #{winner.name} won!")
       return

@@ -36,7 +36,7 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
 
   step 'I can\'t play' do
     visit_player_page
-    expect(page.has_content?(/not your turn/)).to be true
+    expect(@me.player.hand).to match_array(@my_hand_before_asking)
   end
 
   step 'I ask my first opponent for cards he has' do

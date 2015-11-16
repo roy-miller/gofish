@@ -15,7 +15,7 @@ class MatchPerspective
     @opponents       = match.opponents_for(user)
     @deck_card_count = match.deck_card_count
     @status          = match.status
-    @messages        = match.messages_for(user)
+    @messages        = match.messages
   end
 
   def pending?
