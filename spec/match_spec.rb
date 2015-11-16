@@ -42,19 +42,10 @@ describe Match do
       expect(match.pending?).to be true
     end
 
-    it 'queues up messages for a match user' do
-      match.messages[first_match_user] = []
-      match.inform_user(first_match_user, message: 'message1')
-      match.inform_user(first_match_user, message: 'message2')
-      expect(match.messages[first_match_user]).to match_array ['message1', 'message2']
-    end
-
-    it 'provides messages for a match user and removes them' do
-      match.messages[first_match_user] = []
-      match.inform_user(first_match_user, message: 'message1')
-      match.inform_user(first_match_user, message: 'message2')
-      expect(match.messages_for(first_match_user)).to match_array ['message1', 'message2']
-      expect(match.messages[first_match_user]).to be_empty
+    it 'queues up messages for a match users' do
+      match.broadcast('message1')
+      match.broadcast('message2')
+      expect(match.messages).to match_array ['message1', 'message2']
     end
   end
 
@@ -66,8 +57,6 @@ describe Match do
 
     before do
       match.match_users = [first_match_user_added, second_match_user_added]
-      match.messages[first_match_user_added] = []
-      match.messages[second_match_user_added] = []
       match.current_user = first_match_user_added
       Match.matches << match
     end
@@ -81,12 +70,6 @@ describe Match do
     it 'is over if its game is over' do
       allow(game).to receive(:over?) { true }
       expect(match.over?).to be_truthy
-    end
-
-    it 'broadcasts to all users' do
-      match.broadcast('universal message')
-      expect(match.messages_for(first_match_user_added)).to match_array ['universal message']
-      expect(match.messages_for(second_match_user_added)).to match_array ['universal message']
     end
 
     it 'finds a match containing user with the given id' do
@@ -181,6 +164,18 @@ describe Match do
             @player2_card2,
             @player2_card3
           ]
+        end
+
+        it 'clears messages before match starts' do
+          match.messages = ['message1', 'message2']
+          match.start
+          expect(match.messages).not_to include('message1', 'message2')
+        end
+
+        it 'clears messages before a player asks for a card' do
+          match.messages = ['message1', 'message2']
+          match.ask_for_cards(requestor: first_match_user_added, recipient: first_match_user_added, card_rank: 'A')
+          expect(match.messages).not_to include('message1', 'message2')
         end
       end
     end

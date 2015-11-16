@@ -32,7 +32,6 @@ class Match
       MatchUser.new(user: User.new(id: 2, name: "Player2"), player: player2)
     ]
     match = Match.new(id: match_id, game: game, match_users: match_users)
-    match_users.each { |match_user| match.messages[match_user] = [] }
     @@matches << match
     match
   end

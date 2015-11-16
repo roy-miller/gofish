@@ -13,8 +13,7 @@ describe MatchPerspective do
 
   before do
     match.current_user = match_user2
-    match.messages[match_user1] = []
-    match.messages[match_user2] = ['message1', 'message2']
+    match.messages = ['message1', 'message2']
   end
 
   it 'creates a perspective from a match' do

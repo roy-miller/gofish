@@ -15,7 +15,8 @@ div.row.group
 div.row
   div#fish_pond
     p#fish_pond_text
-      span<> id='fish_pond_card_count' #{@perspective.deck_card_count} cards left in the pond
+      span<> id='fish_pond_card_count' #{@perspective.deck_card_count}
+      | cards left in the pond
 div.row.group
   div#opponents
     - @perspective.opponents.each_with_index do |opponent, index|

@@ -2,6 +2,7 @@ var PlayerView = function PlayerView(matchId, playerId) {
   this.matchId = matchId;
   this.playerId = playerId;
   this.playerUrl = "http://localhost:4567/matches/" + this.matchId + "/users/" + this.playerId
+  this.matchPerspective = null;
   this.listenForRankSelection();
   this.listenForCardRequests();
 }
@@ -61,7 +62,6 @@ PlayerView.prototype.refresh = function() {
     type: 'GET',
     dataType: 'json',
     success: function(matchPerspective) {
-      //console.dir(matchPerspective);
       self.setMessages(matchPerspective.messages);
       self.updateMatchIfStarted(matchPerspective);
     },
@@ -86,16 +86,25 @@ PlayerView.prototype.setMessages = function(messages) {
 }
 
 PlayerView.prototype.updateMatch = function(matchPerspective) {
-  var self = this;
-  //updatePlayerInfo
-  //updatePlayerCards
-  //updateDeck
-  //updateOpponents
-  $('#your_hand_card_count').text(matchPerspective.cards.length);
-  $('#your_hand_book_count').text(matchPerspective.book_count);
+  this.matchPerspective = matchPerspective;
+  this.updatePlayerInfo();
+  this.updatePlayerCards();
+  this.updateDeck();
+  this.updateOpponents();
+}
 
-  $('#your_hand_cards').empty();
-  matchPerspective.cards.forEach(function (card) {
+PlayerView.prototype.updatePlayerInfo = function() {
+  document.getElementById('your_hand_card_count').textContent = this.matchPerspective.cards.length;
+  document.getElementById('your_hand_book_count').textContent = this.matchPerspective.book_count;
+}
+
+PlayerView.prototype.playerHandElement = function() {
+  return document.getElementById('your_hand_cards')
+}
+
+PlayerView.prototype.updatePlayerCards = function() {
+  playerHandElement().innerHTML = '';
+  this.matchPerspective.cards.forEach(function (card) {
     card_div = document.createElement('div');
     card_div.className = 'your-card ' + card.suit.toLowerCase() + card.rank.toLowerCase();
     card_link = document.createElement('a');
@@ -104,17 +113,30 @@ PlayerView.prototype.updateMatch = function(matchPerspective) {
     card_image.src = '/images/' + card.suit.toLowerCase() + card.rank.toLowerCase() + '.png';
     card_link.appendChild(card_image);
     card_div.appendChild(card_link);
-    $('#your_hand_cards').append(card_div);
+    playerHandElement.appendChild(card_div);
   });
+}
 
-  $('#fish_pond_card_count').text(matchPerspective.deck_card_count);
+PlayerView.prototype.updateDeck = function() {
+  document.getElementById('fish_pond_card_count').textContent = this.matchPerspective.deck_card_count;
+}
 
-  matchPerspective.opponents.forEach(function (opponent, index) {
-    $('#opponent_' + index + '_hand_card_count').text(opponent.card_count);
-    $('#opponent_' + index + '_hand_book_count').text(opponent.book_count);
-    opponent_card_images = [];
+PlayerView.prototype.opponentHandElement = function(opponentNumber) {
+  return document.querySelector('#opponent_' + opponentNumber + '_hand .opponent-hand-cards')
+}
+
+PlayerView.prototype.updateOpponents = function() {
+  this.matchPerspective.opponents.forEach(function (opponent, index) {
+    document.getElementById('opponent_' + index + '_hand_card_count').textContent = opponent.card_count;
+    document.getElementById('opponent_' + index + '_hand_book_count').textContent = opponent.book_count;
+    opponentHandElement(index).innerHTML = '';
     for (var i=0; i < opponent.card_count; i++) {
-      opponent_card_images.push("<div class='opponent-card facedown'><img src='/images/backs_blue.png'/></div>")
+      new_card = document.createElement('div');
+      new_card.className = 'opponent-card';
+      card_image = document.createElement('img');
+      card_image.src = '/images/backs_blue.png';
+      new_card.appendChild(card_image);
+      opponentHandElement(index).appendChild(new_card);
     }
   });
 }
