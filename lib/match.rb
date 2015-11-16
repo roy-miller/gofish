@@ -11,7 +11,7 @@ end
 
 class Match
   attr_accessor :id, :opponent_count, :game, :match_users, :current_user,
-                :next_user, :status, :messages
+                :status, :messages
   CARDS_PER_PLAYER = 5
   @@matches = []
 
@@ -246,7 +246,7 @@ class Match
     potential_next = @match_users[current_user_index + 1]
     potential_next = @match_users.first if potential_next.nil? # wrap
     potential_next.has_cards? ? @current_user = potential_next : move_play_to_next_user
-    @next_user = potential_next
+    @current_user = potential_next
   end
 
   def state_for(user)

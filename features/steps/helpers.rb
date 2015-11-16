@@ -39,23 +39,29 @@ module Helpers
     end
     @match.start
     @me = @match.match_users.first
-    @hand_before_asking = Array.new(@me.player.hand)
+    @my_hand_before_asking = Array.new(@me.player.hand)
+    @first_opponent = @match.opponents_for(@me).first
+    @first_opponent_hand_before_asking = Array.new(@first_opponent.player.hand)
+    @second_opponent = @match.opponents_for(@me).last
+    @second_opponent_hand_before_asking = Array.new(@second_opponent.player.hand)
     @match.game.deck.cards = [Card.new(rank: 'Q', suit: 'H'), Card.new(rank: '10', suit: 'D')]
     @fish_card = @match.game.deck.cards.last
+    @card_nobody_has = Card.new(rank: '7', suit: 'H')
   end
 
   def visit_player_page
     visit "/matches/#{@match.id}/users/#{Match.matches.first.match_users.first.id}"
   end
 
-  def ask_for_cards(match, requestor, requested, rank)
+  #see http://www.elabs.se/blog/34-capybara-and-testing-apis
+  def ask_for_cards(match:, requestor:, requested:, rank:)
     params = {
       match_id: match.id,
       requestor_id: requestor.id,
       requested_id: requested.id,
       rank: rank
     }
-    post "/request_card", params
+    post("/request_card", params)
   end
 
   def give_card(user:, rank:, suit: 'C')

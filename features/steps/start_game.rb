@@ -13,7 +13,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
     ask_to_play
   end
 
-  # TODO TEST false positive - messages disappear on revisit
+  # TODO TEST false positive - messages disappear on revisit, fix messages
   step 'the match tells me to wait for opponents' do
     expect(page.text).to match(/waiting for players/i)
   end

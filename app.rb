@@ -50,9 +50,6 @@ get '/matches/:match_id/users/:user_id.?:format?' do
   if (params['format'] == 'json')
     match.state_for(match_user).to_json
   else
-    puts "\nmatch_users:"
-    match.match_users.each { |u| puts u.inspect }
-    puts "\n"
     @perspective = match.state_for(match_user)
     slim :player
   end

@@ -50,18 +50,27 @@ Feature: Play game
     Given it is my first opponent's turn
     When my first oppponent asks me for cards I do not have
     Then I do not give him the cards
-    And it is my second opponent's turn
+    And my first opponent goes fishing
+    And it becomes my second opponent's turn
 
   @javascript
   Scenario: Opponent asks another opponent for cards second opponent has
-    Given it my first opponent's turn
+    Given it is my first opponent's turn
     When my first opponent asks my second opponent for cards he has
-    Then my first opponent gets the cards
-    And it is my first opponent's turn
+    Then the match tells me that someone asked
+    And the match does not tell me that someone went fishing
+    And it is still my first opponent's turn
 
   @javascript
   Scenario: Opponent asks another opponent for cards second opponent does not have
-    Given it my first opponent's turn
+    Given it is my first opponent's turn
     When my first opponent asks my second opponent for cards he does not have
-    Then my first opponent does not get the cards
-    And it is my second opponent's turn
+    Then the match tells me that someone asked
+    And the match tells me that someone went fishing
+    And it becomes my second opponent's turn
+
+  @javascript
+  Scenario: I can't play out of turn
+    Given it is my first opponent's turn
+    When I ask my first opponent for cards
+    Then I can't play
