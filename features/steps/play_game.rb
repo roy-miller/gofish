@@ -36,7 +36,6 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
 
   step 'I can\'t play' do
     visit_player_page
-    binding.pry
     expect(page.has_content?(/not your turn/)).to be true
   end
 
