@@ -49,7 +49,6 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   end
 
   step 'I get the cards' do
-    visit_player_page
     expected_hand = [@my_hand_before_asking, @expected_card].flatten
     expected_hand.each do |card|
       expect(page.has_css?(".your-card[data-rank='#{card.rank.downcase}'][data-suit='#{card.suit.downcase}']")).to be true
@@ -177,12 +176,10 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   end
 
   step 'the match tells me that someone went fishing' do
-    #visit_player_page # TODO fix the dang messages!
     expect(page.has_content?(/went fishing/)).to be true
   end
 
   step 'the match does not tell me that someone went fishing' do
-    #visit_player_page # TODO fix the dang messages!
     expect(page.has_content?(/went fishing/)).to be false
   end
 end
