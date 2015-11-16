@@ -9,27 +9,24 @@ div.row.group
         ' books
     div#your_hand_cards
       - for card in @perspective.player.hand
-        a.your-card data-rank="#{card.rank.downcase}" href="#"
+        a.your-card data-rank="#{card.rank.downcase}" data-suit="#{card.suit.downcase}" href="#"
           img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
     input#selected_card_rank type="hidden" value=""
 div.row
   div#fish_pond
     p#fish_pond_text
-      span<> id='fish_pond_card_count' #{@perspective.deck_card_count}
-      ' cards left in the pond
+      span<> id='fish_pond_card_count' #{@perspective.deck_card_count} cards left in the pond
 div.row.group
   div#opponents
     - @perspective.opponents.each_with_index do |opponent, index|
-      div.opponent.group
+      div.opponent.group data-opponent-number="#{index}"
         div id="opponent_#{index}_hand"
           div.opponent-hand-caption
             p
               a.opponent-name data-opponent-id="#{opponent.id}" href="#"
                 strong #{opponent.name} ->
-                span<> id="opponent_#{index}_hand_card_count" #{opponent.player.hand.count}
-                ' cards,
-                span<> id="opponent_#{index}_hand_book_count" #{opponent.player.books.count}
-                ' books
+                span<> id="opponent_#{index}_hand_card_count" #{opponent.player.hand.count} cards,
+                span<> id="opponent_#{index}_hand_book_count" #{opponent.player.books.count} books
           div.opponent-hand-cards
             - for card in opponent.player.hand
               div.opponent-card.facedown

@@ -60,11 +60,14 @@ class Match
 
   def self.add_user(id: nil, name:, opponent_count: 1)
     user = User.find(id) || User.new(id: id, name: name)
+    #puts "\nuser for match_user: #{user.inspect}"
     match_user = MatchUser.new(user: user)
     pending_match = @@matches.find { |match| match.status == Status::PENDING && match.opponent_count == opponent_count }
     pending_match = self.make_match(opponent_count) if pending_match.nil?
     pending_match.add_user(match_user: match_user, opponent_count: opponent_count)
     pending_match.start_or_tell_user_to_wait(match_user)
+    #puts "added match_user, now have #{Match.matches.first.match_users.count}"
+    #puts "\n"
     pending_match # TODO why return the match?
   end
 
@@ -158,9 +161,6 @@ class Match
     @current_user = initial_user
     broadcast("Click a card and a player to ask for cards when it's your turn")
     broadcast("It's #{@current_user.name}'s turn")
-    #opponents_for(initial_user).each do |user|
-    #  inform_user(user, message: 'Wait for another player to ask you for cards')
-    #end
   end
 
   def user_for_player(player)
@@ -218,7 +218,6 @@ class Match
       broadcast("GAME OVER - #{winner.name} won!")
       return
     end
-    #inform_user(@current_user, message: "Ask another player for cards by clicking a card in your hand and then the opponent name")
   end
 
   def send_request_to_user(request)

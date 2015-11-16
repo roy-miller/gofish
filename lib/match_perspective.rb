@@ -5,7 +5,7 @@ class MatchPerspective
   attr_accessor :match_id, :you, :current_user, :initial_user, :player, :opponents,
                 :deck_card_count, :status, :messages
 
-  # TODO flatten this out more instead of shipping back match user instances
+  # TODO flatten this out more instead of shipping back match user instances?
   def initialize(match:, user:)
     @match_id        = match.id
     @you             = user

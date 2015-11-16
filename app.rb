@@ -19,16 +19,13 @@ post '/start' do
   user_name = params['user_name']
   user_id = params['user_id'].empty? ? nil : params['user_id'].to_i
   match = Match.add_user(id: user_id, name: user_name, opponent_count: number_of_opponents)
-  #refresh_player_pages(match, match.most_recent_user_added) if match.started?
-  #refresh_player_pages(match) if match.started?
-  #redirect to("/matches/#{match.id}/users/#{match.most_recent_user_added.id}")
-
-  match.opponents_for(match.most_recent_user_added).each do |user|
-    push(event: 'match_start_event',
-         to_channel: "player_channel_#{match.id}_#{user.id}",
-         with_data: { message: 'match started' })
+  if match.started?
+    match.opponents_for(match.most_recent_user_added).each do |user|
+      push(event: 'match_start_event',
+           to_channel: "player_channel_#{match.id}_#{user.id}",
+           with_data: { message: 'match started' })
+    end
   end
-
   @perspective = match.state_for(match.most_recent_user_added)
   slim :player
 end
@@ -39,9 +36,6 @@ post '/request_card' do
   recipient = match.match_user_for(params['requested_id'].to_i)
   card_rank_to_request = params['rank'].upcase
   match.ask_for_cards(requestor: requestor, recipient: recipient, card_rank: card_rank_to_request)
-  #refresh_player_pages(match, requestor)
-  #redirect to("/matches/#{match.id}/users/#{requestor.id}.json")
-  #inform_all_users(match)
   match.match_users.each do |user|
     push(event: 'match_change_event',
          to_channel: "player_channel_#{match.id}_#{user.id}",
@@ -56,6 +50,9 @@ get '/matches/:match_id/users/:user_id.?:format?' do
   if (params['format'] == 'json')
     match.state_for(match_user).to_json
   else
+    puts "\nmatch_users:"
+    match.match_users.each { |u| puts u.inspect }
+    puts "\n"
     @perspective = match.state_for(match_user)
     slim :player
   end
@@ -81,7 +78,6 @@ end
 def inform_opponents(match, match_user)
   match.opponents_for(match_user).each do |user|
     match_state_for_user = match.state_for(user).to_json
-    binding.pry
     push(event: 'match_change_event',
          to_channel: "player_channel_#{match.id}_#{user.id}",
          with_data: match_state_for_user)

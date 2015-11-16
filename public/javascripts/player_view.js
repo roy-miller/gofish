@@ -34,7 +34,6 @@ PlayerView.prototype.listenForCardRequests = function() {
                       ", requestorId: " + self.playerId +
                       ", requestedId:" + opponentId +
                       ", rank: " + selectedCardRank);
-          //self.refresh();
         });
       }
     };

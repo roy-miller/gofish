@@ -2,53 +2,39 @@ require_relative './common_steps.rb'
 require_relative './helpers.rb'
 
 class Spinach::Features::StartGame < Spinach::FeatureSteps
-  #extend CommonSteps::Paramaterized
-  #include Spinach::DSL
   include Helpers
 
-  Spinach.hooks.before_scenario { |scenario| Match.reset }
-
-  def ask_to_play(opponent_count: 1, player_name: 'player1' )
-    in_browser(player_name) do
-      visit '/'
-      page.within("#game_options") do # page.* avoids rspec matcher clash
-        fill_in 'user_name', with: player_name
-        fill_in 'user_id', with: ''
-        select opponent_count, from: 'number_of_opponents'
-        click_button 'start_playing'
-      end
-    end
-  end
-
-  step 'I am on the welcome page' do
-    visit '/'
+  Spinach.hooks.before_scenario do |scenario|
+    Match.reset
+    User.reset_users
   end
 
   step 'I choose my game options and play' do
-    ask_to_play(opponent_count: 1, player_name: 'anyplayer')
+    ask_to_play
   end
 
-  step 'I play the game' do
-    click_button 'start_playing'
-  end
-
-  step 'my player page tells me to wait for opponents' do
-    in_browser('anyplayer') do
-      expect(page.text).to match(/waiting for opponents/i)
-    end
+  # TODO TEST false positive - messages disappear on revisit
+  step 'the match tells me to wait for opponents' do
+    expect(page.text).to match(/waiting for players/i)
   end
 
   step 'I am waiting for a game with 2 players' do
-    ask_to_play(opponent_count: 1, player_name: 'player1')
+    ask_to_play(opponent_count: 1, player_name: 'player1', user_id: 1)
   end
 
   step 'another player joins the game' do
-    ask_to_play(opponent_count: 1, player_name: 'player2')
+    ask_to_play(opponent_count: 1, player_name: 'player2', user_id: 2)
   end
 
-  step 'my player page shows the start of the game' do
-    in_browser('player1') do
-      expect(page.text).to match /ask another player/i
-    end
+  step 'a player joins with the wrong number of opponents' do
+    ask_to_play(opponent_count: 2, player_name: 'player2', user_id: 2)
+  end
+
+  step 'I see the start of the game' do
+    visit "/matches/0/users/#{Match.matches.first.match_users.first.id}"
+    expect(page.text).to have_text /welcome.*player1/i
+    expect(page.text).to have_text /click a card/i
+    expect(find_all('.opponent').length).to eq 1
+    expect(find('.opponent').text).to match /player2/i
   end
 end
