@@ -58,6 +58,7 @@ PlayerView.prototype.refresh = function() {
     success: function(matchPerspective) {
       self.setMessages(matchPerspective.messages);
       self.updateMatchIfStarted(matchPerspective);
+      self.start(); // resets URL, but is there a better way?
     },
     error: function(result) {
       console.log("error getting match state\n" + result);
