@@ -115,6 +115,7 @@ body { background-color: rgb(59,89,152); }
   width: auto;
   max-width: 41px;
   max-height: 66px;
+  cursor: pointer;
 }
 .your-card img {
   height: 66px;
@@ -134,7 +135,7 @@ body { background-color: rgb(59,89,152); }
 #opponent_5_hand,
 #opponent_6_hand { float: left; width: 100%; }
 .opponent-hand { margin-left: 10px; }
-.opponent-hand-caption {  }
+.opponent-hand-caption { cursor: pointer; }
 .opponent-hand-cards { margin-left: 10px; }
 .opponent-card {
   float: left;

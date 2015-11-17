@@ -6,7 +6,7 @@ div.row.group
       <span id='your_hand_book_count'>#{@perspective.you.player.books.count}</span> books
     div#your_hand_cards
       - for card in @perspective.player.hand
-        a.your-card data-rank="#{card.rank.downcase}" data-suit="#{card.suit.downcase}" href="#"
+        a.your-card data-rank="#{card.rank.downcase}" data-suit="#{card.suit.downcase}"
           img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
     input#selected_card_rank type="hidden" value=""
 div.row
@@ -17,7 +17,7 @@ div.row.group
     - @perspective.opponents.each_with_index do |opponent, index|
       div.opponent.group data-opponent-number="#{index}"
         p.opponent-hand-caption
-            a.opponent-name data-opponent-id="#{opponent.id}" href="#"
+            a.opponent-name data-opponent-id="#{opponent.id}"
               strong> #{opponent.name} ->
               <span id="opponent_#{index}_hand_card_count">#{opponent.player.hand.count}</span> cards,
               <span id="opponent_#{index}_hand_book_count">#{opponent.player.books.count}</span> books
