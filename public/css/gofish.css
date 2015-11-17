@@ -169,16 +169,12 @@ body { background-color: rgb(59,89,152); }
 .opponent-book { float: left; margin-right: -31px }
 .opponent-book img { width: 41px; height: 66px; }
 
-#fish_pond { float: left; width: 100%; }
-#fish_pond img {
-  display: block;
-  width: 142px;
-  height: 192px;
-  margin-left: auto;
-  margin-right: auto;
-}
-#fish_pond_text {
+#fish_pond {
+  float: left;
+  width: 100%;
   text-align: left;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 #messages {
@@ -192,37 +188,6 @@ body { background-color: rgb(59,89,152); }
   box-sizing: border-box;
   white-space: pre;
 }
-
-/*#message_text {
-  padding: 15px;
-  height: 100%;
-  width: 100%;
-  min-height: 36px;
-  background-color: white;
-  border: 1px solid gray;
-  color: rgb(59,89,152);
-  box-sizing: border-box;
-  white-space: pre;
-  word-break: break-all;
-  word-wrap: break-word;
-}*/
-
-/*
-#update_form {
-  float: left;
-  width: 50%;
-}
-
-#update_match {
-  border: 0;
-  width: 100px;
-  height: 30px;
-  padding: 5px;
-  background-color: #3b5998;
-  color: white;
-  font-weight: bold;
-}
-*/
 
 /*
 For desktop:

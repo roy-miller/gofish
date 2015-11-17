@@ -1,7 +1,7 @@
 var PlayerView = function PlayerView(matchId, playerId) {
   this.matchId = matchId;
   this.playerId = playerId;
-  this.playerUrl = "http://localhost:4567/matches/" + this.matchId + "/users/" + this.playerId
+  this.playerUrl = "http://localhost:4567/matches/" + this.matchId + "/users/" + this.playerId;
   this.matchPerspective = null;
   this.listenForRankSelection();
   this.listenForCardRequests();
@@ -58,10 +58,6 @@ PlayerView.prototype.refresh = function() {
     success: function(matchPerspective) {
       self.setMessages(matchPerspective.messages);
       self.updateMatchIfStarted(matchPerspective);
-      self.start(); // resets URL, but is there a better way?
-    },
-    error: function(result) {
-      console.log("error getting match state\n" + result);
     }
   });
 }
@@ -99,24 +95,16 @@ PlayerView.prototype.updatePlayerCards = function() {
   var self = this;
   this.playerHandElement().innerHTML = '';
   this.matchPerspective.cards.forEach(function (card) {
-    var card_div = document.createElement('div');
-    card_div.className = 'your-card ' + card.suit.toLowerCase() + card.rank.toLowerCase();
-    var card_link = document.createElement('a');
-    card_link.onclick = function() { self.setSelectedCardRank(card.rank); };
+    var card_element = document.createElement('a');
+    card_element.className = 'your-card';
+    card_element.setAttribute('data-rank', card.rank);
+    card_element.setAttribute('data-suit', card.suit);
+    card_element.onclick = function() { self.setSelectedCardRank(card.rank); };
     var card_image = document.createElement('img');
     card_image.src = '/images/' + card.suit.toLowerCase() + card.rank.toLowerCase() + '.png';
-    card_link.appendChild(card_image);
-    card_div.appendChild(card_link);
-    self.playerHandElement().appendChild(card_div);
+    card_element.appendChild(card_image);
+    self.playerHandElement().appendChild(card_element);
   });
-}
-
-PlayerView.prototype.updateDeck = function() {
-  document.getElementById('fish_pond_card_count').textContent = this.matchPerspective.deck_card_count;
-}
-
-PlayerView.prototype.opponentHandElement = function(opponentNumber) {
-  return document.querySelector('#opponent_' + opponentNumber + '_hand .opponent-hand-cards')
 }
 
 PlayerView.prototype.updateOpponents = function() {
@@ -126,12 +114,20 @@ PlayerView.prototype.updateOpponents = function() {
     document.getElementById('opponent_' + index + '_hand_book_count').textContent = opponent.book_count;
     self.opponentHandElement(index).innerHTML = '';
     for (var i=0; i < opponent.card_count; i++) {
-      var new_card = document.createElement('div');
-      new_card.className = 'opponent-card';
+      var card_element = document.createElement('div');
+      card_element.className = 'opponent-card';
       var card_image = document.createElement('img');
       card_image.src = '/images/backs_blue.png';
-      new_card.appendChild(card_image);
-      self.opponentHandElement(index).appendChild(new_card);
+      card_element.appendChild(card_image);
+      self.opponentHandElement(index).appendChild(card_element);
     }
   });
+}
+
+PlayerView.prototype.updateDeck = function() {
+  document.getElementById('fish_pond_card_count').textContent = this.matchPerspective.deck_card_count;
+}
+
+PlayerView.prototype.opponentHandElement = function(opponentNumber) {
+  return document.querySelector(".opponent[data-opponent-number='" + opponentNumber + "'] .opponent-hand-cards");
 }
