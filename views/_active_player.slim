@@ -26,8 +26,10 @@ div.row.group
             p
               a.opponent-name data-opponent-id="#{opponent.id}" href="#"
                 strong #{opponent.name} ->
-                span<> id="opponent_#{index}_hand_card_count" #{opponent.player.hand.count} cards,
-                span<> id="opponent_#{index}_hand_book_count" #{opponent.player.books.count} books
+                span<> id="opponent_#{index}_hand_card_count" #{opponent.player.hand.count}
+                ' cards,
+                span<> id="opponent_#{index}_hand_book_count" #{opponent.player.books.count}
+                ' books
           div.opponent-hand-cards
             - for card in opponent.player.hand
               div.opponent-card.facedown

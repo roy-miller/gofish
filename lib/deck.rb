@@ -1,6 +1,7 @@
 class Deck
   attr_accessor :cards
 
+  # TODO move ranks and suits to constants on Card
   def initialize
     @suits = ['S','C','H','D']
     @ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']

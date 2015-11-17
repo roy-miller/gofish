@@ -9,8 +9,8 @@ var PlayerView = function PlayerView(matchId, playerId) {
 
 PlayerView.prototype.listenForRankSelection = function() {
   var self = this;
-  playerCardLinkElements = document.getElementsByClassName('your-card');
-  Array.prototype.forEach.call(playerCardLinkElements, function(element) {
+  var playerCardLinkElements = Array.prototype.slice.call(document.getElementsByClassName('your-card'));
+  playerCardLinkElements.forEach(function(element) {
     element.onclick = function() {
       self.setSelectedCardRank(this.getAttribute('data-rank'));
     };
@@ -19,8 +19,8 @@ PlayerView.prototype.listenForRankSelection = function() {
 
 PlayerView.prototype.listenForCardRequests = function() {
   var self = this;
-  opponentNameElements = document.getElementsByClassName('opponent-name');
-  Array.prototype.forEach.call(opponentNameElements, function(element) {
+  var opponentNameElements = Array.prototype.slice.call(document.getElementsByClassName('opponent-name'));
+  opponentNameElements.forEach(function(element) {
     element.onclick = function() {
       var opponentId = this.getAttribute('data-opponent-id');
       var selectedCardRank = self.getSelectedCardRank();
@@ -30,11 +30,6 @@ PlayerView.prototype.listenForCardRequests = function() {
           requestor_id: self.playerId,
           requested_id: opponentId,
           rank: selectedCardRank
-        }).success(function()  {
-          console.log("asked for card -> matchId: " + self.matchId +
-                      ", requestorId: " + self.playerId +
-                      ", requestedId:" + opponentId +
-                      ", rank: " + selectedCardRank);
         });
       }
     };
@@ -42,8 +37,7 @@ PlayerView.prototype.listenForCardRequests = function() {
 }
 
 PlayerView.prototype.selectedCardRankElement = function () {
-  element = document.getElementById('selected_card_rank');
-  return element;
+  return document.getElementById('selected_card_rank');
 }
 
 PlayerView.prototype.setSelectedCardRank = function(value) {
@@ -80,9 +74,7 @@ PlayerView.prototype.start = function() {
 }
 
 PlayerView.prototype.setMessages = function(messages) {
-  newMessages = []
-  messages.forEach(function (message) { newMessages.push(message); });
-  document.getElementById('messages').innerHTML = newMessages.join("\n");
+  document.getElementById('messages').innerHTML = messages.join("\n");
 }
 
 PlayerView.prototype.updateMatch = function(matchPerspective) {
@@ -99,21 +91,22 @@ PlayerView.prototype.updatePlayerInfo = function() {
 }
 
 PlayerView.prototype.playerHandElement = function() {
-  return document.getElementById('your_hand_cards')
+  return document.getElementById('your_hand_cards');
 }
 
 PlayerView.prototype.updatePlayerCards = function() {
-  playerHandElement().innerHTML = '';
+  var self = this;
+  this.playerHandElement().innerHTML = '';
   this.matchPerspective.cards.forEach(function (card) {
-    card_div = document.createElement('div');
+    var card_div = document.createElement('div');
     card_div.className = 'your-card ' + card.suit.toLowerCase() + card.rank.toLowerCase();
-    card_link = document.createElement('a');
+    var card_link = document.createElement('a');
     card_link.onclick = function() { self.setSelectedCardRank(card.rank); };
-    card_image = document.createElement('img');
+    var card_image = document.createElement('img');
     card_image.src = '/images/' + card.suit.toLowerCase() + card.rank.toLowerCase() + '.png';
     card_link.appendChild(card_image);
     card_div.appendChild(card_link);
-    playerHandElement.appendChild(card_div);
+    self.playerHandElement().appendChild(card_div);
   });
 }
 
@@ -126,17 +119,18 @@ PlayerView.prototype.opponentHandElement = function(opponentNumber) {
 }
 
 PlayerView.prototype.updateOpponents = function() {
+  var self = this;
   this.matchPerspective.opponents.forEach(function (opponent, index) {
     document.getElementById('opponent_' + index + '_hand_card_count').textContent = opponent.card_count;
     document.getElementById('opponent_' + index + '_hand_book_count').textContent = opponent.book_count;
-    opponentHandElement(index).innerHTML = '';
+    self.opponentHandElement(index).innerHTML = '';
     for (var i=0; i < opponent.card_count; i++) {
-      new_card = document.createElement('div');
+      var new_card = document.createElement('div');
       new_card.className = 'opponent-card';
-      card_image = document.createElement('img');
+      var card_image = document.createElement('img');
       card_image.src = '/images/backs_blue.png';
       new_card.appendChild(card_image);
-      opponentHandElement(index).appendChild(new_card);
+      self.opponentHandElement(index).appendChild(new_card);
     }
   });
 }

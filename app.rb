@@ -20,7 +20,8 @@ post '/start' do
   user_id = params['user_id'].empty? ? nil : params['user_id'].to_i
   match = Match.add_user(id: user_id, name: user_name, opponent_count: number_of_opponents)
   if match.started?
-    match.opponents_for(match.most_recent_user_added).each do |user|
+    #match.opponents_for(match.most_recent_user_added).each do |user|
+    match.match_users.each do |user|
       push(event: 'match_start_event',
            to_channel: "player_channel_#{match.id}_#{user.id}",
            with_data: { message: 'match started' })

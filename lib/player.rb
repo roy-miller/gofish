@@ -55,6 +55,7 @@ class Player
   end
 
   def receive_request(request)
+    # TODO use array partition here
     cards_to_return = cards_for_rank(request.card_rank)
     request.cards_returned = cards_to_return
     remove_cards_from_hand(cards_to_return)
