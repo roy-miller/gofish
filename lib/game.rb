@@ -43,8 +43,7 @@ class Game
   end
 
   def ask_player_for_cards(player:, request:)
-    response = player.receive_request(request)
-    response
+    player.receive_request(request)
   end
 
   def give_cards_to_player(player:, response:)
@@ -59,18 +58,15 @@ class Game
 
   # TODO these parameter names are no good
   def card_count_for_player(number)
-    player = player_number(number)
-    player.card_count
+    player_number(number).card_count
   end
 
   def cards_for_player(number)
-    player = player_number(number)
-    player.hand
+    player_number(number).hand
   end
 
   def books_for_player(number)
-    player = player_number(number)
-    player.books
+    player_number(number).books
   end
 
   # TODO seems odd that game draws for player

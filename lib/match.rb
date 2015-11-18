@@ -1,8 +1,10 @@
+require 'timeout'
 require_relative './request.rb'
 require_relative './user.rb'
 require_relative './player.rb'
 require_relative './game.rb'
 require_relative './match_user.rb'
+require_relative './robot_match_user.rb'
 
 class Status
   PENDING = 'pending'
@@ -11,38 +13,12 @@ end
 
 class Match
   attr_accessor :id, :opponent_count, :game, :match_users, :current_user,
-                :status, :messages
+                :status, :messages, :start_timeout_seconds
   CARDS_PER_PLAYER = 5
   @@matches = []
 
   def self.find(match_id)
-    match = @@matches.find { |match| match.id == match_id }
-    match = self.create_default_match(match_id) unless match
-    match
-  end
-
-  def self.create_default_match(match_id)
-    player1 = Player.new(1)
-    player2 = Player.new(2)
-    game = Game.new([player1, player2]).tap do |game|
-      game.deal(cards_per_player: 5)
-    end
-    match_users = [
-      MatchUser.new(user: User.new(id: 1, name: "Player1"), player: player1),
-      MatchUser.new(user: User.new(id: 2, name: "Player2"), player: player2)
-    ]
-    match = Match.new(id: match_id, game: game, match_users: match_users)
-    @@matches << match
-    match
-  end
-
-  # TODO this seems elbowy
-  def self.find_for_user_id(user_id)
-    found_match = nil
-    @@matches.each do |match|
-      found_match = match if match.match_users.select { |match_user| match_user.id == user_id }.any?
-    end
-    found_match
+    @@matches.find { |match| match.id == match_id }
   end
 
   def self.add_match(match)
@@ -57,12 +33,16 @@ class Match
     @@matches = value
   end
 
+  def self.reset
+    @@matches = []
+  end
+
   def self.add_user(id: nil, name:, opponent_count: 1)
-    user = User.find(id) || User.new(id: id, name: name)
-    match_user = MatchUser.new(user: user)
     pending_match = @@matches.find { |match| match.status == Status::PENDING && match.opponent_count == opponent_count }
     pending_match = self.make_match(opponent_count) if pending_match.nil?
-    pending_match.add_user(match_user: match_user, opponent_count: opponent_count)
+    user = User.find(id) || User.new(id: id, name: name)
+    match_user = MatchUser.new(match: pending_match, user: user)
+    pending_match.add_user(match_user: match_user)
     pending_match.start_or_tell_user_to_wait(match_user)
     pending_match # TODO why return the match?
   end
@@ -73,11 +53,40 @@ class Match
     game.deal(cards_per_player: CARDS_PER_PLAYER)
     pending_match = Match.new(id: @@matches.count, opponent_count: opponent_count, game: game)
     self.add_match(pending_match)
+    pending_match.trigger_start_timer
     pending_match
   end
 
-  def self.reset
-    @@matches = []
+  def trigger_start_timer(timeout_seconds=start_timeout_seconds)
+    Thread.start {
+      begin
+        Timeout::timeout(timeout_seconds) {
+          until @status == Status::STARTED
+            # better way to wait?
+          end
+        }
+      rescue Timeout::Error => e
+        add_robots
+        start
+        notify_observers_of_start
+      end
+    }
+  end
+
+  def notify_observers_of_start
+    @match_users.each { |user| user.start_playing }
+  end
+
+  def notify_observers_of_change
+    @match_users.each { |user| user.match_changed }
+  end
+
+  def add_robots
+    number_of_robots = (@opponent_count + 1) - @match_users.count
+    (1..number_of_robots).each do |number|
+      robot = RobotMatchUser.new(match: self, user: User.new(name: "robot#{number}"))
+      add_user(match_user: robot)
+    end
   end
 
   def initialize(id: 0, opponent_count: 1, game: nil, match_users: [])
@@ -87,9 +96,9 @@ class Match
     @match_users = match_users
     @messages = []
     @status = Status::PENDING
+    @start_timeout_seconds = 10
   end
 
-  # TODO don't need both of these
   def pending?
     @status == Status::PENDING
   end
@@ -110,7 +119,7 @@ class Match
     @game.over?
   end
 
-  def add_user(match_user:, opponent_count: 1)
+  def add_user(match_user:)
     @match_users << match_user
     match_user.player = @game.players[@match_users.index(match_user)]
   end
@@ -160,8 +169,7 @@ class Match
   end
 
   def player_for(match_user)
-    match_user = @match_users.detect { |m| m.id == match_user.id }
-    match_user.player
+    @match_users.detect { |m| m.id == match_user.id }.player
   end
 
   def opponents_for(match_user)
@@ -202,6 +210,7 @@ class Match
       broadcast("GAME OVER - #{winner.name} won!")
       return
     end
+    notify_observers_of_change
   end
 
   def send_request_to_user(request)
@@ -217,8 +226,8 @@ class Match
   end
 
   def send_user_fishing(user, card_rank)
-    card_drawn = @game.draw_card(user.player)
-    if card_drawn.rank == card_rank
+    drawn_card = @game.draw_card(user.player)
+    if drawn_card.rank == card_rank
       broadcast("#{user.name} drew what he asked for")
     else
       move_play_to_next_user
@@ -227,8 +236,7 @@ class Match
 
   def move_play_to_next_user
     current_user_index = @match_users.find_index(@current_user)
-    potential_next = @match_users[current_user_index + 1]
-    potential_next = @match_users.first if potential_next.nil? # wrap
+    potential_next = @match_users[current_user_index + 1] || @match_users.first
     potential_next.has_cards? ? @current_user = potential_next : move_play_to_next_user
     @current_user = potential_next
   end

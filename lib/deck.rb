@@ -1,13 +1,12 @@
+require_relative './card'
+
 class Deck
   attr_accessor :cards
 
-  # TODO move ranks and suits to constants on Card
   def initialize
-    @suits = ['S','C','H','D']
-    @ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
     @cards = []
-    @suits.each do |suit|
-      @ranks.each do |rank|
+    Card::SUITS.each do |suit|
+      Card::RANKS.each do |rank|
         @cards << Card.new(rank: rank, suit: suit)
       end
     end

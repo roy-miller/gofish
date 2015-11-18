@@ -7,12 +7,6 @@ describe Card do
     expect(created_card.suit).to eq 'H'
   end
 
-  it 'returns rank and suit from string with both' do
-    rank, suit = Card.rank_and_suit_from_string('10H')
-    expect(rank).to eq '10'
-    expect(suit).to eq 'H'
-  end
-
   describe '#suit and #rank' do
       it 'has a suit and a rank' do
         card = Card.new(rank: '2', suit: 'S')

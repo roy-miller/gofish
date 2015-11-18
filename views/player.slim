@@ -15,10 +15,9 @@ html
         - if !@perspective.pending?
           == slim :_active_player
     javascript:
-      var playerView; //what the huh?
+      var playerView;
       $(document).ready(function() {
         playerView = new PlayerView("#{@perspective.match_id}", "#{@perspective.you.id}");
-        //playerView.refresh(); //first time
 
         Pusher.log = function(message) {
           if (window.console && window.console.log) {

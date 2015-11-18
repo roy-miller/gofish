@@ -1,5 +1,5 @@
-require_relative './match.rb'
 require 'json'
+require_relative './match.rb'
 
 class MatchPerspective
   attr_accessor :match_id, :you, :current_user, :initial_user, :player, :opponents,

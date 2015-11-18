@@ -2,9 +2,16 @@ require 'spec_helper'
 
 describe(Player) do
   it 'creates a player with cards given' do
-    cards = ['2D', '3C', 'AS', 'JH', '10S']
+    cards = ['2D', 'AH', '10S']
     player = Player.with_number_and_cards(number: 1, cards: cards)
-    expect(player.has_cards_with_rank_and_suit(cards)).to be true
+    has_all_cards = false
+    cards.each do |card_string|
+      rank = card_string.chars.first
+      rank = '10' if rank == '1'
+      suit = card_string.chars.last
+      has_all_cards = true if player.hand.select { |card| card.rank == rank && card.suit == suit }.any?
+    end
+    expect(has_all_cards).to be true
   end
 
   let(:player) { Player.new }

@@ -28,18 +28,18 @@ class Player
     end
   end
 
+  def remove_cards_from_hand(cards)
+    @hand.reject! { |card| cards.include? card }
+  end
+
   def add_book(cards)
     book = Book.new
-    cards.each do |card|
-      book.add_card(card)
-    end
+    cards.each { |card| book.add_card(card) }
     @books << book
   end
 
   def add_cards_to_hand(cards)
-    cards.each do |card|
-      self.add_card_to_hand(card)
-    end
+    cards.each { |card| self.add_card_to_hand(card) }
   end
 
   def card_count
@@ -55,31 +55,13 @@ class Player
   end
 
   def receive_request(request)
-    # TODO use array partition here
-    cards_to_return = cards_for_rank(request.card_rank)
-    request.cards_returned = cards_to_return
-    remove_cards_from_hand(cards_to_return)
+    cards_to_return_and_keep = @hand.partition { |card| card.rank == request.card_rank }
+    request.cards_returned = cards_to_return_and_keep.slice(0,1).flatten!
+    @hand = cards_to_return_and_keep.slice(1,1).flatten!
     request
-  end
-
-  def remove_cards_from_hand(cards)
-    @hand.reject! { |card| cards.include? card }
   end
 
   def receive_response(response)
     add_cards_to_hand(response.cards_returned)
-  end
-
-  def cards_for_rank(rank)
-    @hand.select { |card| card.rank == rank }
-  end
-
-  def has_cards_with_rank_and_suit(card_strings)
-    has_all_cards = false
-    card_strings.each do |card_string|
-      rank, suit = Card.rank_and_suit_from_string(card_string)
-      return true if @hand.select { |card| card.rank == rank && card.suit == suit }.any?
-    end
-    has_all_cards
   end
 end

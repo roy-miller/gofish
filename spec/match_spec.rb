@@ -5,16 +5,6 @@ describe Match do
     Match.matches = []
   end
 
-  it 'makes a default match when it finds no match' do
-    expect(Match.matches.count).to eq 0
-    found_match = Match.find('nonexistent')
-    expect(Match.matches.count).to eq 1
-    match_user_names = found_match.match_users.map { |match_user| match_user.name }
-    game_player_numbers = found_match.match_users.map { |match_user| match_user.player.number }
-    expect(match_user_names).to match_array ['Player1', 'Player2']
-    expect(game_player_numbers).to match_array [1, 2]
-  end
-
   it 'adds a match' do
     added_match = Match.new(id: 0, game: nil, match_users: [])
     Match.add_match(added_match)
@@ -51,9 +41,9 @@ describe Match do
 
   context 'with a game and users' do
     let(:game) { Game.new }
-    let(:first_match_user_added) { MatchUser.new(user: User.new(id: 1, name: 'user1')) }
-    let(:second_match_user_added) { MatchUser.new(user: User.new(id: 2, name: 'user2')) }
     let(:match) { Match.new(game: game) }
+    let(:first_match_user_added) { MatchUser.new(match: match, user: User.new(id: 1, name: 'user1')) }
+    let(:second_match_user_added) { MatchUser.new(match: match, user: User.new(id: 2, name: 'user2')) }
 
     before do
       match.match_users = [first_match_user_added, second_match_user_added]
@@ -70,11 +60,6 @@ describe Match do
     it 'is over if its game is over' do
       allow(game).to receive(:over?) { true }
       expect(match.over?).to be_truthy
-    end
-
-    it 'finds a match containing user with the given id' do
-      found_match = Match.find_for_user_id(1)
-      expect(found_match).to be match
     end
 
     context 'with players in the game' do

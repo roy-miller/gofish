@@ -7,11 +7,13 @@ describe MatchPerspective do
   let(:player1) { Player.with_number_and_cards(number: 1, cards: ['AS', '2C', '10D']) }
   let(:player2) { Player.with_number_and_cards(number: 2, cards: ['JH', '6S', 'KC']) }
   let(:game) { Game.new([player1, player2]) }
-  let(:match_user1) { MatchUser.new(user: user1, player: player1) }
-  let(:match_user2) { MatchUser.new(user: user2, player: player2) }
-  let(:match) { Match.new(id: 0, game: game, match_users: [match_user1, match_user2]) }
+  let(:match) { Match.new(id: 0, game: game) }
+  let(:match_user1) { MatchUser.new(match: match, user: user1, player: player1) }
+  let(:match_user2) { MatchUser.new(match: match, user: user2, player: player2) }
 
   before do
+    match.match_users << match_user1
+    match.match_users << match_user2
     match.current_user = match_user2
     match.messages = ['message1', 'message2']
   end
