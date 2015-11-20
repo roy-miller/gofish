@@ -60,27 +60,19 @@ module Helpers
   def make_match(desired_player_count:)
     players = (1..desired_player_count).map { |index| Player.new(index) }
     game = Game.new(players)
-    game.deal(cards_per_player: 5)
+    #game.deal(cards_per_player: 5)
     @match = Match.new(id: 0, opponent_count: desired_player_count - 1, game: game)
     Match.matches << @match
     @match
   end
 
   def add_users(count:, match:, robot: false)
-    (@match.match_users.count..count).each do |user_id|
-      user_name = robot ? "robot#{user_id}" : "user#{user_id}"
-      user = User.new(id: user_id, name: user_name)
+    (1..count).each do |index|
+      user_name = robot ? "robot#{index}" : "user#{index}"
+      user = User.new(id: @match.match_users.count + 1, name: user_name)
       match_user = robot ? RobotMatchUser.new(match: match, user: user) :
                            MatchUser.new(match: match, user: user)
       match.add_user(match_user: match_user)
-    end
-    # TODO remove this, go with jit cards approach
-    match.match_users.each do |match_user|
-      match_user.player.hand = [
-        Card.new(rank: 'A', suit: 'S'),
-        Card.new(rank: '9', suit: 'C'),
-        Card.new(rank: '2', suit: 'D')
-      ]
     end
   end
 
@@ -88,8 +80,19 @@ module Helpers
     visit "/matches/#{@match.id}/users/#{Match.matches.first.match_users.first.id}"
   end
 
+  def click_to_ask_for_cards(card)
+    my_card_link = page.find(".your-card[data-rank='#{card.rank.downcase}']")
+    my_card_link.click
+    opponent_link = page.all('.opponent-name').first
+    opponent_link.click
+  end
+
+  def set_my_hand_before_asking
+    @my_hand_before_asking = Array.new(@me.player.hand)
+  end
+
   #see http://www.elabs.se/blog/34-capybara-and-testing-apis
-  def ask_for_cards(match:, requestor:, requested:, rank:)
+  def simulate_card_request(match:, requestor:, requested:, rank:)
     params = {
       match_id: match.id,
       requestor_id: requestor.id,
@@ -103,5 +106,13 @@ module Helpers
     card = Card.new(rank: rank, suit: suit)
     user.player.add_card_to_hand(card)
     card
+  end
+
+  def give_king(user)
+    give_card(user: user, rank: 'K')
+  end
+
+  def give_ten(user)
+    give_card(user: user, rank: '10')
   end
 end

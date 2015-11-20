@@ -1,12 +1,9 @@
+Dir["#{File.dirname(__FILE__)}/lib/**/*.rb"].each {|file| require file }
 require 'sinatra'
 require 'sinatra/reloader'
 require 'pusher'
 require 'pry'
 require 'json'
-require './lib/game'
-require './lib/player'
-require './lib/match_perspective'
-require './lib/request'
 also_reload("lib/**/*.rb")
 Pusher.url = "https://9d7c66d1199c3c0e7ca3:27c71591fef8b4fadd37@api.pusherapp.com/apps/153451"
 
@@ -31,10 +28,6 @@ post '/request_card' do
   requestor = match.match_user_for(params['requestor_id'].to_i)
   recipient = match.match_user_for(params['requested_id'].to_i)
   match.ask_for_cards(requestor: requestor, recipient: recipient, card_rank: params['rank'].upcase)
-  # match can notify observers when somebody asks
-  #match.match_users.each do |user|
-  #  Pusher.trigger("player_channel_#{match.id}_#{user.id}", 'match_change_event', { message: 'match changed' })
-  #end
   return
 end
 

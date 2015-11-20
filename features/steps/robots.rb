@@ -19,12 +19,11 @@ class Spinach::Features::Robots < Spinach::FeatureSteps
   end
 
   step 'I ask my first opponent for cards he has' do
+    give_king(@me)
+    set_my_hand_before_asking
+    @expected_card = give_king(@first_opponent)
     visit_player_page
-    @expected_card = @first_opponent.player.hand.first
-    my_card_link = page.find(".your-card[data-rank='#{@expected_card.rank.downcase}'][data-suit='#{@expected_card.suit.downcase}']")
-    my_card_link.click
-    opponent_link = page.all('.opponent-name').first
-    opponent_link.click
+    click_to_ask_for_cards(@expected_card)
   end
 
   step 'my first opponent asks me for cards' do

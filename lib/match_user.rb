@@ -2,12 +2,12 @@ require 'pusher'
 require_relative './user'
 
 class MatchUser
-  attr_accessor :match, :user, :player
+  attr_accessor :match, :user, :player, :player_channel
 
   def initialize(match: nil, user:, player: nil)
+    @match = match
     @user = user
     @player = player
-    @match = match
     @player_channel = "player_channel_#{@match.id}_#{@user.id}"
   end
 

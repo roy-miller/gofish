@@ -96,7 +96,7 @@ class Match
     @match_users = match_users
     @messages = []
     @status = Status::PENDING
-    @start_timeout_seconds = 10
+    @start_timeout_seconds = 5
   end
 
   def pending?
@@ -236,9 +236,13 @@ class Match
 
   def move_play_to_next_user
     current_user_index = @match_users.find_index(@current_user)
-    potential_next = @match_users[current_user_index + 1] || @match_users.first
-    potential_next.has_cards? ? @current_user = potential_next : move_play_to_next_user
-    @current_user = potential_next
+    @current_user = @match_users[current_user_index + 1] || @match_users.first
+    # TODO ask Ken about this one
+    #if @current_user.has_cards?
+    #  return
+    #else
+    #  move_play_to_next_user
+    #end
   end
 
   def state_for(user)

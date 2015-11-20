@@ -17,16 +17,8 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+Dir[File.join(File.dirname(__FILE__), "..", "lib" , "**.rb")].each { |f| require f }
 require 'pry'
-require 'game'
-require 'deck'
-require 'player'
-require 'card'
-require 'user'
-require 'match'
-require 'book'
-require 'request'
-require 'match_perspective'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
