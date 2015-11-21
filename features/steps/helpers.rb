@@ -42,7 +42,14 @@ module Helpers
     add_users(count: real_player_count, match: @match)
     add_users(count: robot_count, match: @match, robot: true)
     @match.start
+    all_users_have_one_card
     set_instance_variables_for_tests
+  end
+
+  def all_users_have_one_card
+    @match.match_users.each do |user|
+      give_ten(user)
+    end
   end
 
   def set_instance_variables_for_tests

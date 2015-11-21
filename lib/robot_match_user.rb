@@ -6,8 +6,11 @@ class RobotMatchUser < MatchUser
 
   def match_changed
     if @match.current_user == self
-      recipient = @match.match_users.select { |user| user.id != @id }.sample
-      Thread.start { @match.ask_for_cards(requestor: self, recipient: recipient, card_rank: @player.hand.sample.rank) }
+      sleep 3
+      recipient = @match.match_users.select { |user| user.id != id }.sample
+      Thread.start {
+        @match.ask_for_cards(requestor: self, recipient: recipient, card_rank: @player.hand.sample.rank)
+      }
     end
   end
 end
