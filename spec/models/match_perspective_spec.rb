@@ -18,6 +18,7 @@ describe MatchPerspective do
     expect(perspective.player).to be match.player_for(user1)
     expected_opponents = [
       {
+        id: user2.id,
         name: user2.name,
         card_count: match.player_for(user2).card_count,
         book_count: match.player_for(user2).book_count

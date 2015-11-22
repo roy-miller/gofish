@@ -1,7 +1,14 @@
-var PlayerView = function PlayerView(matchId, playerId) {
+var PlayerView = function PlayerView(matchId, playerId, logging) {
   this.matchId = matchId;
   this.playerId = playerId;
   this.playerUrl = "http://localhost:4567/matches/" + this.matchId + "/users/" + this.playerId;
+  if(logging) {
+    Pusher.log = function(message) {
+     if (window.console && window.console.log) {
+       window.console.log(message);
+     }
+    };
+  };
   this.matchPerspective = null;
   this.listenForRankSelection();
   this.listenForCardRequests();
@@ -42,7 +49,6 @@ PlayerView.prototype.selectedCardRankElement = function () {
 
 PlayerView.prototype.setSelectedCardRank = function(value) {
   this.selectedCardRankElement().value = value;
-  console.log('set selected rank: ' +  value);
 };
 
 PlayerView.prototype.getSelectedCardRank = function() {
@@ -62,12 +68,9 @@ PlayerView.prototype.refresh = function() {
   });
 }
 
+// don't need this anymore
 PlayerView.prototype.updateMatchIfStarted = function (matchPerspective) {
   if (matchPerspective.status == 'started') { this.updateMatch(matchPerspective); }
-}
-
-PlayerView.prototype.start = function() {
-  window.location = this.playerUrl;
 }
 
 PlayerView.prototype.setMessages = function(messages) {

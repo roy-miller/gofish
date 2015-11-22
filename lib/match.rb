@@ -82,6 +82,10 @@ class Match
     add_message("It's #{@current_user.name}'s turn")
   end
 
+  def user_for_id(user_id)
+    @users.detect { |user| user.id == user_id }
+  end
+
   def user_for_player(player)
     @match_users.detect { |match_user| match_user.player == player }.user
   end
@@ -103,6 +107,7 @@ class Match
   end
 
   def ask_for_cards(requestor:, recipient:, card_rank:)
+    binding.pry
     return if requestor != @current_user
     clear_messages
     if over?

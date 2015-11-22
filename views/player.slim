@@ -8,26 +8,43 @@ html
     script src="/javascripts/player_view.js" type="text/javascript"
 
   body
-    div#player
-      h1#player_header Welcome, #{@perspective.user.name}!
-      div#card_table.group
-        div#messages = @perspective.messages.join("\n")
-        - if !@perspective.started?
-          == slim :_active_player
+    #player
+      h1#player_header Welcome, #{@perspective.user.name}
+      #card_table.group
+        #messages = @perspective.messages.join("\n")
+        .row.group
+          #your_hand
+            p#your_hand_caption
+              strong> You ->
+              <span id='your_hand_card_count'>#{@perspective.player.card_count}</span> cards,
+              <span id='your_hand_book_count'>#{@perspective.player.book_count}</span> books
+            #your_hand_cards
+              - for card in @perspective.player.hand
+                a.your-card data-rank="#{card.rank.downcase}" data-suit="#{card.suit.downcase}"
+                  img src="/images/#{card.suit.downcase}#{card.rank.downcase}.png"
+            input#selected_card_rank type="hidden" value=""
+        .row
+          #fish_pond
+            <span id='fish_pond_card_count'>#{@perspective.deck_card_count}</span> cards left in the pond
+        .row.group
+          #opponents
+            - @perspective.opponents.each_with_index do |opponent, index|
+              .opponent.group data-opponent-number="#{index}"
+                p.opponent-hand-caption
+                    a.opponent-name data-opponent-id="#{opponent[:id]}"
+                      strong> #{opponent[:name]} ->
+                      <span id="opponent_#{index}_hand_card_count">#{opponent[:card_count]}</span> cards,
+                      <span id="opponent_#{index}_hand_book_count">#{opponent[:book_count]}</span> books
+                .opponent-hand-cards
+                  - opponent[:card_count].times
+                    .opponent-card
+                      img src="/images/backs_blue.png"
     javascript:
       var playerView;
       $(document).ready(function() {
-        playerView = new PlayerView("#{@perspective.match_id}", "#{@perspective.you.id}");
+        playerView = new PlayerView("#{@perspective.match_id}", "#{@perspective.user.id}", true);
 
-        Pusher.log = function(message) {
-          if (window.console && window.console.log) {
-            window.console.log(message);
-          }
-        };
         var pusher = new Pusher('9d7c66d1199c3c0e7ca3', { encrypted: true });
-        var allPlayersChannel = pusher.subscribe('all_players_channel_' + playerView.matchId);
-        allPlayersChannel.bind('refresh_event', playerView.refresh.bind(playerView));
-        var playerChannel = pusher.subscribe('player_channel_' + playerView.matchId + "_" + playerView.playerId);
-        playerChannel.bind('match_start_event', playerView.start.bind(playerView));
-        playerChannel.bind('match_change_event', function(data){ playerView.refresh(data); }.bind(playerView));
+        var gamePlayChannel = pusher.subscribe('game_play_channel_' + playerView.matchId);
+        gamePlayChannel.bind('match_change_event', function(data){ playerView.refresh(data); }.bind(playerView));
       });

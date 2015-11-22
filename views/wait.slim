@@ -1,0 +1,14 @@
+doctype html
+html
+  head
+    title Player
+    link rel="stylesheet" type="text/css" href="/css/gofish.css"
+    script src="http://code.jquery.com/jquery-1.11.3.min.js" type="text/javascript"
+    script src="https://js.pusher.com/3.0/pusher.min.js" type="text/javascript"
+    script src="/javascripts/wait_view.js" type="text/javascript"
+
+  body
+    #player data-userid=@user_id
+      h1#player_header Welcome, #{@user_name}
+      #card_table.group
+        #messages = "Waiting for #{@number_of_players} players ..."
