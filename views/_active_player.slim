@@ -2,8 +2,8 @@ div.row.group
   div#your_hand
     p#your_hand_caption
       strong> You ->
-      <span id='your_hand_card_count'>#{@perspective.you.player.hand.count}</span> cards,
-      <span id='your_hand_book_count'>#{@perspective.you.player.books.count}</span> books
+      <span id='your_hand_card_count'>#{@perspective.player.card_count}</span> cards,
+      <span id='your_hand_book_count'>#{@perspective.player.book_count}</span> books
     div#your_hand_cards
       - for card in @perspective.player.hand
         a.your-card data-rank="#{card.rank.downcase}" data-suit="#{card.suit.downcase}"
@@ -19,9 +19,9 @@ div.row.group
         p.opponent-hand-caption
             a.opponent-name data-opponent-id="#{opponent.id}"
               strong> #{opponent.name} ->
-              <span id="opponent_#{index}_hand_card_count">#{opponent.player.hand.count}</span> cards,
-              <span id="opponent_#{index}_hand_book_count">#{opponent.player.books.count}</span> books
+              <span id="opponent_#{index}_hand_card_count">#{opponent.card_count}</span> cards,
+              <span id="opponent_#{index}_hand_book_count">#{opponent.book_count}</span> books
         div.opponent-hand-cards
-          - for card in opponent.player.hand
+          - opponent.card_count.times
             div.opponent-card
               img src="/images/backs_blue.png"

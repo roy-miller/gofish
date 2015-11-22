@@ -9,10 +9,10 @@ html
 
   body
     div#player
-      h1#player_header Welcome, #{@perspective.you.name}!
+      h1#player_header Welcome, #{@perspective.user.name}!
       div#card_table.group
         div#messages = @perspective.messages.join("\n")
-        - if !@perspective.pending?
+        - if !@perspective.started?
           == slim :_active_player
     javascript:
       var playerView;

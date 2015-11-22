@@ -14,11 +14,16 @@ describe MatchPerspective do
   it 'creates a perspective from a match' do
     perspective = MatchPerspective.new(match: match, user: user1)
     expect(perspective.match_id).to eq 0
-    expect(perspective.you).to be user1
-    expect(perspective.current_user).to be user1
-    expect(perspective.initial_user).to be user1
+    expect(perspective.user).to be user1
     expect(perspective.player).to be match.player_for(user1)
-    expect(perspective.opponents).to match_array [user2]
+    expected_opponents = [
+      {
+        name: user2.name,
+        card_count: match.player_for(user2).card_count,
+        book_count: match.player_for(user2).book_count
+      }
+    ]
+    expect(perspective.opponents).to match_array expected_opponents
     expect(perspective.deck_card_count).to eq match.game.deck.card_count
     expect(perspective.pending?).to be true
     expect(perspective.messages).to match_array ['message1', 'message2']
