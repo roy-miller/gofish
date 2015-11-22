@@ -1,5 +1,5 @@
 class User
-  attr_accessor :id, :name, :client
+  attr_accessor :id, :name
   @@users = []
 
   def initialize(id: nil, name: nil)

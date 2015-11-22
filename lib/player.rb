@@ -4,15 +4,6 @@ require_relative './card.rb'
 class Player
   attr_accessor :number, :hand, :books
 
-  def self.with_number_and_cards(number: 1, cards: [])
-    player = Player.new(number)
-    cards.each do |card_string|
-      card = Card.with_rank_and_suit_from_string(card_string)
-      player.add_card_to_hand(card)
-    end
-    player
-  end
-
   def initialize(number = 1)
     @number = number
     @hand = []

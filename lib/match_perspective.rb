@@ -7,6 +7,7 @@ class MatchPerspective
 
   # TODO flatten this out more instead of shipping back match user instances?
   def initialize(match:, user:)
+    @match           = match
     @match_id        = match.id
     @you             = user
     @current_user    = match.current_user
@@ -19,28 +20,32 @@ class MatchPerspective
   end
 
   def pending?
-    @status == Status::PENDING
+    @status == MatchStatus::PENDING
   end
 
   def started?
-    @status == Status::STARTED
+    @status == MatchStatus::STARTED
   end
 
-  def to_json
+  def hash
     hash = {}
     hash[:status] = pending? ? 'pending' : 'started'
     hash[:name] = @you.name
     hash[:messages] = @messages
-    hash[:book_count] = @you.player.books.count
+    hash[:book_count] = @player.books.count
     hash[:deck_card_count] = @deck_card_count
     hash[:cards] = @player.hand.map { |card| { rank: card.rank, suit: card.suit } }
     hash[:opponents] = @opponents.map do |opponent|
       {
         name: opponent.name,
-        card_count: opponent.player.card_count,
-        book_count: opponent.player.book_count
+        card_count: @match.player_for(opponent).card_count,
+        book_count: @match.player_for(opponent).book_count
       }
     end
+    hash
+  end
+
+  def to_json
     hash.to_json
   end
 

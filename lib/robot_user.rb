@@ -14,24 +14,26 @@ class RobotUser
     'robot'
   end
 
-  def update(*args)
-    if (match.game.next_turn == player)
-      make_request
+  def update(event)
+    if event == 'changed'
+      make_request if (match.current_user == self)
     end
   end
 
   def make_request
-    contemplate_before { match.run_play(player, pick_opponent, pick_rank) }
+    contemplate_before {
+      match.ask_for_cards(requestor: self, recipient: pick_opponent, card_rank: pick_rank)
+    }
   end
 
   def player
-    match.player(self)
+    match.player_for(self)
   end
 
   protected
 
   def opponents
-    match.opponents(player)
+    match.opponents_for(self)
   end
 
   def pick_opponent
@@ -39,7 +41,7 @@ class RobotUser
   end
 
   def pick_rank
-    player.cards.sample.rank
+    player.hand.sample.rank
   end
 
   def contemplate_before
