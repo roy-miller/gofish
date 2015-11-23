@@ -1,3 +1,4 @@
+require 'sinatra/activerecord'
 require 'observer'
 require_relative './request.rb'
 require_relative './user.rb'
@@ -14,6 +15,7 @@ end
 class Match
   include Observable
 
+  #attr_accessor :users, :match_users, :current_user, :status, :messages
   attr_accessor :id, :game, :users, :match_users, :current_user, :status, :messages
   CARDS_PER_PLAYER = 5
   @@matches = []
@@ -35,6 +37,7 @@ class Match
   end
 
   def initialize(users=[], id: 0)
+  #def initialize(users=[])
     @id = id
     @messages = []
     @messages << "Waiting for #{users.count} total players"
@@ -45,6 +48,7 @@ class Match
     @game = make_game
     @current_user = users.first
     save
+    #super
   end
 
   def save

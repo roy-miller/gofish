@@ -19,6 +19,7 @@ post '/start' do
   @@match_maker = MatchMaker.new if (params['reset_match_maker'])
   @number_of_players = params['number_of_opponents'].to_i + 1
   user = User.find_or_create_by(name: params['user_name'])
+  binding.pry
   match = @@match_maker.match(user, @number_of_players)
   if match
     redirect "/matches/#{match.id}/users/#{user.id}"

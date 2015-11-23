@@ -27,7 +27,7 @@ class MatchPerspective
     @status == MatchStatus::STARTED
   end
 
-  def hash
+  def to_hash
     hash = {}
     hash[:status] = pending? ? MatchStatus::PENDING : MatchStatus::STARTED
     hash[:name] = @user.name
@@ -40,7 +40,7 @@ class MatchPerspective
   end
 
   def to_json
-    hash.to_json
+    to_hash.to_json
   end
 
 end

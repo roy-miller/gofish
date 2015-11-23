@@ -63,6 +63,13 @@ class Game
     player_number(number).add_card_to_hand(@deck.give_top_card)
   end
 
+  def to_hash
+    hash = {}
+    hash[:players] = @players.map { |player| player.to_hash }
+    hash[:winner] = winner.to_hash
+    hash
+  end
+
   private
 
   def ask_player_for_cards(player, request)

@@ -61,4 +61,11 @@ describe Card do
       expect(card.to_s).to eq 'arankasuit'
     end
   end
+
+  it 'provides a hash of itself' do
+    card = build(:card, rank: 'A', suit: 'S')
+    card_hash = card.to_hash
+    expect(card_hash[:rank]).to eq 'A'
+    expect(card_hash[:suit]).to eq 'S'
+  end
 end

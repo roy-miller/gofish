@@ -47,6 +47,17 @@ describe(Player) do
       expect(player.books.first.cards).to match_array [twos_card1, twos_card2, twos_card3, makes_four_of_a_kind]
     end
 
+    it 'provides a hash of itself' do
+      player_hash = player.to_hash
+      expect(player_hash[:number]).to eq player.number
+      player.hand.each do |card|
+        expect(player_hash[:hand]).to include({rank: card.rank, suit: card.suit})
+      end
+      player.books.each do |book|
+        expect(player_hash[:books]).to include()
+      end
+    end
+
     context 'with request' do
       let(:requestor) { player }
       let(:recipient) { build(:player) }

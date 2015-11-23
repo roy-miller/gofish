@@ -7,15 +7,4 @@ describe User do
   before do
     User.reset_users
   end
-
-  it 'finds a user when one exists' do
-    User.users << user
-    found = User.find(id)
-    expect(found).to be user
-  end
-
-  it 'does not find a user when one does not exist' do
-    found = User.find(id)
-    expect(found).to be_nil
-  end
 end

@@ -55,4 +55,12 @@ class Player
   def receive_response(response)
     add_cards_to_hand(response.cards_returned)
   end
+
+  def to_hash
+    hash = {}
+    hash[:number] = @number
+    hash[:hand] = @hand.map { |card| card.to_hash }
+    hash[:books] = @books.map { |book| book.to_hash }
+    hash
+  end
 end

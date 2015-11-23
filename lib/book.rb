@@ -28,4 +28,9 @@ class Book
     @cards.count == 4
   end
 
+  def to_hash
+    hash = {}
+    hash[:cards] = @cards.map { |card| card.to_hash }
+    hash
+  end
 end

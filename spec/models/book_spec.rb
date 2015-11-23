@@ -46,4 +46,16 @@ describe Book do
     book.add_card(card_of_wrong_kind)
     expect(book.cards).not_to include card_of_wrong_kind
   end
+
+  it 'provides a hash of itself' do
+    card1 = Card.new(rank: 'A', suit: 'S')
+    card2 = Card.new(rank: 'A', suit: 'C')
+    card3 = Card.new(rank: 'A', suit: 'H')
+    card4 = Card.new(rank: 'A', suit: 'D')
+    [card1, card2, card3, card4].each { |card| book.add_card(card) }
+    book_hash = book.to_hash
+    [card1, card2, card3, card4].each do |card|
+      expect(book_hash[:cards]).to include(card.to_hash)
+    end
+  end
 end

@@ -34,4 +34,11 @@ class Card
   def to_s
     "#{@rank}#{@suit}"
   end
+
+  def to_hash
+    hash = {}
+    hash[:rank] = @rank
+    hash[:suit] = @suit
+    hash
+  end
 end

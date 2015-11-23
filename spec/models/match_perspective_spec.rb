@@ -34,6 +34,6 @@ describe MatchPerspective do
     perspective = MatchPerspective.new(match: match, user: user2)
     perspective_json = perspective.to_json
     perspective_hash = JSON.parse(perspective_json, {symbolize_names: true})
-    expect(perspective_hash).to eq perspective.hash
+    expect(perspective_hash).to eq perspective.to_hash
   end
 end
