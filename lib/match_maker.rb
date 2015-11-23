@@ -9,14 +9,9 @@ class MatchMaker
 
   def match(user, number_of_players)
     relevant_pending_users = pending_users[number_of_players]
+    trigger_start_timer(number_of_players) if relevant_pending_users.empty?
     relevant_pending_users << user
-    trigger_start_timer(number_of_players) if relevant_pending_users.count == 1
-    match = nil
-    if enough_users_for(number_of_players)
-      match = Match.new(relevant_pending_users.shift(number_of_players))
-      start_match(match)
-    end
-    match
+    start_match_with(relevant_pending_users.shift(number_of_players)) if enough_users_for(number_of_players)
   end
 
   def pending_users
@@ -29,10 +24,12 @@ class MatchMaker
     pending_users[number_of_players].count >= number_of_players
   end
 
-  def start_match(match)
+  def start_match_with(users)
+    match = Match.new(users)
     match.start
     match.users.each { |user| push("wait_channel_#{user.id}", 'match_start_event', { message: "/matches/#{match.id}/users/#{user.id}" }) }
     MatchClientNotifier.new(match)
+    match
   end
 
   def push(channel, event, data)

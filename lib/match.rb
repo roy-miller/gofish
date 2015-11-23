@@ -41,6 +41,7 @@ class Match
     @status = MatchStatus::PENDING
     @users = users
     @users.each { |user| user.add_match(self) }
+    # TODO are match_users really necessary?
     @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
     @game = make_game
     @current_user = users.first
