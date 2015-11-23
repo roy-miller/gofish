@@ -60,17 +60,12 @@ describe Game do
     end
 
     it 'sends a card request to the right player' do
-      request = Request.new(requestor: player2, recipient: player1, card_rank: 'J')
-      expect(player1).to receive(:receive_request).with(request).and_call_original
-      response = game.ask_player_for_cards(player: player1, request: request)
-      expect(response).not_to be_nil
-    end
-
-    it 'gives cards for player with name' do
-      fives_card1 = Card.new(rank: '5', suit: 'S')
-      tens_card1 = Card.new(rank: '10', suit: 'D')
-      game.players.first.hand = [fives_card1, tens_card1]
-      expect(game.cards_for_player(1)).to match_array([fives_card1, tens_card1])
+      game.players.first.hand = [build(:card, rank: 'J', suit: 'D')]
+      game.players.last.hand = [build(:card, rank: 'J', suit: 'H')]
+      allow(player2).to receive(:receive_request).and_call_original
+      response = game.request_cards(player1, player2, 'J')
+      expect(player2).to have_received(:receive_request)
+      expect(response.cards_returned?).to be true
     end
 
     it 'draws a card for a given player' do

@@ -42,11 +42,14 @@ class Game
     @players.reject { |player| player.number == number }
   end
 
-  def ask_player_for_cards(player:, request:)
-    player.receive_request(request)
+  def request_cards(requestor, recipient, rank)
+    request = Request.new(requestor: requestor, recipient: recipient, card_rank: rank)
+    response = ask_player_for_cards(recipient, request)
+    give_cards_to_player(response.requestor, response) if response.cards_returned?
+    response
   end
 
-  def give_cards_to_player(player:, response:)
+  def give_cards_to_player(player, response)
     player.receive_response(response)
   end
 
@@ -56,21 +59,13 @@ class Game
     card_drawn
   end
 
-  # TODO these parameter names are no good
-  def card_count_for_player(number)
-    player_number(number).card_count
-  end
-
-  def cards_for_player(number)
-    player_number(number).hand
-  end
-
-  def books_for_player(number)
-    player_number(number).books
-  end
-
-  # TODO seems odd that game draws for player
   def draw_card_for_player(number)
     player_number(number).add_card_to_hand(@deck.give_top_card)
+  end
+
+  private
+
+  def ask_player_for_cards(player, request)
+    player.receive_request(request)
   end
 end

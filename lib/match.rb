@@ -41,7 +41,6 @@ class Match
     @status = MatchStatus::PENDING
     @users = users
     @users.each { |user| user.add_match(self) }
-    # TODO are match_users really necessary?
     @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
     @game = make_game
     @current_user = users.first
@@ -114,42 +113,19 @@ class Match
 
   def ask_for_cards(requestor:, recipient:, card_rank:)
     return if requestor != @current_user
+    return if over?
     clear_messages
-    if over?
-      add_message("GAME OVER - #{winner.name} won!")
-      return
-    end
     add_message("#{requestor.name} asked #{recipient.name} for #{card_rank}s")
-    request = Request.new(requestor: player_for(requestor), recipient: player_for(recipient), card_rank: card_rank)
-    response = send_request_to_user(request)
+    response = game.request_cards(player_for(requestor), player_for(recipient), card_rank)
     if response.cards_returned?
-      add_message("#{requestor.name} got #{response.cards_returned.count} #{response.card_rank}s from #{recipient.name}")
-      send_cards_to_user(current_user, response)
+      add_message("#{requestor.name} got #{response.cards_returned.count} #{card_rank}s from #{recipient.name}")
     else
       add_message("#{current_user.name} went fishing")
-      send_user_fishing(current_user, request.card_rank)
+      send_user_fishing(current_user, card_rank)
     end
-    add_message("It's #{current_user.name}'s turn")
-    if match_user_for(current_user).out_of_cards? && !game.deck.has_cards?
-      add_message("GAME OVER - #{winner.name} won!")
-      return
-    end
-    if match_user_for(current_user).out_of_cards? && @game.deck.has_cards?
-      draw_card_for_user(current_user)
-    end
-    if over?
-      add_message("GAME OVER - #{winner.name} won!")
-      return
-    end
+    over? ? add_message("GAME OVER - #{winner.name} won!") : add_message("It's #{current_user.name}'s turn")
+    draw_card_for_user(current_user) if !over? && match_user_for(current_user).out_of_cards?
     changed; notify_observers('match_change_event')
-  end
-
-  def send_request_to_user(request)
-    game.ask_player_for_cards(player: request.recipient, request: request)
-  end
-
-  def send_cards_to_user(user, response)
-    game.give_cards_to_player(player: player_for(user), response: response)
   end
 
   def draw_card_for_user(user)
@@ -168,7 +144,7 @@ class Match
   def move_play_to_next_user
     current_user_index = users.find_index(@current_user)
     @current_user = users[current_user_index + 1] || users.first
-    # TODO ask Ken about this one
+    # TODO ask Ken about this infinite loop issue
     #if @current_user.has_cards?
     #  return
     #else

@@ -23,13 +23,6 @@ module Helpers
     end
   end
 
-  def wait_for_game_with_two_players
-    #@match = make_match(desired_player_count: 2)
-    #@me = @match.match_users.first
-    #@my_hand_before_asking = Array.new(@me.player.hand)
-    #ask_to_play(opponent_count: 1, player_name: 'user1', user_id: 0)
-  end
-
   def start_game_with_three_players
     @match = make_match(desired_player_count: 3)
     add_users(count: 3, match: @match)

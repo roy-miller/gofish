@@ -18,9 +18,6 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'I am waiting for a game with 2 players' do
-    #wait_for_game_with_two_players
-    #@match.start_timeout_seconds = 0
-    #ask_to_play(opponent_count: 1, player_name: 'user1', user_id: '')
     simulate_play_request(user: build(:user, name: 'user1'), number_of_opponents: 1, user_id: '', reset_match_maker: true)
   end
 
