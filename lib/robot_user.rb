@@ -1,3 +1,5 @@
+require_relative './match'
+
 class RobotUser
   attr_reader :id, :match, :think_time
 
@@ -18,10 +20,8 @@ class RobotUser
     'robot'
   end
 
-  def update(event)
-    if event == 'match_change_event'
-      make_request if (match.current_user == self)
-    end
+  def update(*args)
+    make_request if (match.current_user == self)
   end
 
   def make_request

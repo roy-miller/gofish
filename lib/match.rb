@@ -125,7 +125,7 @@ class Match
     end
     over? ? add_message("GAME OVER - #{winner.name} won!") : add_message("It's #{current_user.name}'s turn")
     draw_card_for_user(current_user) if !over? && match_user_for(current_user).out_of_cards?
-    changed; notify_observers('match_change_event')
+    changed; notify_observers
   end
 
   def draw_card_for_user(user)

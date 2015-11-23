@@ -5,7 +5,6 @@ class MatchPerspective
   attr_accessor :match_id, :user, :player, :opponents, :deck_card_count,
                 :status, :messages
 
-  # TODO flatten this out more instead of shipping back match user instances?
   def initialize(match:, user:)
     @match            = match
     @match_id         = match.id
@@ -30,7 +29,7 @@ class MatchPerspective
 
   def hash
     hash = {}
-    hash[:status] = pending? ? 'pending' : 'started'
+    hash[:status] = pending? ? MatchStatus::PENDING : MatchStatus::STARTED
     hash[:name] = @user.name
     hash[:messages] = @messages
     hash[:book_count] = @player.book_count

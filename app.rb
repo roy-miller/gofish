@@ -1,11 +1,13 @@
-Dir["#{File.dirname(__FILE__)}/lib/**/*.rb"].each {|file| require file } # glob better?
-require 'sinatra'
-require 'sinatra/reloader'
+require 'json'
 require 'pusher'
 require 'pry'
-require 'json'
+require 'sinatra'
+require 'sinatra/reloader'
+require 'sinatra/activerecord'
 also_reload("lib/**/*.rb")
+Dir["#{File.dirname(__FILE__)}/lib/**/*.rb"].each {|file| require file } # glob better?
 
+set :database, ENV['DATABASE_URL'] || 'postgres://localhost/gofish'
 Pusher.url = "https://9d7c66d1199c3c0e7ca3:27c71591fef8b4fadd37@api.pusherapp.com/apps/153451"
 @@match_maker = MatchMaker.new
 
@@ -16,7 +18,7 @@ end
 post '/start' do
   @@match_maker = MatchMaker.new if (params['reset_match_maker'])
   @number_of_players = params['number_of_opponents'].to_i + 1
-  user = User.find(params['user_id'].empty? ? nil : params['user_id'].to_i) || User.new(name: params['user_name'])
+  user = User.find_or_create_by(name: params['user_name'])
   match = @@match_maker.match(user, @number_of_players)
   if match
     redirect "/matches/#{match.id}/users/#{user.id}"

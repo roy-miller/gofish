@@ -4,6 +4,9 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'slim'
 gem 'pusher'
+gem 'sinatra-activerecord'
+gem 'rake'
+gem 'pg'
 
 group :test do
   gem 'rspec'

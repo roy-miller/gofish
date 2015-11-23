@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe RobotUser do
-  let(:user) { RobotUser.new }
-  let(:other_user) { RobotUser.new }
+  let(:user) { build(:robot_user) }
+  let(:other_user) { build(:robot_user) }
   let(:match) { build(:match, users: [user, other_user]) }
 
   before do
@@ -14,7 +14,7 @@ describe RobotUser do
     match.current_user = user
     match.changed
     allow(match).to receive(:ask_for_cards).and_return(nil)
-    match.notify_observers('changed')
+    match.notify_observers
     expect(match).to have_received(:ask_for_cards).with(hash_including(requestor: user), any_args)
   end
 end
