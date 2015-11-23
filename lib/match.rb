@@ -30,12 +30,17 @@ class Match
     @@matches = value
   end
 
+  def self.reset
+    @@matches = []
+  end
+
   def initialize(users=[], id: 0)
     @id = id
     @messages = []
     @messages << "Waiting for #{users.count} total players"
     @status = MatchStatus::PENDING
     @users = users
+    @users.each { |user| user.add_match(self) }
     @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
     @game = make_game
     @current_user = users.first
@@ -107,7 +112,6 @@ class Match
   end
 
   def ask_for_cards(requestor:, recipient:, card_rank:)
-    binding.pry
     return if requestor != @current_user
     clear_messages
     if over?
@@ -136,7 +140,7 @@ class Match
       add_message("GAME OVER - #{winner.name} won!")
       return
     end
-    changed; notify_observers('changed')
+    changed; notify_observers('match_change_event')
   end
 
   def send_request_to_user(request)

@@ -20,6 +20,13 @@ describe MatchMaker do
     expect(match.users).to contain_exactly(user, another_user)
   end
 
+  it 'starts a match with robots if not enough users join in time' do
+    allow(match_maker).to receive(:trigger_start_timer).and_return(nil)
+    match_maker.start_timeout_seconds = 0
+    match_maker.match(user, 2)
+    expect(match_maker).to have_received(:trigger_start_timer).once
+  end
+
   it 'makes a second match when it has the right number of users' do
     allow(match_maker).to receive(:push).and_return(nil)
     2.times { match_maker.match(build(:user), 2) }

@@ -23,11 +23,11 @@ module Helpers
     end
   end
 
-  def wait_for_game_with_two_players(desired_player_count:)
-    @match = make_match(desired_player_count: desired_player_count)
-    add_users(count: 1, match: @match)
-    @me = @match.match_users.first
-    @my_hand_before_asking = Array.new(@me.player.hand)
+  def wait_for_game_with_two_players
+    #@match = make_match(desired_player_count: 2)
+    #@me = @match.match_users.first
+    #@my_hand_before_asking = Array.new(@me.player.hand)
+    #ask_to_play(opponent_count: 1, player_name: 'user1', user_id: 0)
   end
 
   def start_game_with_three_players
@@ -65,10 +65,7 @@ module Helpers
   end
 
   def make_match(desired_player_count:)
-    players = (1..desired_player_count).map { |index| Player.new(index) }
-    game = Game.new(players)
-    #game.deal(cards_per_player: 5)
-    @match = Match.new(id: 0, opponent_count: desired_player_count - 1, game: game)
+    @match = build(:match, users: [build(:user, name: 'user1'), build(:user, name: 'user2')])
     Match.matches << @match
     @match
   end
@@ -84,7 +81,7 @@ module Helpers
   end
 
   def visit_player_page
-    visit "/matches/#{@match.id}/users/#{Match.matches.first.match_users.first.id}"
+    visit "/matches/#{@match.id}/users/#{Match.matches.first.users.first.id}"
   end
 
   def click_to_ask_for_cards(card)
@@ -107,6 +104,16 @@ module Helpers
       rank: rank
     }
     post("/request_card", params)
+  end
+
+  def simulate_play_request(user:, number_of_opponents: 1, user_id: '', reset_match_maker: false)
+    params = {
+      user_name: user.name,
+      user_id: user_id,
+      number_of_opponents: number_of_opponents,
+      reset_match_maker: reset_match_maker
+    }
+    post("/start", params)
   end
 
   def give_card(user:, rank:, suit: 'C')

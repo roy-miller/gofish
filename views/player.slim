@@ -42,7 +42,7 @@ html
     javascript:
       var playerView;
       $(document).ready(function() {
-        playerView = new PlayerView("#{@perspective.match_id}", "#{@perspective.user.id}", true);
+        playerView = new PlayerView("#{@perspective.match_id}", "#{@perspective.user.id}", false);
 
         var pusher = new Pusher('9d7c66d1199c3c0e7ca3', { encrypted: true });
         var gamePlayChannel = pusher.subscribe('game_play_channel_' + playerView.matchId);

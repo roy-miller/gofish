@@ -9,7 +9,6 @@ class MatchClientNotifier
   end
 
   def update(*args)
-    binding.pry
     push("game_play_channel_#{match.id}", 'match_change_event')
   end
 

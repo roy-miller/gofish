@@ -1,5 +1,5 @@
 class RobotUser
-  attr_reader :match, :think_time
+  attr_reader :id, :match, :think_time
 
   def initialize(think_time = 0)
     @think_time = think_time
@@ -10,12 +10,16 @@ class RobotUser
     match.add_observer(self)
   end
 
+  def id
+    self.object_id
+  end
+
   def name
     'robot'
   end
 
   def update(event)
-    if event == 'changed'
+    if event == 'match_change_event'
       make_request if (match.current_user == self)
     end
   end

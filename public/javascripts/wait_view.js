@@ -13,7 +13,7 @@ WaitView.prototype.start = function(url) {
 }
 
 $(document).ready(function() {
-  var waitView = new WaitView(true);
+  var waitView = new WaitView(false);
 
   var pusher = new Pusher('9d7c66d1199c3c0e7ca3', { encrypted: true });
   var user_id = document.getElementById('player').getAttribute('data-userid');
