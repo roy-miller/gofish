@@ -16,5 +16,6 @@ group :test do
   gem 'poltergeist'
   gem 'selenium-webdriver'
   gem 'factory_girl'
+  gem 'database_cleaner'
   gem 'spinach'
 end

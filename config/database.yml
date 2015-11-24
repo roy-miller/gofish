@@ -1,4 +1,7 @@
 development:
   adapter: postgresql
-  database: gofish
-  host: localhost
+  database: gofish_development
+
+test:
+  adapter: postgresql
+  database: gofish_test

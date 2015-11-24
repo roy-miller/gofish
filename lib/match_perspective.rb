@@ -11,7 +11,7 @@ class MatchPerspective
     @user             = user
     @player           = match.player_for(user)
     @opponents        = match.opponents_for(user).map { |opponent|
-                          player = match.match_user_for(opponent).player
+                          player = match.player_for(opponent)
                           { id: opponent.id, name: opponent.name, card_count: player.card_count, book_count: player.book_count }
                         }
     @deck_card_count  = match.deck_card_count

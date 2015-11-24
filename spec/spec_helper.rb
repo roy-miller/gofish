@@ -1,10 +1,12 @@
+ENV['RACK_ENV'] = 'test'
+
+require 'factory_girl'
+require 'database_cleaner'
+require 'pry'
+require 'rspec'
 #project_root = File.dirname(File.absolute_path(__FILE__))
 #Dir.glob(project_root + '/helpers/*') {|file| require file}
 #Dir.glob(project_root + '/helpers/*', &method(:require))
-
-require 'factory_girl'
-require 'pry'
-require 'rspec'
 # def require_all(directory)
 #   Dir[File.join(File.dirname(File.absolute_path(__FILE__)), directory, "**.rb")].each { |file| require file }
 # end
@@ -15,4 +17,12 @@ Dir[File.join(File.dirname(__FILE__), "..", "spec/factories" , "**.rb")].each { 
 
 RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
+  # config.before(:suite) do
+  #   DatabaseCleaner.strategy = :transaction
+  #   DatabaseCleaner.clean_with(:truncation)
+  #
+  #   DatabaseCleaner.cleaning do
+  #     FactoryGirl.lint
+  #   end
+  # end
 end

@@ -50,6 +50,7 @@ describe Match do
     end
 
     it 'finds all opponents for a given user id' do
+      binding.pry
       opponents = match.opponents_for(match.users.first)
       expect(opponents).to match_array [match.users.last]
     end
@@ -57,6 +58,7 @@ describe Match do
     it 'provides current state of the match for a given user' do
       perspective = match.state_for(match.users.first)
       expect(perspective).to be_instance_of MatchPerspective
+      expect(perspective.player).to be match.player_for(match.users.first)
     end
 
     it 'moves play to the next user after the current one when next has cards' do

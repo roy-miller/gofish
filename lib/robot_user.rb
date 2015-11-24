@@ -17,7 +17,7 @@ class RobotUser
   end
 
   def name
-    'robot'
+    'robot' + id.to_s
   end
 
   def update(*args)

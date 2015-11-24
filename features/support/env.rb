@@ -2,9 +2,11 @@ require './app'
 require 'rspec'
 require 'capybara'
 require 'factory_girl'
+require 'database_cleaner'
 require 'spinach/capybara'
 require 'capybara/poltergeist'
 require 'selenium-webdriver'
+require 'pry'
 
 # disables rack logging
 module Rack
@@ -33,4 +35,18 @@ Spinach.hooks.on_tag('javascript') { ::Capybara.current_driver = ::Capybara.java
 Spinach.config[:failure_exceptions] << RSpec::Expectations::ExpectationNotMetError
 Spinach::FeatureSteps.include RSpec::Matchers
 Spinach::FeatureSteps.include FactoryGirl::Syntax::Methods
-Spinach.hooks.before_run { FactoryGirl.reload }
+
+Spinach.hooks.before_run do
+  FactoryGirl.reload
+  DatabaseCleaner.clean_with :truncation
+  DatabaseCleaner.strategy = :transaction
+end
+
+Spinach.hooks.before_scenario do |scenario|
+  Match.reset
+  DatabaseCleaner.start
+end
+
+Spinach.hooks.after_scenario do |scenario|
+  DatabaseCleaner.clean
+end

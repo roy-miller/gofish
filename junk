@@ -24,3 +24,26 @@
 #     expect(page.text).to match(/ask another player/i)
 #   end
 # end
+
+class CreateMatches < ActiveRecord::Migration
+  def change
+    create_table :matches do |t|
+      t.string :game
+      t.string :status
+      t.string :messages, array: true, default: []
+      t.timestamps null: false
+    end
+  end
+end
+
+class CreateUsers < ActiveRecord::Migration
+  def change
+    create_table :users do |t|
+      t.belongs_to :match, index: true
+      t.string :name
+      t.string :first_name
+      t.string :last_name
+      t.timestamps null: false
+    end
+  end
+end

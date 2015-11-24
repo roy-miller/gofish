@@ -37,18 +37,17 @@ class Match
   end
 
   def initialize(users=[], id: 0)
-  #def initialize(users=[])
     @id = id
     @messages = []
     @messages << "Waiting for #{users.count} total players"
     @status = MatchStatus::PENDING
     @users = users
     @users.each { |user| user.add_match(self) }
+    # TODO Ken: is this a bad side effect?
     @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
     @game = make_game
     @current_user = users.first
     save
-    #super
   end
 
   def save
@@ -104,7 +103,12 @@ class Match
   end
 
   def player_for(user)
-    @match_users.detect { |match_user| match_user.user == user }.player
+    player = nil
+    #begin
+      @match_users.detect { |match_user| match_user.user == user }.player
+    #rescue Exception => e
+    #  raise $!, "looking for player for user #{user.name}\nplayers: #{@match_users.map{|p| p.number}}", $!.backtrace
+    #end
   end
 
   def opponents_for(user)

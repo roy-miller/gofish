@@ -1,5 +1,6 @@
 require_relative './common_steps.rb'
 require_relative './helpers.rb'
+require 'database_cleaner'
 
 class Spinach::Features::StartGame < Spinach::FeatureSteps
   include Helpers
@@ -34,7 +35,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
     #sleep 0.5
   end
 
-  step 'I see the start of the game' do
+  step 'the game starts' do
     visit "/matches/0/users/#{Match.matches.first.match_users.first.id}"
     expect(page.text).to have_text /welcome, user1/i
     expect(page.text).to have_text /click a card/i

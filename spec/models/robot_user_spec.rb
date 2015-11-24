@@ -10,6 +10,10 @@ describe RobotUser do
     other_user.add_match(match)
   end
 
+  it 'provides its name' do
+    expect(user.name).to eq "robot#{user.id}"
+  end
+
   it 'makes a play if it is his turn' do
     match.current_user = user
     match.changed

@@ -31,7 +31,7 @@ module CommonSteps
   end
 
   step 'my first opponent goes fishing' do
-    expect(@first_opponent.player.hand.count).to eq 2
+    expect(@match.player_for(@first_opponent).hand.count).to eq (@first_opponent_hand_before_asking.count + 1)
   end
 
   step 'I get the cards' do
@@ -44,8 +44,8 @@ module CommonSteps
 
   step 'I go fishing' do
     visit_player_page
-    expect(@me.player.hand.count).to eq (@my_hand_before_asking.count + 1)
-    added_card = (@me.player.hand - @my_hand_before_asking).first
+    expect(@match.player_for(@me).hand.count).to eq (@my_hand_before_asking.count + 1)
+    added_card = (@match.player_for(@me).hand - @my_hand_before_asking).first
     expect(page.has_css?(".your-card[data-rank='#{added_card.rank.downcase}'][data-suit='#{added_card.suit.downcase}']")).to be true
   end
 
@@ -56,11 +56,12 @@ module CommonSteps
 
   step 'I ask my first opponent for cards he does not have' do
     visit_player_page
-    click_to_ask_for_cards(@me.player.hand.first)
+    click_to_ask_for_cards(@match.player_for(@me).hand.first)
   end
 
   step 'my first oppponent asks me for cards I do not have' do
-    give_card(user: @first_opponent, rank: @card_nobody_has.rank, suit: @card_nobody_has.suit)
+    card_i_dont_have = give_card(user: @first_opponent, rank: @card_nobody_has.rank, suit: @card_nobody_has.suit)
+    @first_opponent_hand_before_asking << card_i_dont_have
     simulate_card_request(match: @match,
                           requestor: @first_opponent,
                           requested: @me,
