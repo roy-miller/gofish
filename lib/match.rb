@@ -17,7 +17,6 @@ class Match
 
   #attr_accessor :users, :match_users, :current_user, :status, :messages
   attr_accessor :id, :game, :users, :match_users, :current_user, :status, :messages
-  CARDS_PER_PLAYER = 5
   @@matches = []
 
   def self.find(match_id)
@@ -103,9 +102,9 @@ class Match
   end
 
   def player_for(user)
-    player = nil
+    #player = nil
     #begin
-      @match_users.detect { |match_user| match_user.user == user }.player
+    @match_users.detect { |match_user| match_user.user == user }.player
     #rescue Exception => e
     #  raise $!, "looking for player for user #{user.name}\nplayers: #{@match_users.map{|p| p.number}}", $!.backtrace
     #end
@@ -172,7 +171,7 @@ class Match
 
   def make_game
     game = Game.new(@match_users.map(&:player))
-    game.deal(cards_per_player: CARDS_PER_PLAYER)
+    game.deal
     game
   end
 end

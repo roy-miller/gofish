@@ -50,7 +50,6 @@ describe Match do
     end
 
     it 'finds all opponents for a given user id' do
-      binding.pry
       opponents = match.opponents_for(match.users.first)
       expect(opponents).to match_array [match.users.last]
     end

@@ -42,14 +42,14 @@ Feature: Play game
   Scenario: My first opponent asks me for cards I have
     Given it is my first opponent's turn
     When my first opponent asks me for cards I have
-    Then I give him the cards
+    Then I give the cards
     And it is still my first opponent's turn
 
   @javascript
   Scenario: My first opponent asks me for cards I do not have
     Given it is my first opponent's turn
     When my first oppponent asks me for cards I do not have
-    Then I do not give him the cards
+    Then I do not give the cards
     And my first opponent goes fishing
     And it becomes my second opponent's turn
 

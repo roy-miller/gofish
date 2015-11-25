@@ -16,7 +16,7 @@ class Game
     @players << player
   end
 
-  def deal(cards_per_player:)
+  def deal(cards_per_player: 5)
     rand(1..5).times { @deck.shuffle }
     @players.each do |player|
       cards_per_player.times do |i|

@@ -19,11 +19,18 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'I am waiting for a game with 2 players' do
-    simulate_play_request(user: build(:user, name: 'user1'), number_of_opponents: 1, user_id: '', reset_match_maker: true)
+    simulate_play_request(user: build(:user, name: 'user1'),
+                          number_of_opponents: 1,
+                          user_id: '',
+                          reset_match_maker: true,
+                          match_maker_timeout: 0.25)
   end
 
   step 'another player joins the game' do
-    ask_to_play(opponent_count: 1, player_name: 'user2', user_id: '')
+    #ask_to_play(opponent_count: 1, player_name: 'user2', user_id: '')
+    simulate_play_request(user: build(:user, name: 'user2'),
+                          number_of_opponents: 1,
+                          user_id: '')
   end
 
   step 'a player joins with the wrong number of opponents' do
@@ -31,8 +38,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'no other player joins in time' do
-    #@match.trigger_start_timer(0.25)
-    #sleep 0.5
+    sleep 5
   end
 
   step 'the game starts' do
@@ -48,6 +54,6 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
 
   step 'I am playing one robot' do
     expect(find_all('.opponent').length).to eq 1
-    expect(find('.opponent').text).to match /robot1/i
+    expect(find('.opponent').text).to match /robot\d+/i
   end
 end

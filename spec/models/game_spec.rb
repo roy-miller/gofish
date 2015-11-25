@@ -4,11 +4,6 @@ describe Game do
   context 'new game with no players' do
     let(:game) { build(:game) }
 
-    it 'creates a game with a deck of playing cards and no players' do
-      expect(game.deck.cards.count).to eq 52
-      expect(game.players).to be_empty
-    end
-
     it 'adds player' do
       game.add_player(build(:player))
       expect(game.players.count).to eq 1
@@ -24,11 +19,7 @@ describe Game do
     end
 
     it 'deals requested number of cards to each player' do
-      #puts "BEFORE player #{game.players.first.number} #{game.players.first.object_id} starts with #{game.players.first.hand.count} cards"
-      #puts "BEFORE player #{game.players.last.number} #{game.players.last.object_id} starts with #{game.players.last.hand.count} cards"
       game.deal(cards_per_player: 5)
-      #puts "AFTER player #{game.players.first.number} #{game.players.first.object_id} ends with #{game.players.first.hand.count} cards"
-      #puts "AFTER player #{game.players.last.number} #{game.players.last.object_id} ends with #{game.players.last.hand.count} cards"
       expect(game.players.first.card_count).to eq 5
       expect(game.players.last.card_count).to eq 5
       expect(game.deck.card_count).to eq 42

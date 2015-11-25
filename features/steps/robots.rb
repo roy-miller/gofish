@@ -11,11 +11,21 @@ class Spinach::Features::Robots < Spinach::FeatureSteps
   end
 
   step 'a game with one real player and one robot' do
-    start_game_with_robots(real_player_count: 1, robot_count: 1)
+    start_game_with_robots(humans: 1, robots: 1)
   end
 
   step 'a game with one real player and two robots' do
-    start_game_with_robots(real_player_count: 1, robot_count: 2)
+    start_game_with_robots(humans: 1, robots: 2)
+  end
+
+  step 'the robot thinks slowly' do
+    @first_opponent.think_time = 10
+  end
+
+  step 'the match tells the robot to play' do
+    @match.current_user = @first_opponent
+    @match.changed
+    @match.notify_observers
   end
 
   step 'I ask my first opponent for cards he has' do
@@ -27,8 +37,20 @@ class Spinach::Features::Robots < Spinach::FeatureSteps
   end
 
   step 'my first opponent asks me for cards' do
-    @first_opponent.match_changed
+    sleep 1 # TODO how can I get rid of this?
     visit_player_page
-    expect(page.has_content?("#{@first_opponent.name} asked #{@me.name}")).to be true
+    sleep 1
+    page.save_screenshot('/Users/roymiller/test.png')
+    expect(page).to have_content("#{@first_opponent.name} asked #{@me.name}") # TODO how to kill this?
+  end
+
+  step 'the match tells me my first opponent asked second opponent for cards' do
+    visit_player_page
+    expect(page).to have_content("#{@first_opponent.name} asked #{@second_opponent.name}")
+  end
+
+  step 'play continues automatically back to me' do
+    visit_player_page
+    expect(page).to have_content("GAME OVER - #{@me.name} won")
   end
 end

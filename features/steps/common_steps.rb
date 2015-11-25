@@ -18,15 +18,16 @@ module CommonSteps
     expect(@match.current_user).to be @me
   end
 
-  step 'it is my first opponent\'s turn' do
+  step "it is my first opponent's turn" do
     @match.current_user = @first_opponent
   end
 
-  step 'it becomes my first opponent\'s turn' do
+  step "it becomes my first opponent's turn" do
     expect(@match.current_user).to be @first_opponent
   end
 
-  step 'it is still my first opponent\'s turn' do
+  step "it is still my first opponent's turn" do
+    page.save_screenshot("/Users/roymiller/test.png")
     expect(@match.current_user).to be @first_opponent
   end
 
@@ -50,18 +51,18 @@ module CommonSteps
   end
 
   step 'I have a card my first opponent does not' do
-    give_card(user: @me, rank: 'J')
+    @match.player_for(@me).hand << @card_nobody_has
     set_my_hand_before_asking
   end
 
   step 'I ask my first opponent for cards he does not have' do
     visit_player_page
-    click_to_ask_for_cards(@match.player_for(@me).hand.first)
+    click_to_ask_for_cards(@card_nobody_has)
   end
 
   step 'my first oppponent asks me for cards I do not have' do
-    card_i_dont_have = give_card(user: @first_opponent, rank: @card_nobody_has.rank, suit: @card_nobody_has.suit)
-    @first_opponent_hand_before_asking << card_i_dont_have
+    @match.player_for(@first_opponent).hand << @card_nobody_has
+    @first_opponent_hand_before_asking = Array.new(@match.player_for(@first_opponent).hand)
     simulate_card_request(match: @match,
                           requestor: @first_opponent,
                           requested: @me,
@@ -69,7 +70,7 @@ module CommonSteps
   end
 
   step 'my first opponent asks me for cards I have' do
-    give_king(@me)
+    @card_opponent_asks_for = give_king(@me)
     set_my_hand_before_asking
     simulate_card_request(match: @match,
                           requestor: @first_opponent,
@@ -77,13 +78,13 @@ module CommonSteps
                           rank: @my_hand_before_asking.last.rank)
   end
 
-  step 'I give him the cards' do
-    expect(@first_opponent.player.hand).to include(@my_hand_before_asking.last)
-    expect(@me.player.hand).to be_empty
+  step 'I give the cards' do
+    expect(@match.player_for(@first_opponent).hand).to include(@card_opponent_asks_for)
+    expect(@match.player_for(@me).hand).not_to include(@card_opponent_asks_for)
   end
 
-  step 'I do not give him the cards' do
-    expect(@me.player.hand).to match_array @my_hand_before_asking
+  step 'I do not give the cards' do
+    expect(@match.player_for(@me).hand).to match_array @my_hand_before_asking
   end
 
   step 'it becomes my second opponent\'s turn' do
@@ -96,7 +97,7 @@ module CommonSteps
     simulate_card_request(match: @match,
                           requestor: @first_opponent,
                           requested: @second_opponent,
-                          rank: @first_opponent.player.hand.last.rank)
+                          rank: @match.player_for(@first_opponent).hand.last.rank)
   end
 
   step 'the match tells me that someone asked' do
@@ -117,7 +118,7 @@ module CommonSteps
     simulate_card_request(match: @match,
                           requestor: @first_opponent,
                           requested: @second_opponent,
-                          rank: @first_opponent.player.hand.last)
+                          rank: @match.player_for(@first_opponent).hand.last.rank)
   end
 
 end

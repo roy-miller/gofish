@@ -26,18 +26,34 @@ module Helpers
   def start_game_with_three_players
     @match = make_match_with_users(humans: 3)
     @match.start
+    deck_has_two_cards
+    all_users_have_two_cards
     set_instance_variables_for_tests
   end
 
   def start_game_with_robots(humans:, robots:)
-    @match = make_match(humans: humans, robots: robots)
+    @match = make_match_with_users(humans: humans, robots: robots)
     @match.start
+    deck_has_two_cards
     all_users_have_one_card
     set_instance_variables_for_tests
   end
 
+  def deck_has_two_cards
+    @match.game.deck.cards = [build(:card, rank: '2', suit: 'S'), build(:card, rank: '3', suit: 'S')]
+  end
+
+  def all_users_have_two_cards
+    @match.users.each do |user|
+      @match.player_for(user).hand = []
+      give_ten(user)
+      give_king(user)
+    end
+  end
+
   def all_users_have_one_card
-    @match.match_users.each do |user|
+    @match.users.each do |user|
+      @match.player_for(user).hand = []
       give_ten(user)
     end
   end
@@ -49,14 +65,13 @@ module Helpers
     @first_opponent_hand_before_asking = Array.new(@match.player_for(@first_opponent).hand)
     @second_opponent = @match.opponents_for(@me).last
     @second_opponent_hand_before_asking = Array.new(@match.player_for(@second_opponent).hand)
-    @match.game.deck.cards = [Card.new(rank: 'Q', suit: 'H'), Card.new(rank: '10', suit: 'D')]
     @fish_card = @match.game.deck.cards.last
-    @card_nobody_has = Card.new(rank: '7', suit: 'H')
+    @card_nobody_has = build(:card, rank: 'A', suit: 'H')
   end
 
   def make_match_with_users(humans: 0, robots: 0)
     users = build_list(:user, humans).concat(build_list(:robot_user, robots))
-    @match = build(:match, users: users)
+    @match = build(:match, :users_have_no_cards, users: users)
   end
 
   def visit_player_page
@@ -64,7 +79,7 @@ module Helpers
   end
 
   def click_to_ask_for_cards(card)
-    my_card_link = page.find(".your-card[data-rank='#{card.rank.downcase}'][data-suit='#{card.suit.downcase}']")
+    my_card_link = page.find(".your-card[data-rank='#{card.rank.downcase}']")
     my_card_link.click
     opponent_link = page.all('.opponent-name').first
     opponent_link.click
@@ -85,12 +100,13 @@ module Helpers
     post("/request_card", params)
   end
 
-  def simulate_play_request(user:, number_of_opponents: 1, user_id: '', reset_match_maker: false)
+  def simulate_play_request(user:, number_of_opponents: 1, user_id: '', reset_match_maker: false, match_maker_timeout: 0)
     params = {
       user_name: user.name,
       user_id: user_id,
       number_of_opponents: number_of_opponents,
-      reset_match_maker: reset_match_maker
+      reset_match_maker: reset_match_maker,
+      match_maker_timeout: match_maker_timeout
     }
     post("/start", params)
   end

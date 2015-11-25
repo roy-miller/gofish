@@ -14,6 +14,7 @@ Feature: Robots
   @javascript
   Scenario: I ask my first robot opponent for cards he does not have
     Given a game with one real player and one robot
+    And the robot thinks slowly
     And it is my turn
     And I have a card my first opponent does not
     When I ask my first opponent for cards he does not have
@@ -23,7 +24,7 @@ Feature: Robots
   @javascript
   Scenario: Robot opponent plays on his own
     Given a game with one real player and one robot
-    When it is my first opponent's turn
+    When the match tells the robot to play
     Then my first opponent asks me for cards
 
   @javascript
@@ -31,15 +32,4 @@ Feature: Robots
     Given a game with one real player and two robots
     And it is my first opponent's turn
     When my first opponent asks my second opponent for cards he has
-    Then the match tells me that someone asked
-    And the match does not tell me that someone went fishing
-    And it is still my first opponent's turn
-
-  @javascript
-  Scenario: Robot opponent asks another robot opponent for cards second one does not have
-    Given a game with one real player and two robots
-    And it is my first opponent's turn
-    When my first opponent asks my second opponent for cards he does not have
-    Then the match tells me that someone asked
-    And the match tells me that someone went fishing
-    And it becomes my second opponent's turn
+    Then the match tells me my first opponent asked second opponent for cards

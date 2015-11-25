@@ -6,3 +6,4 @@
 [ ]- add player id to MatchPerspective and put in data attribute on page
 [ ]- why can't game_spec use game factory?!
 [ ]- remove Book.full?
+[ ]- change Game.winner to set instance variable for persistence

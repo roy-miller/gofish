@@ -1,7 +1,8 @@
 require_relative './match'
 
 class RobotUser
-  attr_reader :id, :match, :think_time
+  attr_reader :id, :match
+  attr_accessor :think_time
 
   def initialize(think_time = 0)
     @think_time = think_time

@@ -4,9 +4,11 @@ Feature: Start game
   I want a game to start when there are enough players
 
   @javascript
-  Scenario: Not enough players
-    When I choose my game options and play
-    Then the match tells me to wait for opponents
+  Scenario: Not enough players join a game in time
+    Given I am waiting for a game with 2 players
+    When no other player joins in time
+    Then the game starts
+    And I am playing one robot
 
   @javascript
   Scenario: Enough players
@@ -20,10 +22,3 @@ Feature: Start game
     Given I am waiting for a game with 2 players
     When a player joins with the wrong number of opponents
     Then the match tells me to wait for opponents
-
-  @javascript
-  Scenario: Not enough players join a game in time
-    Given I am waiting for a game with 2 players
-    When no other player joins in time
-    Then the game starts
-    And I am playing one robot

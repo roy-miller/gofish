@@ -1,5 +1,8 @@
 FactoryGirl.define do
   factory :game do
+    players []
+    association :deck, factory: :deck, strategy: :build
+
     trait :with_two_players do
       after(:build) do |game|
         game.players = build_list(:player, 2)
