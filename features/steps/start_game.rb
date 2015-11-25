@@ -27,7 +27,6 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'another player joins the game' do
-    #ask_to_play(opponent_count: 1, player_name: 'user2', user_id: '')
     simulate_play_request(user: build(:user, name: 'user2'),
                           number_of_opponents: 1,
                           user_id: '')

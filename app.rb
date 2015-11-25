@@ -16,19 +16,12 @@ get '/' do
 end
 
 post '/start' do
-  #binding.pry
-  File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("\n\n***** START REQUEST\nparams['reset_match_maker']=#{params['reset_match_maker']}\nparams['match_maker_timeout']=#{params['match_maker_timeout']}\n#{@@match_maker.pending_users}\n\n") }
   @@match_maker = MatchMaker.new if (params['reset_match_maker'] == 'true')
-  if params['reset_match_maker'] == 'true'
-    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("AFTER RESET\n#{@@match_maker.pending_users}\n\n") }
-  end
   @@match_maker.start_timeout_seconds = params['match_maker_timeout'].to_i if (params['match_maker_timeout'] == 'true')
   @number_of_players = params['number_of_opponents'].to_i + 1
   user = User.find(params['user_id'].empty? ? nil : params['user_id'].to_i) || User.new(name: params['user_name'])
   # user = User.find_or_create_by(name: params['user_name'])
   match = @@match_maker.match(user, @number_of_players)
-  #File.open("/Users/roymiller/roylog.txt", 'w') {|f| f.write("user:\n#{user.nil? ? 'diddly' : user.name}\nmatch:\n#{match.nil? ? 'diddly' : match.users.map(&:name)}") }
-  File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("match?\n#{@@match_maker.pending_users}\n\n") }
   if match
     redirect "/matches/#{match.id}/users/#{user.id}"
   else
