@@ -5,7 +5,7 @@ require_relative './user.rb'
 require_relative './player.rb'
 require_relative './game.rb'
 require_relative './match_user.rb'
-require_relative './robot_match_user.rb'
+require_relative './robot_user.rb'
 
 class MatchStatus
   PENDING = 'pending'
@@ -102,12 +102,7 @@ class Match
   end
 
   def player_for(user)
-    #player = nil
-    #begin
     @match_users.detect { |match_user| match_user.user == user }.player
-    #rescue Exception => e
-    #  raise $!, "looking for player for user #{user.name}\nplayers: #{@match_users.map{|p| p.number}}", $!.backtrace
-    #end
   end
 
   def opponents_for(user)
