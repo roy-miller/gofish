@@ -27,7 +27,6 @@ class Match < ActiveRecord::Base
     @current_user = users.first
     @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
     self.game = make_game #Game.new(self.game_serial)
-    binding.pry
   end
 
   def pending?
@@ -64,9 +63,7 @@ class Match < ActiveRecord::Base
     self.current_user = initial_user
     add_message("Click a card and a player to ask for cards when it's your turn")
     add_message("It's #{@current_user.name}'s turn")
-    binding.pry
     self.save
-    binding.pry
   end
 
   def user_for_id(user_id)
