@@ -17,12 +17,18 @@ Dir[File.join(File.dirname(__FILE__), "..", "spec/factories" , "**.rb")].each { 
 
 RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
-  # config.before(:suite) do
-  #   DatabaseCleaner.strategy = :transaction
-  #   DatabaseCleaner.clean_with(:truncation)
-  #
-  #   DatabaseCleaner.cleaning do
-  #     FactoryGirl.lint
-  #   end
-  # end
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :deletion
+    DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner.start
+    config.around(:each) do |example|
+      DatabaseCleaner.cleaning do
+        puts "CLEANING"
+        example.run
+      end
+    end
+  end
+  config.after(:each) do |example|
+    DatabaseCleaner.clean
+  end
 end

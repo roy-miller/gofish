@@ -4,7 +4,8 @@ class MatchMaker
   attr_accessor :start_timeout_seconds, :pending_users
 
   def initialize
-    @start_timeout_seconds = 5
+    @start_timeout_seconds = 300
+    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("MatchMaker reset\n\n") }
   end
 
   def match(user, number_of_players)
@@ -25,7 +26,7 @@ class MatchMaker
   end
 
   def start_match_with(users)
-    match = Match.new(users)
+    match = Match.new(users: users)
     match.start
     match.users.each { |user| push("wait_channel_#{user.id}", 'match_start_event', { message: "/matches/#{match.id}/users/#{user.id}" }) }
     MatchClientNotifier.new(match)

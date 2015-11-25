@@ -7,7 +7,6 @@ require 'sinatra/activerecord'
 also_reload("lib/**/*.rb")
 Dir["#{File.dirname(__FILE__)}/lib/**/*.rb"].each {|file| require file } # glob better?
 
-#set :database, ENV['DATABASE_URL'] || 'postgres://localhost/gofish'
 Pusher.url = "https://9d7c66d1199c3c0e7ca3:27c71591fef8b4fadd37@api.pusherapp.com/apps/153451"
 @@match_maker = MatchMaker.new
 
@@ -19,16 +18,13 @@ post '/start' do
   @@match_maker = MatchMaker.new if (params['reset_match_maker'] == 'true')
   @@match_maker.start_timeout_seconds = params['match_maker_timeout'].to_i if (params['match_maker_timeout'] == 'true')
   @number_of_players = params['number_of_opponents'].to_i + 1
-  user = User.find(params['user_id'].empty? ? nil : params['user_id'].to_i) || User.new(name: params['user_name'])
-  # user = User.find_or_create_by(name: params['user_name'])
+  #user = User.find(params['user_id'].empty? ? nil : params['user_id'].to_i) || User.new(name: params['user_name'])
+  user = User.find_or_create_by(name: params['user_name'])
   match = @@match_maker.match(user, @number_of_players)
-  if match
-    redirect "/matches/#{match.id}/users/#{user.id}"
-  else
-    @user_id = user.id
-    @user_name = user.name
-    slim :wait
-  end
+  redirect "/matches/#{match.id}/users/#{user.id}" if match
+  @user_id = user.id
+  @user_name = user.name
+  slim :wait
 end
 
 post '/request_card' do
@@ -41,7 +37,6 @@ end
 
 get '/matches/:match_id/users/:user_id.?:format?' do
   match = Match.find(params['match_id'].to_i)
-  # raise $!, "match: #{match}", $!.backtrace
   user = match.user_for_id(params['user_id'].to_i)
   state_for_user = match.state_for(user)
   if (params['format'] == 'json')

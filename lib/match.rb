@@ -12,65 +12,42 @@ class MatchStatus
   STARTED = 'started'
 end
 
-class Match
+class Match < ActiveRecord::Base
   include Observable
 
-  #attr_accessor :users, :match_users, :current_user, :status, :messages
-  attr_accessor :id, :game, :users, :match_users, :current_user, :status, :messages
-  @@matches = []
+  has_and_belongs_to_many :users
+  has_one :winner, class_name: 'User', foreign_key: 'winner_id'
+  serialize :game
+  after_initialize :set_up_match
 
-  def self.find(match_id)
-    @@matches.find { |match| match.id == match_id }
-  end
+  attr_accessor :match_users, :current_user
 
-  def self.matches
-    @@matches
-  end
-
-  def self.matches=(value)
-    @@matches = value
-  end
-
-  def self.reset
-    @@matches = []
-  end
-
-  def initialize(users=[], id: 0)
-    @id = id
-    @messages = []
-    @messages << "Waiting for #{users.count} total players"
-    @status = MatchStatus::PENDING
-    @users = users
-    @users.each { |user| user.add_match(self) }
-    # TODO Ken: is this a bad side effect?
-    @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
-    @game = make_game
+  def set_up_match
+    self.messages << "Waiting for #{users.count} total players"
     @current_user = users.first
-    save
-  end
-
-  def save
-    @@matches << self
+    @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
+    self.game = make_game #Game.new(self.game_serial)
+    binding.pry
   end
 
   def pending?
-    @status == MatchStatus::PENDING
+    self.status == MatchStatus::PENDING
   end
 
   def started?
-    @status == MatchStatus::STARTED
+    self.status == MatchStatus::STARTED
   end
 
   def add_message(message)
-    @messages << message
+    self.messages << message
   end
 
   def clear_messages
-    @messages.clear
+    self.messages.clear
   end
 
   def over?
-    @game.over?
+    self.game.over?
   end
 
   def initial_user
@@ -83,14 +60,17 @@ class Match
 
   def start
     clear_messages
-    @status = MatchStatus::STARTED
-    @current_user = initial_user
+    self.status = MatchStatus::STARTED
+    self.current_user = initial_user
     add_message("Click a card and a player to ask for cards when it's your turn")
     add_message("It's #{@current_user.name}'s turn")
+    binding.pry
+    self.save
+    binding.pry
   end
 
   def user_for_id(user_id)
-    @users.detect { |user| user.id == user_id }
+    self.users.detect { |user| user.id == user_id }
   end
 
   def user_for_player(player)
@@ -110,10 +90,11 @@ class Match
   end
 
   def deck_card_count
-    game.deck.card_count
+    self.game.deck.card_count
   end
 
   def ask_for_cards(requestor:, recipient:, card_rank:)
+    binding.pry
     return if requestor != @current_user
     return if over?
     clear_messages
@@ -125,17 +106,19 @@ class Match
       add_message("#{current_user.name} went fishing")
       send_user_fishing(current_user, card_rank)
     end
-    over? ? add_message("GAME OVER - #{winner.name} won!") : add_message("It's #{current_user.name}'s turn")
+    add_message("It's #{current_user.name}'s turn")
+    end_match if over?
     draw_card_for_user(current_user) if !over? && match_user_for(current_user).out_of_cards?
     changed; notify_observers
+    self.save
   end
 
   def draw_card_for_user(user)
-    game.draw_card(player_for(user))
+    self.game.draw_card(player_for(user))
   end
 
   def send_user_fishing(user, card_rank)
-    drawn_card = game.draw_card(player_for(user))
+    drawn_card = self.game.draw_card(player_for(user))
     if drawn_card.rank == card_rank
       add_message("#{user.name} drew what he asked for")
     else
@@ -158,15 +141,17 @@ class Match
     MatchPerspective.new(match: self, user: user)
   end
 
-  def winner
-    user_for_player(game.winner)
-  end
-
   private
 
   def make_game
     game = Game.new(@match_users.map(&:player))
     game.deal
-    game
+    self.game = game
+  end
+
+  def end_match
+    winner = user_for_player(self.game.winner)
+    add_message("GAME OVER - #{winner.name} won!")
+    self.winner_id = winner.id
   end
 end
