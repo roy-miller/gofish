@@ -2,26 +2,24 @@ require_relative './match'
 require_relative './user'
 
 class RobotUser < User
-  #attr_reader :id, :match
-  #has_and_belongs_to_many :matches
-  attr_accessor :think_time
+  attr_accessor :match, :think_time
+  after_initialize :set_defaults
+  after_create :set_name
 
-  def initialize(think_time = 0)
-    @think_time = think_time
+  def set_defaults
+    self.name ||= "robot"
+    @think_time ||= 0
+    @match ||= nil
   end
 
-  def add_match(match)
+  def set_name
+    self.name = "robot#{self.id}"
+  end
+
+  def observe_match(match)
     self.match = match
     self.match.add_observer(self)
   end
-
-  # def id
-  #   self.object_id
-  # end
-
-  # def name
-  #   'robot' + self.id.to_s
-  # end
 
   def update(*args)
     make_request if (self.match.current_player == self)

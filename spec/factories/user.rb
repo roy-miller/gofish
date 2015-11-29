@@ -5,6 +5,7 @@ FactoryGirl.define do
     sequence(:name) { |n| "user#{n}" }
 
     factory :robot_user, class: RobotUser, parent: :user do
+      #sequence(:name) { |n| "robot#{n}" }
       name 'robot'
       think_time 0
     end
