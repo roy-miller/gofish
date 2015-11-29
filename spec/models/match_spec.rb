@@ -1,36 +1,43 @@
 require 'spec_helper'
 
 describe Match do
-  let(:match) { build(:match, users: build_list(:user, 2)) }
+  let(:users) { create_list(:user, 2) }
 
-  before do
-    Match.matches = []
-    match # only approach I could find for testing class managed persistence
-  end
+  context 'with database' do
+    let!(:match) { create(:match, users: users) }
 
-  it 'adds a match' do
-    expect(Match.matches.count).to eq 1
-    expect(Match.matches).to match_array [match]
-  end
-
-  it 'creates a game with correct number of players when match is new' do
-    created_game = Match.matches.first.game
-    expect(created_game.players.count).to be 2
-  end
-
-  context 'existing match' do
-    before do
-      Match.matches << match
-      match.current_user = match.users.first
-    end
-
-    it 'finds existing match for given match id' do
-      found_match = Match.find(match.id)
-      expect(found_match).to be match
-    end
-
-    it 'says match is pending when created' do
+    it 'saves to database successfully' do
+      expect(Match.all.count).to eq 1
+      expect(Match.first.id).to eq match.id
       expect(match.pending?).to be true
+      expect(match.game.players.count).to eq 2
+      expect(match.users.count).to eq 2
+      expect(match.match_users.count).to eq 2
+      expect(match.match_users.map(&:user)).to match_array users
+      expect(match.messages).to be_empty
+      expect(match.over?).to be false
+    end
+
+    it 'creates a game with correct number of players when match is new' do
+      created_game = Match.first.game
+      expect(created_game.players.count).to be 2
+    end
+
+    xit 'restores from database successfully'
+  end
+
+  context 'without database' do
+    let(:match) { build(:match, users: users) }
+
+    it 'adds and notifies observers' do
+      first_observer = spy('observer1')
+      second_observer = spy('observer2')
+      match.add_observer(first_observer)
+      match.notify_observers
+      match.add_observer(second_observer)
+      match.notify_observers
+      expect(first_observer).to have_received(:update).twice
+      expect(second_observer).to have_received(:update).once
     end
 
     it 'queues up messages for a match users' do
@@ -49,7 +56,7 @@ describe Match do
       expect(player).to be match.match_users.first.player
     end
 
-    it 'finds all opponents for a given user id' do
+    it 'finds all opponents for a given user' do
       opponents = match.opponents_for(match.users.first)
       expect(opponents).to match_array [match.users.last]
     end
@@ -60,18 +67,19 @@ describe Match do
       expect(perspective.player).to be match.player_for(match.users.first)
     end
 
-    it 'moves play to the next user after the current one when next has cards' do
-      match.current_user = match.users.first
+    it 'moves play to the next user after the current one' do
+      match
+      match.game.current_player = match.match_users.first.player
       match.move_play_to_next_user
-      expect(match.current_user).to be match.users.last
+      expect(match.current_player).to be match.match_users.last.user
       match.move_play_to_next_user
-      expect(match.current_user).to be match.users.first
+      expect(match.current_player).to be match.match_users.first.user
     end
 
     it 'identifies the winning user' do
-      winner = match.users.first
-      match.game.winner = match.player_for(winner)
-      expect(match.winner).to be winner
+      match.match_users.first.player.books << Book.new
+      match.send(:end_match)
+      expect(match.winner_id).to be users.first.id
     end
 
     it 'asks for cards, updates player hands when user has no cards of requested rank' do

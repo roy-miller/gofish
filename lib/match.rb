@@ -13,20 +13,29 @@ class MatchStatus
 end
 
 class Match < ActiveRecord::Base
-  include Observable
+  #include Observable
 
   has_and_belongs_to_many :users
   has_one :winner, class_name: 'User', foreign_key: 'winner_id'
   serialize :game
-  after_initialize :set_up_match
+  serialize :observers
+  after_initialize :set_up_match # unless persisted? or if: :new_record?
 
-  attr_accessor :match_users, :current_user
+  attr_accessor :match_users
 
   def set_up_match
-    self.messages << "Waiting for #{users.count} total players"
-    @current_user = users.first
-    @match_users = users.each_with_index.map { |user, index| MatchUser.new(user: user, player: Player.new(index)) }
-    self.game = make_game #Game.new(self.game_serial)
+    self.game ||= make_game
+    @match_users = self.users.each_with_index.map { |user, index| MatchUser.new(user: user, player: self.game.players[index]) }
+    self.status ||= MatchStatus::PENDING
+    self.observers ||= []
+  end
+
+  def notify_observers
+    self.observers.each { |observer| observer.update }
+  end
+
+  def add_observer(observer)
+    self.observers << observer
   end
 
   def pending?
@@ -49,21 +58,15 @@ class Match < ActiveRecord::Base
     self.game.over?
   end
 
-  def initial_user
-    @match_users.first.user
-  end
-
-  def most_recent_user_added
-    @match_users.last.user
+  def initial_player
+    match_users.first.player
   end
 
   def start
     clear_messages
     self.status = MatchStatus::STARTED
-    self.current_user = initial_user
     add_message("Click a card and a player to ask for cards when it's your turn")
-    add_message("It's #{@current_user.name}'s turn")
-    self.save
+    add_message("It's #{self.current_player.name}'s turn")
   end
 
   def user_for_id(user_id)
@@ -71,19 +74,19 @@ class Match < ActiveRecord::Base
   end
 
   def user_for_player(player)
-    @match_users.detect { |match_user| match_user.player == player }.user
+    match_users.detect { |match_user| match_user.player == player }.user
   end
 
   def match_user_for(user)
-    @match_users.detect { |match_user| match_user.user == user }
+    match_users.detect { |match_user| match_user.user == user }
   end
 
   def player_for(user)
-    @match_users.detect { |match_user| match_user.user == user }.player
+    match_users.detect { |match_user| match_user.user == user }.player
   end
 
   def opponents_for(user)
-    @match_users.reject { |match_user| match_user.user == user }.map(&:user)
+    match_users.reject { |match_user| match_user.user == user }.map(&:user)
   end
 
   def deck_card_count
@@ -91,30 +94,33 @@ class Match < ActiveRecord::Base
   end
 
   def ask_for_cards(requestor:, recipient:, card_rank:)
-    binding.pry
-    return if requestor != @current_user
+    return if requestor != self.current_player
     return if over?
     clear_messages
     add_message("#{requestor.name} asked #{recipient.name} for #{card_rank}s")
-    response = game.request_cards(player_for(requestor), player_for(recipient), card_rank)
+    response = self.game.request_cards(player_for(requestor), player_for(recipient), card_rank)
     if response.cards_returned?
       add_message("#{requestor.name} got #{response.cards_returned.count} #{card_rank}s from #{recipient.name}")
     else
-      add_message("#{current_user.name} went fishing")
-      send_user_fishing(current_user, card_rank)
+      add_message("#{self.current_player.name} went fishing")
+      go_fish(self.current_player, card_rank) # TODO game should do this directly
     end
-    add_message("It's #{current_user.name}'s turn")
+    add_message("It's #{self.current_player.name}'s turn")
     end_match if over?
-    draw_card_for_user(current_user) if !over? && match_user_for(current_user).out_of_cards?
-    changed; notify_observers
-    self.save
+    # TODO game should do this directly
+    draw_card_for_user(self.current_player) if !over? && match_user_for(self.current_player).out_of_cards?
+    #changed; notify_observers
+  end
+
+  def current_player
+    user_for_player(self.game.current_player)
   end
 
   def draw_card_for_user(user)
     self.game.draw_card(player_for(user))
   end
 
-  def send_user_fishing(user, card_rank)
+  def go_fish(user, card_rank)
     drawn_card = self.game.draw_card(player_for(user))
     if drawn_card.rank == card_rank
       add_message("#{user.name} drew what he asked for")
@@ -124,8 +130,7 @@ class Match < ActiveRecord::Base
   end
 
   def move_play_to_next_user
-    current_user_index = users.find_index(@current_user)
-    @current_user = users[current_user_index + 1] || users.first
+    self.game.advance_play
     # TODO ask Ken about this infinite loop issue
     #if @current_user.has_cards?
     #  return
@@ -141,9 +146,9 @@ class Match < ActiveRecord::Base
   private
 
   def make_game
-    game = Game.new(@match_users.map(&:player))
+    game = Game.new(self.users.each_with_index.map { |match_user, index| Player.new(index) })
     game.deal
-    self.game = game
+    game
   end
 
   def end_match

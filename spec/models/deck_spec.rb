@@ -1,23 +1,30 @@
 require 'spec_helper'
 
 describe Deck do
-  let(:deck) { Deck.new }
+  context 'empty' do
+    let(:deck) { build(:deck) }
 
-  describe '#new' do
-      it 'has a full set of playing cards' do
-        deck = Deck.new
-        expect(deck.cards.count).to eq 52
-      end
+    it 'should answer false' do
+      expect(deck.has_cards?).to be false
+    end
   end
 
-  describe '#add' do
+  context 'with cards' do
+    let(:deck) { build(:deck, :full) }
+
+    it 'has a full set of playing cards' do
+      expect(deck.cards.count).to eq 52
+    end
+
+    it 'says it has cards' do
+      expect(deck.has_cards?).to be true
+    end
+
     it 'adds a card' do
       deck.add(Card.new(rank: 'rank', suit: 'suit'))
       expect(deck.cards.count).to eq 53
     end
-  end
 
-  describe '#remove' do
     it 'removes a card' do
       card = Card.new(rank: 'rank', suit: 'suit')
       deck.cards << card
@@ -25,10 +32,8 @@ describe Deck do
       deck.remove(card)
       expect(deck.cards).not_to include card
     end
-  end
 
-  # TODO what's a better way to test this?
-  describe '#shuffle' do
+    # TODO what's a better way to test this?
     it 'shuffles cards' do
       card1 = Card.new(rank: 'rank1', suit: 'suit1')
       card2 = Card.new(rank: 'rank2', suit: 'suit1')
@@ -45,36 +50,14 @@ describe Deck do
 
       expect(was_shuffled).to be true
     end
-  end
 
-  describe '#has_cards?' do
-    context 'when deck has cards' do
-      it 'should answer true when the deck has cards' do
-        expect(deck.has_cards?).to be true
-      end
-    end
-    context 'when deck is empty' do
-      let(:deck) do
-        deck = Deck.new
-        deck.cards = []
-        deck
-      end
-      it 'should answer false' do
-        expect(deck.has_cards?).to be false
-      end
-    end
-  end
-
-  describe '#give_top_card' do
     it 'should return the top card' do
       starting_card_count = deck.cards.count
       card = deck.give_top_card
       expect(card).not_to be_nil
       expect(deck.cards.count).to eq (starting_card_count - 1)
     end
-  end
 
-  describe '#card_count' do
     it 'should answer the number of cards' do
       expect(deck.card_count).to eq 52
     end

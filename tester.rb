@@ -84,9 +84,24 @@
 # WarnHigh.new(ticker, 120)
 # ticker.run
 
-rank = 'A'
-book_cards = []
-['S','H','C','D'].each do |suit|
-  book_cards << rank + suit
+require 'pry'
+
+class Thing
+  def foo
+    @foo
+  end
+
+  def foo=(value)
+    @foo = value
+  end
+
+  def change_foo
+    foo = foo + 1
+  end
 end
-puts book_cards
+
+x = Thing.new
+binding.pry
+x.foo = 1
+x.change_foo
+puts x.foo

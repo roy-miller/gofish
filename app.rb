@@ -21,7 +21,10 @@ post '/start' do
   #user = User.find(params['user_id'].empty? ? nil : params['user_id'].to_i) || User.new(name: params['user_name'])
   user = User.find_or_create_by(name: params['user_name'])
   match = @@match_maker.match(user, @number_of_players)
-  redirect "/matches/#{match.id}/users/#{user.id}" if match
+  if match
+    match.save
+    redirect "/matches/#{match.id}/users/#{user.id}"
+  end
   @user_id = user.id
   @user_name = user.name
   slim :wait
@@ -32,6 +35,7 @@ post '/request_card' do
   requestor = match.user_for_id(params['requestor_id'].to_i)
   recipient = match.user_for_id(params['requested_id'].to_i)
   match.ask_for_cards(requestor: requestor, recipient: recipient, card_rank: params['rank'].upcase)
+  match.save
   return
 end
 

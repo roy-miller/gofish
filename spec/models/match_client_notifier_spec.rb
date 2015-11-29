@@ -5,9 +5,9 @@ describe MatchClientNotifier do
   let(:notifier) { MatchClientNotifier.new(match) }
 
   it 'pushes notification to subscribers when match updates' do
+    notifier.observe_match
     allow(notifier).to receive(:push)
-    expect(notifier).to receive(:push).with("game_play_channel_#{match.id}", 'match_change_event')
-    match.changed
     match.notify_observers
+    expect(notifier).to have_received(:push).with("game_play_channel_#{match.id}", 'match_change_event')
   end
 end

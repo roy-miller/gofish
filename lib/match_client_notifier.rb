@@ -5,6 +5,9 @@ class MatchClientNotifier
 
   def initialize(match)
     @match = match
+  end
+
+  def observe_match
     match.add_observer(self)
   end
 

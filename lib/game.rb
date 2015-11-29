@@ -4,42 +4,43 @@ require_relative './player.rb'
 require_relative './request.rb'
 
 class Game
-  attr_accessor :deck, :players, :winner
+  attr_accessor :deck, :players, :current_player, :winner
 
   def initialize(players=[])
     @deck = Deck.new
     @players = players
-    @winner
+    @winner = nil
+    @current_player = players.first
   end
 
   def add_player(player)
-    @players << player
+    self.players << player
   end
 
   def deal(cards_per_player: 5)
-    rand(1..5).times { @deck.shuffle }
-    @players.each do |player|
-      cards_per_player.times do |i|
-        card = deck.give_top_card
-        player.add_card_to_hand(card)
-      end
-    end
+    rand(1..5).times { self.deck.shuffle }
+    self.players.each { |player| 5.times { player.add_card_to_hand(deck.give_top_card) } }
+  end
+
+  def advance_play
+    current_player_index = players.find_index(self.current_player)
+    self.current_player = self.players[current_player_index + 1] || self.players.first
   end
 
   def winner
-    @players.max_by(&:book_count)
+    self.players.max_by(&:book_count)
   end
 
   def over?
-    !@deck.has_cards?
+    !self.deck.has_cards?
   end
 
   def player_number(number)
-    @players.detect { |player| player.number == number }
+    self.players.detect { |player| player.number == number }
   end
 
   def opponents_for_player(number)
-    @players.reject { |player| player.number == number }
+    self.players.reject { |player| player.number == number }
   end
 
   def request_cards(requestor, recipient, rank)
@@ -54,19 +55,19 @@ class Game
   end
 
   def draw_card(player)
-    card_drawn = @deck.give_top_card
+    card_drawn = self.deck.give_top_card
     player.add_card_to_hand(card_drawn)
     card_drawn
   end
 
   def draw_card_for_player(number)
-    player_number(number).add_card_to_hand(@deck.give_top_card)
+    player_number(number).add_card_to_hand(self.deck.give_top_card)
   end
 
   def to_hash
     hash = {}
-    hash[:players] = @players.map { |player| player.to_hash }
-    hash[:winner] = winner.to_hash
+    hash[:players] = self.players.map { |player| player.to_hash }
+    hash[:winner] = self.winner.to_hash
     hash
   end
 

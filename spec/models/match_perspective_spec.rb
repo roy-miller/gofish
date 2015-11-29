@@ -7,7 +7,7 @@ describe MatchPerspective do
   let(:match) { build(:match, id: 0 , users: [user1, user2]) }
 
   before do
-    match.current_user = user1
+    match.game.current_player = match.match_users.first.player
     match.messages = ['message1', 'message2']
   end
 

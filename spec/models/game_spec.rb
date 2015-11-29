@@ -11,15 +11,10 @@ describe Game do
   end
 
   context 'game with players' do
-    let(:game) { Game.new }
-
-    before do
-      game.players << Player.new(1)
-      game.players << Player.new(2)
-    end
+    let(:game) { build(:game_with_two_players_and_full_deck) }
 
     it 'deals requested number of cards to each player' do
-      game.deal(cards_per_player: 5)
+      game.deal
       expect(game.players.first.card_count).to eq 5
       expect(game.players.last.card_count).to eq 5
       expect(game.deck.card_count).to eq 42
@@ -66,10 +61,18 @@ describe Game do
       game.draw_card(game.players.first)
       expect(game.players.first.hand).to match_array [card_drawn]
     end
+
+    it 'advances to next player' do
+      game.current_player = game.players.first
+      game.advance_play
+      expect(game.current_player).to be game.players.last
+      game.advance_play
+      expect(game.current_player).to be game.players.first
+    end
   end
 
   context 'game with players and with books' do
-    let(:game) { build(:game, :with_two_players, :with_books) }
+    let(:game) { build(:game, :two_players, :players_have_books) }
 
     it 'declares a game winner' do
       expect(game.winner).to be game.players.last

@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe MatchMaker do
   let(:match_maker) { MatchMaker.new }
-  let(:user) { create(:user) }
-  let(:another_user) { create(:user) }
+  let(:user) { build(:user) }
+  let(:another_user) { build(:user) }
 
   it 'does not make a match when it does not have the right number of users' do
     expect(match_maker.match(user, 2)).to be_nil
@@ -29,7 +29,7 @@ describe MatchMaker do
 
   it 'makes a second match when it has the right number of users' do
     allow(match_maker).to receive(:push).and_return(nil)
-    2.times { match_maker.match(create(:user), 2) }
+    2.times { match_maker.match(build(:user), 2) }
     match_maker.match(user, 2)
     match = match_maker.match(another_user, 2)
     expect(match.users).to contain_exactly(user, another_user)
