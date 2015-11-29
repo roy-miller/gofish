@@ -6,6 +6,7 @@ describe RobotUser do
   let(:match) { build(:match, users: [user, other_user]) }
 
   before do
+    binding.pry
     user.add_match(match)
     other_user.add_match(match)
   end

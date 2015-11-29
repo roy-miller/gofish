@@ -1,7 +1,9 @@
 require_relative './match'
+require_relative './user'
 
-class RobotUser
-  attr_reader :id, :match
+class RobotUser < User
+  #attr_reader :id, :match
+  #has_and_belongs_to_many :matches
   attr_accessor :think_time
 
   def initialize(think_time = 0)
@@ -9,36 +11,36 @@ class RobotUser
   end
 
   def add_match(match)
-    @match = match
-    match.add_observer(self)
+    self.match = match
+    self.match.add_observer(self)
   end
 
-  def id
-    self.object_id
-  end
+  # def id
+  #   self.object_id
+  # end
 
-  def name
-    'robot' + id.to_s
-  end
+  # def name
+  #   'robot' + self.id.to_s
+  # end
 
   def update(*args)
-    make_request if (match.current_user == self)
+    make_request if (self.match.current_player == self)
   end
 
   def make_request
     contemplate_before {
-      match.ask_for_cards(requestor: self, recipient: pick_opponent, card_rank: pick_rank)
+      self.match.ask_for_cards(requestor: self, recipient: pick_opponent, card_rank: pick_rank)
     }
   end
 
   def player
-    match.player_for(self)
+    self.match.player_for(self)
   end
 
   protected
 
   def opponents
-    match.opponents_for(self)
+    self.match.opponents_for(self)
   end
 
   def pick_opponent
@@ -50,9 +52,9 @@ class RobotUser
   end
 
   def contemplate_before
-    if think_time > 0
+    if self.think_time > 0
       Thread.start do
-        sleep(think_time)
+        sleep(self.think_time)
         yield
       end
     else
