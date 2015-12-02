@@ -83,6 +83,7 @@ module Helpers
   end
 
   def visit_player_page
+    @match.reload
     visit "/matches/#{@match.id}/users/#{@me.id}"
   end
 
@@ -95,6 +96,11 @@ module Helpers
 
   def set_my_hand_before_asking
     @my_hand_before_asking = Array.new(@match.player_for(@me).hand)
+  end
+
+  def set_current_player(user)
+    @match.game.current_player = @match.player_for(user)
+    @match.save!
   end
 
   #see http://www.elabs.se/blog/34-capybara-and-testing-apis

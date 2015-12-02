@@ -20,8 +20,7 @@ class Spinach::Features::Robots < Spinach::FeatureSteps
 
   step 'the match tells the robot to play' do
     @first_opponent.think_time = 0
-    @match.game.current_player = @match.player_for(@first_opponent)
-    @match.save!
+    set_current_player(@first_opponent)
     @match.reload
     @match.notify_observers
   end
@@ -37,19 +36,16 @@ class Spinach::Features::Robots < Spinach::FeatureSteps
 
   step 'my first opponent asks me for cards' do
     sleep 3 # TODO how can I get rid of this?
-    @match.reload
     visit_player_page
     expect(page).to have_content("#{@first_opponent.name} asked #{@me.name}")
   end
 
   step 'the match tells me my first opponent asked second opponent for cards' do
-    @match.reload
     visit_player_page
     expect(page).to have_content("#{@first_opponent.name} asked #{@second_opponent.name}")
   end
 
   step 'play continues automatically back to me' do
-    @match.reload
     visit_player_page
     expect(page).to have_content("GAME OVER - #{@me.name} won")
   end

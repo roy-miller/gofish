@@ -6,8 +6,7 @@ module CommonSteps
   end
 
   step 'it is my turn' do
-    @match.game.current_player = @match.player_for(@me)
-    @match.save!
+    set_current_player(@me)
   end
 
   step 'it is still my turn' do
@@ -21,31 +20,25 @@ module CommonSteps
   end
 
   step "it is my first opponent's turn" do
-    #@match.reload
-    @match.game.current_player = @match.player_for(@first_opponent)
-    @match.save!
+    set_current_player(@first_opponent)
   end
 
   step "it becomes my first opponent's turn" do
     @match.reload
     expect(page.has_content?("It's #{@first_opponent.name}'s turn")).to be true
-    #expect(@match.current_player).to be @match.player_for(@first_opponent)
   end
 
   step "it is still my first opponent's turn" do
     @match.reload
     expect(page.has_content?("It's #{@first_opponent.name}'s turn")).to be true
-    #expect(@match.current_player).to be @match.player_for(@first_opponent)
   end
 
   step 'my first opponent goes fishing' do
-    @match.reload
     visit_player_page
     expect(page).to have_selector("div[data-opponent-number='0'] .opponent-card", count: @first_opponent_hand_before_asking.count + 1)
   end
 
   step 'I get the cards' do
-    @match.reload
     visit_player_page
     expected_hand = [@my_hand_before_asking, @expected_card].flatten
     expected_hand.each do |card|
@@ -54,7 +47,6 @@ module CommonSteps
   end
 
   step 'I go fishing' do
-    @match.reload
     visit_player_page
     expect(page).to have_selector('.your-card', count: @my_hand_before_asking.count + 1)
   end
@@ -66,7 +58,6 @@ module CommonSteps
   end
 
   step 'I ask my first opponent for cards he does not have' do
-    @match.reload
     visit_player_page
     click_to_ask_for_cards(@card_nobody_has)
   end
@@ -104,7 +95,6 @@ module CommonSteps
 
   step 'it becomes my second opponent\'s turn' do
     @match.reload
-    #expect(@match.current_player).to be @second_opponent
     expect(page.has_content?("It's #{@second_opponent.name}'s turn")).to be true
   end
 
@@ -119,7 +109,6 @@ module CommonSteps
   end
 
   step 'the match tells me that someone asked' do
-    @match.reload
     visit_player_page
     expect(page.has_content?(/asked.*for/)).to be true
   end
