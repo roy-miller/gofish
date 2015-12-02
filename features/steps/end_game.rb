@@ -7,6 +7,7 @@ class Spinach::Features::EndGame < Spinach::FeatureSteps
 
   step 'a deck with one card left' do
     @match.game.deck.cards = [build(:card, rank: '4', suit: 'S')]
+    @match.save!
   end
 
   step 'the match tells me the game is over' do

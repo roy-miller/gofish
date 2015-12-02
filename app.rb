@@ -16,7 +16,7 @@ end
 
 post '/start' do
   @@match_maker = MatchMaker.new if (params['reset_match_maker'] == 'true')
-  @@match_maker.start_timeout_seconds = params['match_maker_timeout'].to_i if (params['match_maker_timeout'] == 'true')
+  @@match_maker.start_timeout_seconds = params['match_maker_timeout'].to_f if (params['match_maker_timeout'])
   @number_of_players = params['number_of_opponents'].to_i + 1
   user = User.find_or_create_by(name: params['user_name'])
   match = @@match_maker.match(user, @number_of_players)

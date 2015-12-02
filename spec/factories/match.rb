@@ -1,8 +1,7 @@
 FactoryGirl.define do
   factory :match do
-    #id 123
     status MatchStatus::PENDING
-    users []
+    users { [] }
     #association :game, factory: :game, strategy: :build
     initialize_with { new({users: users}) }
 

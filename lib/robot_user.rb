@@ -20,15 +20,12 @@ class RobotUser < User
   end
 
   def update(*args)
-    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("update called on: #{self.name}\n#{active_match.current_player == self}\nthink time: #{self.think_time}\n\n") }
     make_request if (active_match.current_player == self)
   end
 
   def make_request
     contemplate_before {
-      File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("asking for cards...\n\n") }
       active_match.ask_for_cards(requestor: self, recipient: pick_opponent, card_rank: pick_rank)
-      File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("asked: #{active_match.messages}\n\n") }
     }
   end
 

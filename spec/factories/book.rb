@@ -1,5 +1,5 @@
 FactoryGirl.define do
   factory :book do
-    cards []
+    cards { [] }
   end
 end

@@ -32,11 +32,12 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'no other player joins in time' do
-    sleep 5
+    sleep 5 # TODO anything less doesn't work consistently
+    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("waited 5 seconds after request\n\n") }
   end
 
   step 'the game starts' do
-    # TODO get rid of "first" stuff
+    # TODO how can I get rid of "first" stuff when there's no match to grab?
     visit "/matches/#{Match.first.id}/users/#{Match.first.users.first.id}"
     expect(page.text).to have_text /welcome, user1/i
     expect(page.text).to have_text /click a card/i

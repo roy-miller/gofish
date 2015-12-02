@@ -3,7 +3,6 @@ module CommonSteps
 
   step 'a game with three players' do
     start_game_with_three_players
-    #@match.save!
   end
 
   step 'it is my turn' do

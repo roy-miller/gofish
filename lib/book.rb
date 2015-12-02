@@ -13,7 +13,6 @@ class Book
 
   def value
     value = has_cards? ? @cards.first.rank : NO_VALUE
-    value
   end
 
   def has_cards?
@@ -22,10 +21,6 @@ class Book
 
   def card_count
     @cards.count
-  end
-
-  def full?
-    @cards.count == 4
   end
 
   def to_hash

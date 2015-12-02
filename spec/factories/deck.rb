@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :deck do
-    cards []
+    cards { [] }
 
     trait(:full) do
       cards { %w{S H C D}.map do |suit|

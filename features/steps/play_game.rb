@@ -5,11 +5,6 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   include Helpers
   include CommonSteps
 
-  # Spinach.hooks.before_scenario do |scenario|
-  #   Match.reset
-  #   User.reset_users
-  # end
-
   step 'I ask my first opponent for cards' do
     visit_player_page
     click_to_ask_for_cards(@my_hand_before_asking.first)

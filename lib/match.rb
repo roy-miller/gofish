@@ -91,7 +91,6 @@ class Match < ActiveRecord::Base
   end
 
   def ask_for_cards(requestor:, recipient:, card_rank:)
-    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("start, messages: #{messages}\n\n") }
     return if requestor != self.current_player
     return if over?
     clear_messages
@@ -101,14 +100,12 @@ class Match < ActiveRecord::Base
       add_message("#{requestor.name} got #{response.cards_returned.count} #{card_rank}s from #{recipient.name}")
     else
       add_message("#{self.current_player.name} went fishing")
-      go_fish(self.current_player, card_rank) # TODO game should do this directly?
+      go_fish(self.current_player, card_rank)
     end
     add_message("It's #{self.current_player.name}'s turn")
     end_match if over?
-    # TODO game should do this directly?
     draw_card_for_user(self.current_player) if !over? && match_user_for(self.current_player).out_of_cards?
     save!
-    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("after, messages: #{messages}\n\n") }
     notify_observers
   end
 
