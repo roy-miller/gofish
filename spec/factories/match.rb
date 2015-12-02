@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :match do
-    id 123
+    #id 123
     status MatchStatus::PENDING
     users []
     #association :game, factory: :game, strategy: :build

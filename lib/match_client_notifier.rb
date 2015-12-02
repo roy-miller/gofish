@@ -3,11 +3,8 @@ require 'pusher'
 class MatchClientNotifier
   attr_reader :match
 
-  def initialize(match)
+  def observe_match(match)
     @match = match
-  end
-
-  def observe_match
     match.add_observer(self)
   end
 

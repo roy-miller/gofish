@@ -1,11 +1,11 @@
+require 'pusher'
 require 'timeout'
 
 class MatchMaker
   attr_accessor :start_timeout_seconds, :pending_users
 
   def initialize
-    @start_timeout_seconds = 300
-    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("MatchMaker reset\n\n") }
+    @start_timeout_seconds = 5
   end
 
   def match(user, number_of_players)
@@ -26,15 +26,11 @@ class MatchMaker
   end
 
   def start_match_with(users)
-    match = Match.new(users: users)
+    match = Match.create(users: users) # TODO need match.id (save #1)
     match.start
-    match.users.each { |user| push("wait_channel_#{user.id}", 'match_start_event', { message: "/matches/#{match.id}/users/#{user.id}" }) }
-    MatchClientNotifier.new(match)
+    MatchClientNotifier.new.observe_match(match)
+    match.save! # TODO AND have to save observers for robot match (save #2)
     match
-  end
-
-  def push(channel, event, data)
-    Pusher.trigger(channel, event, data)
   end
 
   def trigger_start_timer(number_of_players, timeout_seconds=start_timeout_seconds)
@@ -54,8 +50,16 @@ class MatchMaker
   def add_robots(number_of_players)
     a_match = nil
     until a_match do
-      robot = RobotUser.new(2.5)
+      robot = RobotUser.create
+      robot.update_column(:name, "robot#{robot.id}")
+      #robot.name = "robot#{robot.id}"
+      #robot.update(name: "robot#{robot.id}")
+      #robot.update_attributes(:name, "robot#{robot.id}")
+      #robot.write_attribute(:name, "robot#{robot.id}"); robot.save
       a_match = match(robot, number_of_players)
+      robot.observe_match(a_match)
+      a_match.save!
     end
+    a_match.users.each { |user| Pusher.trigger("wait_channel_#{user.id}", 'match_start_event', { message: "/matches/#{a_match.id}/users/#{user.id}" }) }
   end
 end

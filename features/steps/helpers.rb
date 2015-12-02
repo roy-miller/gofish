@@ -29,6 +29,7 @@ module Helpers
     deck_has_two_cards
     all_users_have_two_cards
     set_instance_variables_for_tests
+    @match.save!
   end
 
   def start_game_with_robots(humans:, robots:)
@@ -37,6 +38,7 @@ module Helpers
     deck_has_two_cards
     all_users_have_one_card
     set_instance_variables_for_tests
+    @match.save!
   end
 
   def deck_has_two_cards
@@ -70,12 +72,18 @@ module Helpers
   end
 
   def make_match_with_users(humans: 0, robots: 0)
-    users = build_list(:user, humans).concat(build_list(:robot_user, robots))
-    @match = build(:match, :users_have_no_cards, users: users)
+    human_users = create_list(:user, humans)
+    robot_users = create_list(:robot_user, robots)
+    users = human_users.concat(robot_users)
+    @match = create(:match, :users_have_no_cards, users: users)
+    robot_users.each do |robot|
+      @match.add_observer(robot)
+    end
+    @match
   end
 
   def visit_player_page
-    visit "/matches/#{@match.id}/users/#{Match.matches.first.users.first.id}"
+    visit "/matches/#{@match.id}/users/#{@me.id}"
   end
 
   def click_to_ask_for_cards(card)

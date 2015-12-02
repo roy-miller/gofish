@@ -1,5 +1,4 @@
 require 'sinatra/activerecord'
-require 'observer'
 require_relative './request.rb'
 require_relative './user.rb'
 require_relative './player.rb'
@@ -13,9 +12,7 @@ class MatchStatus
 end
 
 class Match < ActiveRecord::Base
-  #include Observable
-
-  has_and_belongs_to_many :users
+  has_and_belongs_to_many :users, -> { order('matches_users.id ASC') }
   has_one :winner, class_name: 'User', foreign_key: 'winner_id'
   serialize :game
   serialize :observers
@@ -30,8 +27,8 @@ class Match < ActiveRecord::Base
     self.observers ||= []
   end
 
-  def notify_observers
-    self.observers.each { |observer| observer.update }
+  def notify_observers(*args)
+    self.observers.each { |observer| observer.update(args) }
   end
 
   def add_observer(observer)
@@ -94,6 +91,7 @@ class Match < ActiveRecord::Base
   end
 
   def ask_for_cards(requestor:, recipient:, card_rank:)
+    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("start, messages: #{messages}\n\n") }
     return if requestor != self.current_player
     return if over?
     clear_messages
@@ -103,13 +101,15 @@ class Match < ActiveRecord::Base
       add_message("#{requestor.name} got #{response.cards_returned.count} #{card_rank}s from #{recipient.name}")
     else
       add_message("#{self.current_player.name} went fishing")
-      go_fish(self.current_player, card_rank) # TODO game should do this directly
+      go_fish(self.current_player, card_rank) # TODO game should do this directly?
     end
     add_message("It's #{self.current_player.name}'s turn")
     end_match if over?
-    # TODO game should do this directly
+    # TODO game should do this directly?
     draw_card_for_user(self.current_player) if !over? && match_user_for(self.current_player).out_of_cards?
-    #changed; notify_observers
+    save!
+    File.open("/Users/roymiller/roylog.txt", 'a') {|f| f.write("after, messages: #{messages}\n\n") }
+    notify_observers
   end
 
   def current_player

@@ -5,11 +5,6 @@ require 'database_cleaner'
 class Spinach::Features::StartGame < Spinach::FeatureSteps
   include Helpers
 
-  Spinach.hooks.before_scenario do |scenario|
-    Match.reset
-    User.reset_users
-  end
-
   step 'I choose my game options and play' do
     ask_to_play
   end
@@ -41,7 +36,8 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'the game starts' do
-    visit "/matches/0/users/#{Match.matches.first.match_users.first.id}"
+    # TODO get rid of "first" stuff
+    visit "/matches/#{Match.first.id}/users/#{Match.first.users.first.id}"
     expect(page.text).to have_text /welcome, user1/i
     expect(page.text).to have_text /click a card/i
   end

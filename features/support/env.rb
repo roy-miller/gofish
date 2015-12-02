@@ -7,6 +7,10 @@ require 'spinach/capybara'
 require 'capybara/poltergeist'
 require 'selenium-webdriver'
 require 'pry'
+require 'sinatra/activerecord'
+
+# disables ActiveRecord logging (set to 0 or comment to turn it back on)
+ActiveRecord::Base.logger.level = 1
 
 # disables rack logging
 module Rack
@@ -37,13 +41,12 @@ Spinach::FeatureSteps.include RSpec::Matchers
 Spinach::FeatureSteps.include FactoryGirl::Syntax::Methods
 
 Spinach.hooks.before_run do
-  FactoryGirl.reload
+  FactoryGirl.reload # TODO why?
   DatabaseCleaner.clean_with :truncation
-  DatabaseCleaner.strategy = :transaction
+  DatabaseCleaner.strategy = :deletion
 end
 
 Spinach.hooks.before_scenario do |scenario|
-  Match.reset
   DatabaseCleaner.start
 end
 

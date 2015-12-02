@@ -68,7 +68,7 @@ PlayerView.prototype.refresh = function() {
   });
 }
 
-// don't need this anymore
+// don't need this anymore?
 PlayerView.prototype.updateMatchIfStarted = function (matchPerspective) {
   if (matchPerspective.status == 'started') { this.updateMatch(matchPerspective); }
 }

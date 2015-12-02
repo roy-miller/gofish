@@ -5,10 +5,10 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   include Helpers
   include CommonSteps
 
-  Spinach.hooks.before_scenario do |scenario|
-    Match.reset
-    User.reset_users
-  end
+  # Spinach.hooks.before_scenario do |scenario|
+  #   Match.reset
+  #   User.reset_users
+  # end
 
   step 'I ask my first opponent for cards' do
     visit_player_page
@@ -24,6 +24,7 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
     my_card = give_card(user: @me, rank: 'A', suit: 'S')
     @expected_card = give_card(user: @first_opponent, rank: 'A', suit: 'C')
     set_my_hand_before_asking
+    @match.save!
     visit_player_page
     click_to_ask_for_cards(my_card)
   end
@@ -31,6 +32,7 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   step "I have the rank I'll draw" do
     give_card(user: @me, rank: @fish_card.rank)
     set_my_hand_before_asking
+    @match.save!
   end
 
   step "I don't have the rank I'll draw" do

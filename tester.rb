@@ -101,7 +101,6 @@ class Thing
 end
 
 x = Thing.new
-binding.pry
 x.foo = 1
 x.change_foo
 puts x.foo

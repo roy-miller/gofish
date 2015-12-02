@@ -6,16 +6,22 @@ FactoryGirl.define do
 
     factory :robot_user, class: RobotUser, parent: :user do
       #sequence(:name) { |n| "robot#{n}" }
-      name 'robot'
+      #name 'robot'
       think_time 0
-    end
 
-    trait :thinker do
-      think_time 2.5
-    end
+      trait :thinker do
+        think_time 2.5
+      end
 
-    trait :slow_thinker do
-      think_time 10
+      trait :slow_thinker do
+        think_time 10
+      end
+
+      after(:create) do |robot, evaluator|
+        robot.update_column(:name, "robot#{robot.id}")
+        robot.reload
+        robot.save
+      end
     end
   end
 end

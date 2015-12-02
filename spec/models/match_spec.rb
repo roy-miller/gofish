@@ -4,26 +4,21 @@ describe Match do
   let(:users) { create_list(:user, 2) }
 
   context 'with database' do
-    let!(:match) { create(:match, users: users) }
+    let!(:match) { build(:match, users: users) }
 
     it 'saves to database successfully' do
-      expect(Match.all.count).to eq 1
-      expect(Match.first.id).to eq match.id
-      expect(match.pending?).to be true
-      expect(match.game.players.count).to eq 2
-      expect(match.users.count).to eq 2
-      expect(match.match_users.count).to eq 2
-      expect(match.match_users.map(&:user)).to match_array users
-      expect(match.messages).to be_empty
-      expect(match.over?).to be false
+      match.messages << "should save"
+      match.save!
+      stored_match = Match.find(match.id)
+      expect(stored_match.id).to eq match.id
+      expect(stored_match.pending?).to be true
+      expect(stored_match.game.players.count).to eq 2
+      expect(stored_match.users.count).to eq 2
+      expect(stored_match.match_users.count).to eq 2
+      expect(stored_match.match_users.map(&:user)).to match_array users
+      expect(stored_match.messages).to include("should save")
+      expect(stored_match.over?).to be false
     end
-
-    it 'creates a game with correct number of players when match is new' do
-      created_game = Match.first.game
-      expect(created_game.players.count).to be 2
-    end
-
-    xit 'restores from database successfully'
   end
 
   context 'without database' do

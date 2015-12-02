@@ -5,11 +5,6 @@ class Spinach::Features::EndGame < Spinach::FeatureSteps
   include Helpers
   include CommonSteps
 
-  Spinach.hooks.before_scenario do |scenario|
-    Match.reset
-    User.reset_users
-  end
-
   step 'a deck with one card left' do
     @match.game.deck.cards = [build(:card, rank: '4', suit: 'S')]
   end
