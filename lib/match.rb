@@ -17,7 +17,7 @@ class Match < ActiveRecord::Base
   serialize :game
   serialize :observers
   after_initialize :set_up_match # unless persisted? or if: :new_record?
-  after_save :notify_observers #unless :skip_callbacks_for_test
+  after_save :notify_observers, unless: :skip_callbacks_for_test
 
   attr_accessor :match_users
   attr_writer :skip_callbacks_for_test
