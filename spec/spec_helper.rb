@@ -21,12 +21,6 @@ RSpec.configure do |config|
     DatabaseCleaner.strategy = :deletion
     DatabaseCleaner.clean_with(:truncation)
     DatabaseCleaner.start
-    # config.around(:each) do |example|
-    #   DatabaseCleaner.cleaning do
-    #     puts "CLEANING"
-    #     example.run
-    #   end
-    # end
   end
   config.after(:all) do |example|
     DatabaseCleaner.clean

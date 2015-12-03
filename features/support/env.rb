@@ -1,5 +1,7 @@
 require './app'
 require 'rspec'
+#require 'rspec/expectations'
+require 'rspec/mocks'
 require 'capybara'
 require 'factory_girl'
 require 'database_cleaner'

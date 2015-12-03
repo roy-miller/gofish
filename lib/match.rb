@@ -12,13 +12,15 @@ class MatchStatus
 end
 
 class Match < ActiveRecord::Base
-  has_and_belongs_to_many :users, -> { order('matches_users.id ASC') }
+  has_and_belongs_to_many :users, -> { order(' matches_users.id ASC') }
   has_one :winner, class_name: 'User', foreign_key: 'winner_id'
   serialize :game
   serialize :observers
   after_initialize :set_up_match # unless persisted? or if: :new_record?
+  after_save :notify_observers #unless :skip_callbacks_for_test
 
   attr_accessor :match_users
+  attr_writer :skip_callbacks_for_test
 
   def set_up_match
     self.game ||= make_game
@@ -27,8 +29,12 @@ class Match < ActiveRecord::Base
     self.observers ||= []
   end
 
-  def notify_observers(*args)
-    self.observers.each { |observer| observer.update(args) }
+  def skip_callbacks_for_test
+    @skip_callbacks_for_test ||= false
+  end
+
+  def notify_observers
+    self.observers.each { |observer| observer.update(self) }
   end
 
   def add_observer(observer)
@@ -105,8 +111,8 @@ class Match < ActiveRecord::Base
     add_message("It's #{self.current_player.name}'s turn")
     end_match if over?
     draw_card_for_user(self.current_player) if !over? && match_user_for(self.current_player).out_of_cards?
-    save!
-    notify_observers
+    #save!
+    #notify_observers
   end
 
   def current_player

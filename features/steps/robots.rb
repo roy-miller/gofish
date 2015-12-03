@@ -19,10 +19,20 @@ class Spinach::Features::Robots < Spinach::FeatureSteps
   end
 
   step 'the match tells the robot to play' do
-    @first_opponent.think_time = 0
+    @match.skip_callbacks_for_test = true
     set_current_player(@first_opponent)
-    @match.reload
     @match.notify_observers
+  end
+
+  step 'my first opponent asks me for cards' do
+    sleep 2 # TODO how can I get rid of this?
+    visit_player_page
+    expect(page).to have_content("#{@first_opponent.name} asked #{@me.name}")
+  end
+
+  step "it is my first robot opponent's turn" do
+    @match.skip_callbacks_for_test = true
+    set_current_player(@first_opponent)
   end
 
   step 'I ask my first opponent for cards he has' do
@@ -32,12 +42,6 @@ class Spinach::Features::Robots < Spinach::FeatureSteps
     @match.save!
     visit_player_page
     click_to_ask_for_cards(@expected_card)
-  end
-
-  step 'my first opponent asks me for cards' do
-    sleep 3 # TODO how can I get rid of this?
-    visit_player_page
-    expect(page).to have_content("#{@first_opponent.name} asked #{@me.name}")
   end
 
   step 'the match tells me my first opponent asked second opponent for cards' do

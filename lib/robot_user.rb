@@ -12,7 +12,8 @@ class RobotUser < User
   end
 
   def set_name
-    self.name = "robot#{self.id}"
+    #self.name = "robot#{self.id}"
+    update_attribute(:name, "robot#{self.id}")
   end
 
   def observe_match(match)
@@ -20,12 +21,14 @@ class RobotUser < User
   end
 
   def update(*args)
-    make_request if (active_match.current_player == self)
+    match = args.first
+    make_request(match) if (match.current_player == self)
   end
 
-  def make_request
+  def make_request(match)
     contemplate_before {
-      active_match.ask_for_cards(requestor: self, recipient: pick_opponent, card_rank: pick_rank)
+      match.ask_for_cards(requestor: self, recipient: pick_opponent, card_rank: pick_rank)
+      match.save!
     }
   end
 

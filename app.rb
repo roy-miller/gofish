@@ -37,7 +37,7 @@ post '/request_card' do
   requestor = match.user_for_id(params['requestor_id'].to_i)
   recipient = match.user_for_id(params['requested_id'].to_i)
   match.ask_for_cards(requestor: requestor, recipient: recipient, card_rank: params['rank'].upcase)
-  #match.save!
+  match.save!
   #match.notify_observers
   return
 end

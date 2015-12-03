@@ -1,6 +1,8 @@
 FactoryGirl.define do
   factory :player do
     sequence(:number) { |n| n }
+    hand { [] }
+    books { [] }
 
     transient { cards [] }
     transient { book_values [] }

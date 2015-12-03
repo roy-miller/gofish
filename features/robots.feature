@@ -30,6 +30,6 @@ Feature: Robots
   @javascript
   Scenario: Robot opponent asks another robot opponent for cards second one has
     Given a game with one real player and two robots
-    And it is my first opponent's turn
+    And it is my first robot opponent's turn
     When my first opponent asks my second opponent for cards he has
     Then the match tells me my first opponent asked second opponent for cards

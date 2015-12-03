@@ -51,11 +51,7 @@ class MatchMaker
     a_match = nil
     until a_match do
       robot = RobotUser.create
-      robot.update_column(:name, "robot#{robot.id}")
-      #robot.name = "robot#{robot.id}"
-      #robot.update(name: "robot#{robot.id}")
-      #robot.update_attributes(:name, "robot#{robot.id}")
-      #robot.write_attribute(:name, "robot#{robot.id}"); robot.save
+      robot.save!
       a_match = match(robot, number_of_players)
       robot.observe_match(a_match)
       a_match.save!
